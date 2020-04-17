@@ -8,7 +8,7 @@ from werkzeug.urls import url_parse
 import urllib
 
 
-bp = Blueprint('auth', __name__)
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @bp.route('/login', methods=['GET'])

@@ -40,10 +40,12 @@ def create_app(config_class=None):
     csrf.init_app(app)
 
     from app.controllers.home import bp as home_bp
-    app.register_blueprint(home_bp, url_prefix='/')
+    app.register_blueprint(home_bp)
 
     from app.controllers.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_bp)
+
+    from app.lib.base.provider import Provider
 
     @app.after_request
     def after_request(response):
@@ -53,6 +55,14 @@ def create_app(config_class=None):
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Referrer-Policy'] = 'no-referrer'
         return response
+
+    @app.context_processor
+    def processor():
+        def setting_get(name, default=None):
+            provider = Provider()
+            return provider.settings().get(name, default)
+
+        return dict(setting_get=setting_get)
 
     return app
 
