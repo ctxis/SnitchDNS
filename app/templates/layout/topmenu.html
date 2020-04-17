@@ -12,7 +12,7 @@
             <ul class="navbar-nav mr-auto">
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('home.index') }}">Home</a>
+                    <a class="nav-link" href="{{ url_for('dns.index') }}">DNS Zones</a>
                 </li>
                 {% endif %}
             </ul>

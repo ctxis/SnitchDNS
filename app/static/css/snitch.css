@@ -1,0 +1,10 @@
+/* https://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-input-s-spin-box */
+.hide-spin-buttons::-webkit-inner-spin-button,
+.hide-spin-buttons::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+.hide-spin-buttons {
+  -moz-appearance:textfield !important;
+}

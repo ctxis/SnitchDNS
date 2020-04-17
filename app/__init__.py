@@ -1,4 +1,5 @@
 import os
+import click
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -45,6 +46,9 @@ def create_app(config_class=None):
     from app.controllers.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 
+    from app.controllers.dns import bp as dns_bp
+    app.register_blueprint(dns_bp)
+
     from app.lib.base.provider import Provider
 
     @app.after_request
@@ -64,6 +68,14 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get)
 
+    @app.cli.command('daemon', help='SnitchDNS Daemon')
+    @click.option('--bind-ip', required=True, help='IP Address to bind daemon')
+    @click.option('--bind-port', required=True, type=int, help='Port to bind daemon')
+    def daemon(bind_ip, bind_port):
+        from app.lib.daemon.cli import DNSDaemonCLI
+        cli = DNSDaemonCLI()
+        return cli.daemon(bind_ip, bind_port)
+
     return app
 
-from app.lib.models import user
+from app.lib.models import user, config, dns
