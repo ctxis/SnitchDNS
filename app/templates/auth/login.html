@@ -1,0 +1,31 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+<div class="row mt-5">
+    <div class="col"></div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">Login</div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('auth.login_process') }}" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <div class="form-group">
+                        <input name="username" type="text" class="form-control form-control-sm" placeholder="Username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <input name="password" type="password" class="form-control form-control-sm" placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block btn-sm">login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col"></div>
+</div>
+
+{% endblock %}

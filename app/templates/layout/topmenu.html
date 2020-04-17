@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-1">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home.index') }}">
+            <span><i class="fas fa-theater-masks text-danger"></i></span>
+            SnitchDNS
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-menu" aria-controls="top-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-collapse collapse" id="top-menu">
+            <ul class="navbar-nav mr-auto">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home.index') }}">Home</a>
+                </li>
+                {% endif %}
+            </ul>
+
+            {% if current_user.is_authenticated %}
+            <div>
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout [ {{ current_user.full_name }} ]</a>
+            </div>
+            {% else %}
+            <div>
+                <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
