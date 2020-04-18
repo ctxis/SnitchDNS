@@ -1,6 +1,7 @@
 import os
 import click
-from flask import Flask
+import datetime
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
@@ -51,6 +52,12 @@ def create_app(config_class=None):
 
     from app.lib.base.provider import Provider
 
+    @app.before_request
+    def before_request():
+        session.permanent = True
+        app.permanent_session_lifetime = datetime.timedelta(minutes=20)
+        session.modified = True
+
     @app.after_request
     def after_request(response):
         response.headers['Server'] = 'Windows 95'
@@ -58,6 +65,9 @@ def create_app(config_class=None):
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Referrer-Policy'] = 'no-referrer'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
         return response
 
     @app.context_processor

@@ -1,4 +1,6 @@
-from dnslib import QTYPE, CLASS
+import ipaddress
+from app.lib.models.dns import DNSZoneModel
+from app.lib.dns.instance.zone import DNSZone
 
 
 class DNSManager:
@@ -20,3 +22,59 @@ class DNSManager:
         items = list(data.values())
         items.sort()
         return items
+
+    def is_valid_ip_address(self, ip):
+        try:
+            obj = ipaddress.ip_address(ip)
+        except ValueError:
+            return False
+
+        return True
+
+    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None):
+        query = DNSZoneModel.query
+
+        if id is not None:
+            query = query.filter(DNSZoneModel.id == id)
+
+        if domain is not None:
+            query = query.filter(DNSZoneModel.domain == domain)
+
+        if ttl is not None:
+            query = query.filter(DNSZoneModel.ttl == ttl)
+
+        if rclass is not None:
+            query = query.filter(DNSZoneModel.rclass == rclass)
+
+        if type is not None:
+            query = query.filter(DNSZoneModel.type == type)
+
+        if address is not None:
+            query = query.filter(DNSZoneModel.address == address)
+
+        return query.first()
+
+    def get_zone(self, dns_zone_id):
+        item = self.__get(id=dns_zone_id)
+        if not item:
+            return False
+
+        return DNSZone(item)
+
+    def create_zone(self):
+        item = DNSZone(DNSZoneModel())
+        item.save()
+        return item
+
+    def save(self, zone, domain, ttl, rclass, type, address):
+        zone.domain = self.__fix_domain(domain)
+        zone.ttl = ttl
+        zone.rclass = rclass
+        zone.type = type
+        zone.address = address
+        zone.save()
+
+        return True
+
+    def __fix_domain(self, domain):
+        return domain.rstrip('.') + '.'

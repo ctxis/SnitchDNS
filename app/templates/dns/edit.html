@@ -12,12 +12,12 @@
 
                     <div class="form-group">
                         <label for="domain">Domain</label>
-                        <input type="text" name="domain" id="domain" class="form-control form-control-sm text-right" value="" placeholder="any.domain.you.want.com." required>
+                        <input type="text" name="domain" id="domain" class="form-control form-control-sm text-right" value="{{ zone.domain if is_edit }}" placeholder="any.domain.you.want.com." required>
                     </div>
 
                     <div class="form-group">
                         <label for="ttl">TTL</label>
-                        <input type="number" name="ttl" id="ttl" class="form-control form-control-sm text-right hide-spin-buttons" value="" placeholder="60" required>
+                        <input type="number" name="ttl" id="ttl" class="form-control form-control-sm text-right hide-spin-buttons" value="{{ zone.ttl if is_edit }}" placeholder="60" required>
                     </div>
 
                     <div class="form-group">
@@ -25,7 +25,7 @@
                         <select name="class" id="class" class="form-control form-control-sm text-right" required>
                             <option value=""></option>
                             {% for dns_class in dns_classes %}
-                            <option value="{{ dns_class }}">{{ dns_class }}</option>
+                            <option value="{{ dns_class }}" {{ 'selected' if is_edit and zone.rclass == dns_class }}>{{ dns_class }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -35,14 +35,14 @@
                         <select name="type" id="type" class="form-control form-control-sm text-right" required>
                             <option value=""></option>
                             {% for dns_type in dns_types %}
-                            <option value="{{ dns_type }}">{{ dns_type }}</option>
+                            <option value="{{ dns_type }}" {{ 'selected' if is_edit and zone.type == dns_type }}>{{ dns_type }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="address">Address</label>
-                        <input type="text" name="address" id="address" class="form-control form-control-sm text-right" value="" placeholder="192.168.0.1" required>
+                        <input type="text" name="address" id="address" class="form-control form-control-sm text-right" value="{{ zone.address if is_edit }}" placeholder="192.168.0.1" required>
                     </div>
 
                     <div class="form-group">
