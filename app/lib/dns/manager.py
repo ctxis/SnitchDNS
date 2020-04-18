@@ -1,6 +1,6 @@
 import ipaddress
 from app.lib.models.dns import DNSZoneModel
-from app.lib.dns.instance.zone import DNSZone
+from app.lib.dns.instances.zone import DNSZone
 
 
 class DNSManager:
