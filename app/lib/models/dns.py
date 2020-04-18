@@ -9,6 +9,7 @@ class DNSZoneModel(db.Model):
     rclass = db.Column(db.String(32), nullable=True, default='', index=True)
     type = db.Column(db.String(32), nullable=True, default='', index=True)
     address = db.Column(db.String(255), nullable=True, default='', index=True)
+    active = db.Column(db.Boolean, default=True, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)

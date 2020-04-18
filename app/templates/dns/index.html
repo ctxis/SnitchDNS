@@ -18,6 +18,7 @@
                 <th class="text-right">Class</th>
                 <th class="text-right">Type</th>
                 <th class="text-right">Address</th>
+                <th class="text-center">Active</th>
                 <th class="text-center"></th>
             </tr>
             </thead>
@@ -32,6 +33,7 @@
                 <td class="text-right">{{ zone.rclass }}</td>
                 <td class="text-right">{{ zone.type }}</td>
                 <td class="text-right">{{ zone.address }}</td>
+                <td class="text-center">{{ 'Yes' if zone.active else 'No' }}</td>
                 <td class="text-center">
                     <a href="{{ url_for('dns.edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
                 </td>

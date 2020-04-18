@@ -45,6 +45,18 @@
                         <input type="text" name="address" id="address" class="form-control form-control-sm text-right" value="{{ zone.address if is_edit }}" placeholder="192.168.0.1" required>
                     </div>
 
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="active">Active</label>
+                        </div>
+                        <div class="col text-right">
+                            <div class="custom-control custom-switch">
+                                <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if zone.active }}>
+                                <label class="custom-control-label" for="active"></label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block btn-sm">save</button>
                     </div>

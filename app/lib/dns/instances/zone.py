@@ -59,6 +59,14 @@ class DNSZone:
         self.item.address = value
 
     @property
+    def active(self):
+        return self.item.active
+
+    @active.setter
+    def active(self, value):
+        self.item.active = value
+
+    @property
     def created_at(self):
         # This is a required property for consistency.
         return self.item.created_at

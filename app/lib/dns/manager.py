@@ -31,7 +31,7 @@ class DNSManager:
 
         return True
 
-    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None):
+    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None, active=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -52,6 +52,9 @@ class DNSManager:
         if address is not None:
             query = query.filter(DNSZoneModel.address == address)
 
+        if active is not None:
+            query = query.filter(DNSZoneModel.active == active)
+
         return query.first()
 
     def get_zone(self, dns_zone_id):
@@ -66,12 +69,13 @@ class DNSManager:
         item.save()
         return item
 
-    def save(self, zone, domain, ttl, rclass, type, address):
+    def save(self, zone, domain, ttl, rclass, type, address, active):
         zone.domain = self.__fix_domain(domain)
         zone.ttl = ttl
         zone.rclass = rclass
         zone.type = type
         zone.address = address
+        zone.active = active
         zone.save()
 
         return True
@@ -89,7 +93,7 @@ class DNSManager:
         return zones
 
     def find_zone(self, domain=None, type=None, rclass=None):
-        item = self.__get(domain=domain, type=type, rclass=rclass)
+        item = self.__get(domain=domain, type=type, rclass=rclass, active=True)
         if not item:
             return False
 
