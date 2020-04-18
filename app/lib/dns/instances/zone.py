@@ -67,3 +67,15 @@ class DNSZone:
     def updated_at(self):
         # This is a required property for consistency.
         return self.item.updated_at
+
+    def build_zone(self, domain=None):
+        domain = self.domain if domain is None else domain
+        zone_items = [
+            str(domain),
+            str(self.ttl),
+            str(self.rclass),
+            str(self.type),
+            str(self.address)
+        ]
+
+        return "\t".join(zone_items)

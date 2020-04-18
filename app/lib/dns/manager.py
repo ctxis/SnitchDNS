@@ -87,3 +87,10 @@ class DNSManager:
             zones.append(DNSZone(result))
 
         return zones
+
+    def find_zone(self, domain=None, type=None, rclass=None):
+        item = self.__get(domain=domain, type=type, rclass=rclass)
+        if not item:
+            return False
+
+        return DNSZone(item)
