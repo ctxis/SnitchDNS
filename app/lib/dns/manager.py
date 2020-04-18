@@ -78,3 +78,12 @@ class DNSManager:
 
     def __fix_domain(self, domain):
         return domain.rstrip('.') + '.'
+
+    def get_all_zones(self):
+        results = DNSZoneModel.query.order_by(DNSZoneModel.domain).all()
+
+        zones = []
+        for result in results:
+            zones.append(DNSZone(result))
+
+        return zones

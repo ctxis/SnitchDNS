@@ -17,12 +17,26 @@
                 <th class="text-right">TTL</th>
                 <th class="text-right">Class</th>
                 <th class="text-right">Type</th>
-                <th>Address</th>
-                <th></th>
+                <th class="text-right">Address</th>
+                <th class="text-center"></th>
             </tr>
             </thead>
             <tbody>
-
+            {% set counter = 0 %}
+            {% for zone in zones %}
+            {% set counter = counter + 1 %}
+            <tr>
+                <td>{{ counter }}</td>
+                <td>{{ zone.domain }}</td>
+                <td class="text-right">{{ zone.ttl }}</td>
+                <td class="text-right">{{ zone.rclass }}</td>
+                <td class="text-right">{{ zone.type }}</td>
+                <td class="text-right">{{ zone.address }}</td>
+                <td class="text-center">
+                    <a href="{{ url_for('dns.edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

@@ -9,7 +9,13 @@ bp = Blueprint('dns', __name__, url_prefix='/dns')
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    return render_template('dns/index.html')
+    provider = Provider()
+    dns = provider.dns()
+
+    return render_template(
+        'dns/index.html',
+        zones=dns.get_all_zones()
+    )
 
 
 @bp.route('/<int:dns_zone_id>/edit', methods=['GET'])
