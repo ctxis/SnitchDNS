@@ -2,6 +2,7 @@ import ipaddress
 from app.lib.models.dns import DNSZoneModel, DNSQueryLogModel
 from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.query_log import DNSQueryLog
+from app import db
 
 
 class DNSManager:
@@ -115,3 +116,23 @@ class DNSManager:
             return False
 
         return DNSZone(item)
+
+    def get_all_logs(self):
+        results = DNSQueryLogModel.query.order_by(DNSQueryLogModel.id).all()
+
+        logs = []
+        for result in results:
+            logs.append(DNSQueryLog(result))
+
+        return logs
+
+    def get_log_filters(self):
+        classes = db.session.query(DNSQueryLogModel.rclass).group_by(DNSQueryLogModel.rclass).order_by(DNSQueryLogModel.rclass)
+        types = db.session.query(DNSQueryLogModel.type).group_by(DNSQueryLogModel.type).order_by(DNSQueryLogModel.type)
+        source_ips = db.session.query(DNSQueryLogModel.source_ip).group_by(DNSQueryLogModel.source_ip).order_by(DNSQueryLogModel.source_ip)
+
+        return {
+            'classes': classes,
+            'types': types,
+            'source_ips': source_ips
+        }

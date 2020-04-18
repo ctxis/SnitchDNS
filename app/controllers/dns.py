@@ -80,3 +80,19 @@ def edit_save(dns_zone_id):
 
     flash('Zone saved', 'success')
     return redirect(url_for('dns.index'))
+
+
+@bp.route('/logs', methods=['GET'])
+@login_required
+def logs():
+    provider = Provider()
+    dns = provider.dns()
+
+    logs = dns.get_all_logs()
+    filters = dns.get_log_filters()
+
+    return render_template(
+        'dns/logs.html',
+        logs=logs,
+        filters=filters
+    )

@@ -1,0 +1,106 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col">
+        <div class="filters mb-3">
+            <form action="{{ url_for('dns.logs') }}" method="get">
+                <div class="row">
+                    <div class="col">
+                        <h5>Filters</h5>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group row">
+                            <div class="col-2">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="class">Class</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control form-control-sm text-right" name="class" id="class">
+                                            <option value=""></option>
+                                            {% for class in filters.classes %}
+                                            <option value="{{ class.rclass }}">{{ class.rclass }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="type">Type</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control form-control-sm text-right" name="type" id="type">
+                                            <option value=""></option>
+                                            {% for type in filters.types %}
+                                            <option value="{{ type.type }}">{{ type.type }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="source_ip">Source IP</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control form-control-sm text-right" name="source_ip" id="source_ip">
+                                            <option value=""></option>
+                                            {% for source_ip in filters.source_ips %}
+                                            <option value="{{ source_ip.source_ip }}">{{ source_ip.source_ip }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col"></div>
+
+                            <div class="col-1">
+                                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Domain</th>
+                <th class="text-right">Class</th>
+                <th class="text-right">Type</th>
+                <th class="text-right">Source IP</th>
+                <th class="text-right">Resolved To</th>
+                <th class="text-center">Forwarded</th>
+                <th class="text-center">Match</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.domain }}</td>
+                <td class="text-right">{{ log.rclass }}</td>
+                <td class="text-right">{{ log.type }}</td>
+                <td class="text-right">{{ log.source_ip }}</td>
+                <td class="text-right">{{ log.resolved_to }}</td>
+                <td class="text-center">{{ 'Yes' if log.forwarded else 'No' }}</td>
+                <td class="text-center">{{ 'Yes' if log.found else 'No' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

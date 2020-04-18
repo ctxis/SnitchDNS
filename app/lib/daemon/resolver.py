@@ -105,4 +105,3 @@ class DatabaseResolver(BaseResolver):
         # Split elements.
         name, rtype, rr = new_zone[0]
         return rr
-
