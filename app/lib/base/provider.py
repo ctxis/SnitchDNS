@@ -11,8 +11,4 @@ class Provider():
         return SettingsManager()
 
     def dns(self):
-        settings = self.settings()
-        return DNSManager(
-            settings.get_list('forward_dns_address'),
-            settings.get('forward_dns_enabled', 0)
-        )
+        return DNSManager(self.settings())

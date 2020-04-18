@@ -4,17 +4,16 @@ from app.lib.dns.instances.zone import DNSZone
 
 
 class DNSManager:
-    def __init__(self, forwarders, forwarding_enabled):
-        self.__forwarders = forwarders
-        self.__forwarding_enabled = forwarding_enabled
+    def __init__(self, settings):
+        self.settings = settings
 
     @property
     def forwarders(self):
-        return self.__forwarders
+        return self.settings.get_list('forward_dns_address')
 
     @property
     def is_forwarding_enabled(self):
-        return True if self.__forwarding_enabled else False
+        return True if int(self.settings.get('forward_dns_enabled', 0)) == 1 else False
 
     def get_classes(self):
         # These are taken from dnslib -> /dnslib/dns.py
