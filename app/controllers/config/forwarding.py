@@ -1,20 +1,18 @@
-from flask import Blueprint
+from . import bp
+from flask import request, render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
-from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
 
-bp = Blueprint('config', __name__, url_prefix='/config')
 
-
-@bp.route('/', methods=['GET'])
+@bp.route('/forwarding', methods=['GET'])
 @login_required
-def index():
-    return render_template('config/index.html')
+def forwarding():
+    return render_template('config/forwarding.html')
 
 
-@bp.route('/save', methods=['POST'])
+@bp.route('/forwarding/save', methods=['POST'])
 @login_required
-def save():
+def forwarding_save():
     provider = Provider()
     settings = provider.settings()
     dns = provider.dns()
@@ -33,4 +31,4 @@ def save():
     settings.save('forward_dns_enabled', forward_dns_enabled)
 
     flash('Settings saved', 'success')
-    return redirect(url_for('config.index'))
+    return redirect(url_for('config.forwarding'))

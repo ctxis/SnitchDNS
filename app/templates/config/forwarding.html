@@ -1,0 +1,41 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'forwarding' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-5">
+        <form action="{{ url_for('config.forwarding_save') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="forward_dns_enabled">Enable DNS Forwarding</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="forward_dns_enabled" type="checkbox" class="custom-control-input" id="forward_dns_enabled" value="1" {{ 'checked' if setting_get('forward_dns_enabled', '0') == '1' }}>
+                        <label class="custom-control-label" for="forward_dns_enabled"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="forward_dns_address">Forward DNS Servers</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm text-right" name="forward_dns_address" id="forward_dns_address" value="{{ setting_get('forward_dns_address', '') }}" placeholder="8.8.8.8, 8.8.4.4">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+            </div>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
