@@ -1,6 +1,7 @@
-from dnslib.server import BaseResolver, DNSLogger, DNSServer
+from dnslib.server import BaseResolver, DNSRecord
 from dnslib import RR, QTYPE, RCODE, CLASS
 from app import create_app
+import socket
 
 
 class DatabaseResolver(BaseResolver):
@@ -21,9 +22,31 @@ class DatabaseResolver(BaseResolver):
             zone = self.__find_zone(request.q)
             if zone:
                 reply.add_answer(zone)
+            elif self.dns_manager.is_forwarding_enabled:
+                # Forward query.
+                reply = self.__forward(request, handler.protocol, self.dns_manager.forwarders)
 
         if not reply.rr:
             reply.header.rcode = RCODE.NXDOMAIN
+        return reply
+
+    def __forward(self, request, protocol, forwarders):
+        reply = request.reply()
+
+        if len(forwarders) == 0:
+            # No forwarders have been configured.
+            return reply
+
+        is_tcp = (protocol == 'tcp')
+
+        for forwarder in forwarders:
+            try:
+                proxy = request.send(forwarder, 53, timeout=1, tcp=is_tcp)
+                reply = DNSRecord.parse(proxy)
+            except socket.timeout:
+                # Error - move to the next DNS Forwarder.
+                pass
+
         return reply
 
     def __find_zone(self, query):

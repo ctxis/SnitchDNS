@@ -10,10 +10,8 @@ class SnitchDaemon:
         self.__port = port
 
     def start(self):
-        dns_manager = Provider().dns()
-
         dns_logger = DNSLogger()
-        dns_resolver = DatabaseResolver(dns_manager)
+        dns_resolver = DatabaseResolver(Provider().dns())
         dns_server = DNSServer(dns_resolver, address=self.__host, port=self.__port, logger=dns_logger)
 
         dns_server.start_thread()

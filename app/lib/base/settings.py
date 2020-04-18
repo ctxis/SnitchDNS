@@ -20,3 +20,16 @@ class SettingsManager:
         if setting is None:
             return default
         return setting.value
+
+    def get_list(self, name, sep=","):
+        items = self.get(name, '').strip().split(sep)
+        values = []
+        for item in items:
+            item = item.strip()
+            if len(item) > 0:
+                values.append(item)
+
+        return values
+
+    def save_list(self, name, values, sep=","):
+        return self.save(name, sep.join(values))

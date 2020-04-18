@@ -50,6 +50,9 @@ def create_app(config_class=None):
     from app.controllers.dns import bp as dns_bp
     app.register_blueprint(dns_bp)
 
+    from app.controllers.config import bp as config_bp
+    app.register_blueprint(config_bp)
+
     from app.lib.base.provider import Provider
 
     @app.before_request
