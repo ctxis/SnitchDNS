@@ -1,15 +1,12 @@
 from dnslib.server import BaseResolver, DNSRecord
 from dnslib import RR, QTYPE, RCODE, CLASS
-from app import create_app
 import socket
 
 
 class DatabaseResolver(BaseResolver):
-    def __init__(self, dns_manager):
+    def __init__(self, dns_manager, app):
         # Create application instance within this thread.
-        self.app = create_app()
-        self.app.app_context().push()
-
+        self.app = app
         self.dns_manager = dns_manager
         self.zones = []
 

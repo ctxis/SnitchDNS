@@ -2,6 +2,7 @@ from dnslib.server import DNSLogger, DNSServer
 from app.lib.daemon.resolver import DatabaseResolver
 import time
 from app.lib.base.provider import Provider
+from app import create_app
 
 
 class SnitchDaemon:
@@ -11,7 +12,7 @@ class SnitchDaemon:
 
     def start(self):
         dns_logger = DNSLogger()
-        dns_resolver = DatabaseResolver(Provider().dns())
+        dns_resolver = DatabaseResolver(Provider().dns(), create_app())
         dns_server = DNSServer(dns_resolver, address=self.__host, port=self.__port, logger=dns_logger)
 
         dns_server.start_thread()
