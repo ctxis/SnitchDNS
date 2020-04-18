@@ -1,6 +1,7 @@
 import ipaddress
-from app.lib.models.dns import DNSZoneModel
+from app.lib.models.dns import DNSZoneModel, DNSQueryLogModel
 from app.lib.dns.instances.zone import DNSZone
+from app.lib.dns.instances.query_log import DNSQueryLog
 
 
 class DNSManager:
@@ -77,6 +78,11 @@ class DNSManager:
 
     def create_zone(self):
         item = DNSZone(DNSZoneModel())
+        item.save()
+        return item
+
+    def create_query_log(self):
+        item = DNSQueryLog(DNSQueryLogModel())
         item.save()
         return item
 

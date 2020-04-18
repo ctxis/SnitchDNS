@@ -1,23 +1,7 @@
-import datetime
-from app import db
+from app.lib.dns.base_instance import BaseDNSInstance
 
 
-class DNSZone:
-    def __init__(self, item):
-        self.item = item
-
-    def save(self):
-        self.item.updated_at = datetime.datetime.now()
-        if not self.id:
-            self.item.created_at = datetime.datetime.now()
-            db.session.add(self.item)
-        db.session.commit()
-        db.session.refresh(self.item)
-
-    @property
-    def id(self):
-        return self.item.id
-
+class DNSZone(BaseDNSInstance):
     @property
     def domain(self):
         return self.item.domain
@@ -65,16 +49,6 @@ class DNSZone:
     @active.setter
     def active(self, value):
         self.item.active = value
-
-    @property
-    def created_at(self):
-        # This is a required property for consistency.
-        return self.item.created_at
-
-    @property
-    def updated_at(self):
-        # This is a required property for consistency.
-        return self.item.updated_at
 
     def build_zone(self, domain=None):
         domain = self.domain if domain is None else domain

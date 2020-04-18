@@ -19,18 +19,26 @@ class DatabaseResolver(BaseResolver):
 
         # Try to find the requested zone.
         with self.app.app_context():
-            zone = self.__find_zone(request.q)
+            query_log = self.dns_manager.create_query_log()
+
+            query_log.source_ip = str(handler.client_address[0])
+            query_log.domain = str(request.q.qname)
+            query_log.type = str(QTYPE[request.q.qtype])
+            query_log.rclass = str(CLASS[request.q.qclass])
+            query_log.save()
+
+            zone = self.__find_zone(request.q, query_log)
             if zone:
                 reply.add_answer(zone)
             elif self.dns_manager.is_forwarding_enabled:
                 # Forward query.
-                reply = self.__forward(request, handler.protocol, self.dns_manager.forwarders)
+                reply = self.__forward(request, handler.protocol, self.dns_manager.forwarders, query_log)
 
         if not reply.rr:
             reply.header.rcode = RCODE.NXDOMAIN
         return reply
 
-    def __forward(self, request, protocol, forwarders):
+    def __forward(self, request, protocol, forwarders, query_log):
         reply = request.reply()
 
         if len(forwarders) == 0:
@@ -43,13 +51,17 @@ class DatabaseResolver(BaseResolver):
             try:
                 proxy = request.send(forwarder, 53, timeout=1, tcp=is_tcp)
                 reply = DNSRecord.parse(proxy)
+
+                query_log.resolved_to = str(reply.q.qname)
+                query_log.forwarded = True
+                query_log.save()
             except socket.timeout:
                 # Error - move to the next DNS Forwarder.
                 pass
 
         return reply
 
-    def __find_zone(self, query):
+    def __find_zone(self, query, query_log):
         zone = None
 
         # Split the query into an array.
@@ -71,6 +83,11 @@ class DatabaseResolver(BaseResolver):
             path = ".".join(parts)
             db_zone = self.dns_manager.find_zone(domain=path, type=str(QTYPE[query.qtype]), rclass=str(CLASS[query.qclass]))
             if db_zone:
+                query_log.dns_zone_id = db_zone.id
+                query_log.resolved_to = db_zone.address
+                query_log.found = True
+                query_log.save()
+
                 # We found a match.
                 zone = self.__build_zone(path, db_zone)
                 break
