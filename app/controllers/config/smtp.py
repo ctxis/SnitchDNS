@@ -16,6 +16,7 @@ def smtp_save():
     provider = Provider()
     settings = provider.settings()
 
+    smtp_enable = True if int(request.form.get('smtp_enable', 0)) == 1 else False
     smtp_host = request.form['smtp_host'].strip()
     smtp_port = int(request.form['smtp_port'].strip())
     smtp_tls = True if int(request.form.get('smtp_tls', 0)) == 1 else False
@@ -51,6 +52,7 @@ def smtp_save():
             # Don't update the password as the user probably updated something else on the form.
             update_password = False
 
+    settings.save('smtp_enable', smtp_enable)
     settings.save('smtp_host', smtp_host)
     settings.save('smtp_port', smtp_port)
     settings.save('smtp_tls', smtp_tls)

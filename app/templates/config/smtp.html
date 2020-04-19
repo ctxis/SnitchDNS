@@ -12,6 +12,18 @@
 
             <div class="form-group row">
                 <div class="col">
+                    <label for="smtp_enable">Enable SMTP Notifications</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="smtp_enable" type="checkbox" class="custom-control-input" id="smtp_enable" value="1" {{ 'checked' if setting_get('smtp_enable', '0') == '1' }}>
+                        <label class="custom-control-label" for="smtp_enable"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
                     <label for="smtp_host">SMTP Host</label>
                 </div>
                 <div class="col">
