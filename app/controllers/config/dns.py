@@ -21,6 +21,7 @@ def dns_save():
     dns = provider.dns()
 
     forward_dns_address = request.form['forward_dns_address'].strip()
+    dns_base_domain = request.form['dns_base_domain'].strip()
     forward_dns_enabled = True if int(request.form.get('forward_dns_enabled', 0)) == 1 else False
 
     forwarders = []
@@ -32,6 +33,7 @@ def dns_save():
 
     settings.save_list('forward_dns_address', forwarders)
     settings.save('forward_dns_enabled', forward_dns_enabled)
+    settings.save('dns_base_domain', dns_base_domain)
 
     flash('Settings saved', 'success')
     return redirect(url_for('config.dns'))

@@ -7,10 +7,26 @@
         {% include 'config/includes/sidebar.html' %}
     </div>
     <div class="col-5">
-        <h4>DNS Forwarding</h4>
         <form action="{{ url_for('config.dns_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+            <h4>DNS Base Domain</h4>
+            <div>
+                <small>
+                    The Base Domain is the domain under which all users will be able to create personalised addresses.
+                    The format will be <i>%username%.snitch.example.com</i>.
+                </small>
+            </div>
+            <div class="form-group row">
+                <div class="col">
+                    <label for="dns_base_domain">Domain</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm text-right" name="dns_base_domain" id="dns_base_domain" value="{{ setting_get('dns_base_domain', '') }}" placeholder="snitch.example.com">
+                </div>
+            </div>
+
+            <h4>DNS Forwarding</h4>
             <div class="form-group row">
                 <div class="col">
                     <label for="forward_dns_enabled">Enable DNS Forwarding</label>
