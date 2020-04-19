@@ -2,16 +2,19 @@ from . import bp
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from app.lib.base.provider import Provider
+from app.lib.base.decorators import admin_required
 
 
 @bp.route('/smtp', methods=['GET'])
 @login_required
+@admin_required
 def smtp():
     return render_template('config/smtp.html')
 
 
 @bp.route('/smtp/save', methods=['POST'])
 @login_required
+@admin_required
 def smtp_save():
     provider = Provider()
     settings = provider.settings()

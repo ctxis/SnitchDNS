@@ -12,6 +12,7 @@ class UserModel(db.Model, UserMixin):
     session_token = db.Column(db.String(255), nullable=True, index=True, default='')
     admin = db.Column(db.Boolean, default=False, index=True)
     active = db.Column(db.Boolean, default=True, index=True)
+    ldap = db.Column(db.Boolean, default=True, index=True)
 
     def get_id(self):
         return str(self.session_token)
