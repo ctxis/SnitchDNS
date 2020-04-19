@@ -1,0 +1,50 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'users' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col">
+        <h4>Users</h4>
+
+        <div class="clearfix pb-3">
+            <div class="float-right">
+                <a href="{{ url_for('config.user_edit', user_id=0) }}" class="btn btn-sm btn-primary"><i class="fas fa-user-plus"></i> <span class="ml-1">new user</span></a>
+            </div>
+        </div>
+
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>E-mail</th>
+                <th class="text-center">Admin</th>
+                <th class="text-center">LDAP</th>
+                <th class="text-center">Active</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.email }}</td>
+                <td class="text-center">{{ 'Yes' if user.admin else 'No' }}</td>
+                <td class="text-center">{{ 'Yes' if user.ldap else 'No' }}</td>
+                <td class="text-center">{{ 'Yes' if user.active else 'No' }}</td>
+                <td class="text-right">
+                    <a href="{{ url_for('config.user_edit', user_id=user.id) }}"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

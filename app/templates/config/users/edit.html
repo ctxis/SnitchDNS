@@ -1,0 +1,93 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'users' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-5">
+        <h4>{{ 'Create' if user_id == 0 else 'Edit' }} User</h4>
+
+        <form action="{{ url_for('config.user_edit_save', user_id=user_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="username">Username</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm text-right" name="username" id="username" value="{{ user.username if user_id > 0 }}" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="password">Password</label>
+                </div>
+                <div class="col">
+                    <input type="password" class="form-control form-control-sm text-right" name="password" id="password" value="{{ '********' if user_id > 0 }}" required>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="full_name">Full Name</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm text-right" name="full_name" id="full_name" value="{{ user.full_name if user_id > 0 }}" required>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="email">E-mail</label>
+                </div>
+                <div class="col">
+                    <input type="email" class="form-control form-control-sm text-right" name="email" id="email" value="{{ user.email if user_id > 0 }}" required>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="admin">Administrator</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="admin" type="checkbox" class="custom-control-input" id="admin" value="1" {{ 'checked' if user_id > 0 and user.admin }}>
+                        <label class="custom-control-label" for="admin"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="ldap">LDAP User</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="ldap" type="checkbox" class="custom-control-input" id="ldap" value="1" {{ 'checked' if user_id > 0 and user.ldap }}>
+                        <label class="custom-control-label" for="ldap"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="active">Active</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if user_id > 0 and user.active }}>
+                        <label class="custom-control-label" for="active"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
