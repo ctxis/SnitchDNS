@@ -10,7 +10,7 @@ def smtp():
     return render_template('config/smtp.html')
 
 
-@bp.route('/smpt/save', methods=['POST'])
+@bp.route('/smtp/save', methods=['POST'])
 @login_required
 def smtp_save():
     provider = Provider()
