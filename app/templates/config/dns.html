@@ -3,12 +3,12 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col-3">
-        {% set active_nav = 'forwarding' %}
+        {% set active_nav = 'dns' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
     <div class="col-5">
         <h4>DNS Forwarding</h4>
-        <form action="{{ url_for('config.forwarding_save') }}" method="post">
+        <form action="{{ url_for('config.dns_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group row">

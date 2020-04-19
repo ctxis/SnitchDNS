@@ -5,17 +5,17 @@ from app.lib.base.provider import Provider
 from app.lib.base.decorators import admin_required
 
 
-@bp.route('/forwarding', methods=['GET'])
+@bp.route('/dns', methods=['GET'])
 @login_required
 @admin_required
-def forwarding():
-    return render_template('config/forwarding.html')
+def dns():
+    return render_template('config/dns.html')
 
 
-@bp.route('/forwarding/save', methods=['POST'])
+@bp.route('/dns/save', methods=['POST'])
 @login_required
 @admin_required
-def forwarding_save():
+def dns_save():
     provider = Provider()
     settings = provider.settings()
     dns = provider.dns()
@@ -34,4 +34,4 @@ def forwarding_save():
     settings.save('forward_dns_enabled', forward_dns_enabled)
 
     flash('Settings saved', 'success')
-    return redirect(url_for('config.forwarding'))
+    return redirect(url_for('config.dns'))

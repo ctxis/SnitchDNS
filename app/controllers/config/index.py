@@ -7,6 +7,6 @@ from flask import redirect, url_for
 @login_required
 def index():
     if current_user.admin:
-        return redirect(url_for('config.forwarding'))
+        return redirect(url_for('config.dns'))
     else:
         return redirect(url_for('config.password'))
