@@ -12,7 +12,10 @@
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('config.index') }}">Settings</a>
+                    <a class="nav-link" href="{{ url_for('config.index') }}"><i class="fas fa-cogs"></i> Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </li>
                 {% endif %}
                 <!--
@@ -29,13 +32,6 @@
 
                 -->
             </ul>
-            <!--
-            {% if current_user.is_authenticated %}
-            <div>
-                <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout [ {{ current_user.full_name }} ]</a>
-            </div>
-            {% endif %}
-            -->
         </div>
     </div>
 </nav>
