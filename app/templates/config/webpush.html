@@ -7,6 +7,7 @@
         {% include 'config/includes/sidebar.html' %}
     </div>
     <div class="col-5">
+        <h4>Web Push Notifications</h4>
         <form action="{{ url_for('config.webpush_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -29,7 +30,7 @@
                     <label for="vapid_private">VAPID Private Key</label>
                 </div>
                 <div class="col">
-                    <input name="vapid_private" type="password" id="vapid_private" class="form-control form-control-sm text-right" value="********" placeholder="">
+                    <input name="vapid_private" type="password" id="vapid_private" class="form-control form-control-sm text-right" value="{{ '********' if setting_get('vapid_private', '')|length > 0 }}" placeholder="" required>
                 </div>
             </div>
 
@@ -38,7 +39,7 @@
                     <label for="vapid_public">VAPID Public Key</label>
                 </div>
                 <div class="col">
-                    <input name="vapid_public" type="text" id="vapid_public" class="form-control form-control-sm text-right" value="{{ setting_get('vapid_public', '') }}" placeholder="">
+                    <input name="vapid_public" type="text" id="vapid_public" class="form-control form-control-sm text-right" value="{{ setting_get('vapid_public', '') }}" placeholder="" required>
                 </div>
             </div>
 

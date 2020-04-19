@@ -7,6 +7,7 @@
         {% include 'config/includes/sidebar.html' %}
     </div>
     <div class="col-5">
+        <h4>SMTP Settings</h4>
         <form action="{{ url_for('config.smtp_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -66,7 +67,7 @@
                     <label for="smtp_pass">SMTP Pass</label>
                 </div>
                 <div class="col">
-                    <input type="password" class="form-control form-control-sm text-right" name="smtp_pass" id="smtp_pass" value="********" placeholder="" required>
+                    <input type="password" class="form-control form-control-sm text-right" name="smtp_pass" id="smtp_pass" value="{{ '********' if setting_get('smtp_pass', '')|length > 0 }}" placeholder="" required>
                 </div>
             </div>
 

@@ -2,16 +2,19 @@ from . import bp
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
 from app.lib.base.provider import Provider
+from app.lib.base.decorators import admin_required
 
 
 @bp.route('/ldap', methods=['GET'])
 @login_required
+@admin_required
 def ldap():
     return render_template('config/ldap.html')
 
 
 @bp.route('/ldap/save', methods=['POST'])
 @login_required
+@admin_required
 def ldap_save():
     provider = Provider()
     settings = provider.settings()

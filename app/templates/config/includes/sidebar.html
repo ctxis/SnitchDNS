@@ -1,6 +1,14 @@
-<nav class="nav nav-pills flex-column">
+{% if current_user.admin %}
+<h4>System</h4>
+<nav class="nav nav-pills flex-column pb-3">
     <a class="nav-link {{ 'active' if active_nav == 'forwarding' }}" href="{{ url_for('config.forwarding') }}"><i class="fas fa-angle-double-right fa-fw"></i> <span class="pl-2">DNS Forwarding</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'smtp' }}" href="{{ url_for('config.smtp') }}"><i class="fas fa-at fa-fw"></i> <span class="pl-2">SMTP</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'webpush' }}" href="{{ url_for('config.webpush') }}"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Push Notifications</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'ldap' }}" href="{{ url_for('config.ldap') }}"><i class="fas fa-passport fa-fw"></i> <span class="pl-2">LDAP</span></a>
+</nav>
+{% endif %}
+
+<h4>Account</h4>
+<nav class="nav nav-pills flex-column">
+    <a class="nav-link {{ 'active' if active_nav == 'password' }}" href="{{ url_for('config.password') }}"><i class="fas fa-key fa-fw"></i> <span class="pl-2">Change Password</span></a>
 </nav>
