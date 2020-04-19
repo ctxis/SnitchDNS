@@ -1,3 +1,4 @@
 <nav class="nav nav-pills flex-column">
     <a class="nav-link {{ 'active' if active_nav == 'forwarding' }}" href="{{ url_for('config.forwarding') }}"><i class="fas fa-angle-double-right fa-fw"></i> <span class="pl-2">DNS Forwarding</span></a>
+    <a class="nav-link {{ 'active' if active_nav == 'smtp' }}" href="{{ url_for('config.smtp') }}"><i class="fas fa-at fa-fw"></i> <span class="pl-2">SMTP</span></a>
 </nav>
