@@ -25,6 +25,7 @@ def smtp_save():
     smtp_tls = True if int(request.form.get('smtp_tls', 0)) == 1 else False
     smtp_user = request.form['smtp_user'].strip()
     smtp_pass = request.form['smtp_pass'].strip()
+    smtp_sender = request.form['smtp_sender'].strip()
 
     if len(smtp_host) == 0:
         flash('Please enter SMTP Host', 'error')
@@ -41,14 +42,35 @@ def smtp_save():
     elif smtp_pass == '********' and len(settings.get('smtp_pass', '')) == 0:
         flash('Please enter SMTP Pass', 'error')
         return redirect(url_for('config.smtp'))
+    elif len(smtp_sender) == 0:
+        flash('Please enter SMTP Sender E-mail', 'error')
+        return redirect(url_for('config.smtp'))
 
     settings.save('smtp_enable', smtp_enable)
     settings.save('smtp_host', smtp_host)
     settings.save('smtp_port', smtp_port)
     settings.save('smtp_tls', smtp_tls)
     settings.save('smtp_user', smtp_user)
+    settings.save('smtp_sender', smtp_sender)
     if smtp_pass != '********':
         settings.save('smtp_pass', smtp_pass)
 
     flash('Settings saved', 'success')
+    return redirect(url_for('config.smtp'))
+
+
+@bp.route('/smtp/test', methods=['POST'])
+@login_required
+@admin_required
+def smtp_test():
+    emails = Provider().emails()
+
+    recipient = request.form['test_email_recipient'].strip()
+
+    result = emails.send(recipient, 'SnitchDNS - Test Message', 'It works!')
+    if result is not True:
+        flash('Could not send e-mail: ' + str(result), 'error')
+    else:
+        flash('E-mail sent', 'success')
+
     return redirect(url_for('config.smtp'))
