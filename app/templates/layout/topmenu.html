@@ -12,25 +12,15 @@
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dns.index') }}"><i class="fas fa-globe"></i> DNS Zones</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('config.index') }}"><i class="fas fa-cogs"></i> Settings</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Logout {{ current_user.full_name }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </li>
                 {% endif %}
-                <!--
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('dns.index') }}">DNS Zones</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('dns.logs') }}">DNS Logs</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('config.index') }}">Configuration</a>
-                </li>
-
-                -->
             </ul>
         </div>
     </div>

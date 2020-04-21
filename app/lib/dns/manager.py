@@ -1,4 +1,5 @@
 import ipaddress
+import re
 from app.lib.models.dns import DNSZoneModel, DNSQueryLogModel
 from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.query_log import DNSQueryLog
@@ -44,7 +45,7 @@ class DNSManager:
 
         return True
 
-    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None, active=None):
+    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None, active=None, exact_match=None, user_id=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -68,6 +69,12 @@ class DNSManager:
         if active is not None:
             query = query.filter(DNSZoneModel.active == active)
 
+        if exact_match is not None:
+            query = query.filter(DNSZoneModel.exact_match == exact_match)
+
+        if user_id is not None:
+            query = query.filter(DNSZoneModel.user_id == user_id)
+
         return query.first()
 
     def get_zone(self, dns_zone_id):
@@ -75,7 +82,11 @@ class DNSManager:
         if not item:
             return False
 
-        return DNSZone(item)
+        return self.__load_zone(item)
+
+    def __load_zone(self, item):
+        zone = DNSZone(item)
+        return zone
 
     def create_zone(self):
         item = DNSZone(DNSZoneModel())
@@ -87,18 +98,24 @@ class DNSManager:
         item.save()
         return item
 
-    def save(self, zone, domain, ttl, rclass, type, address, active):
+    def save(self, user_id, zone, domain, base_domain, ttl, rclass, type, address, active, exact_match):
         zone.domain = self.__fix_domain(domain)
+        zone.base_domain = self.__fix_base_domain(base_domain)
         zone.ttl = ttl
         zone.rclass = rclass
         zone.type = type
         zone.address = address
         zone.active = active
+        zone.exact_match = exact_match
+        zone.user_id = user_id
         zone.save()
 
         return True
 
     def __fix_domain(self, domain):
+        return domain.rstrip('.')
+
+    def __fix_base_domain(self, domain):
         return domain.rstrip('.') + '.'
 
     def get_all_zones(self):
@@ -106,7 +123,16 @@ class DNSManager:
 
         zones = []
         for result in results:
-            zones.append(DNSZone(result))
+            zones.append(self.__load_zone(result))
+
+        return zones
+
+    def get_user_zones(self, user_id):
+        results = DNSZoneModel.query.filter(DNSZoneModel.user_id == user_id).order_by(DNSZoneModel.domain).all()
+
+        zones = []
+        for result in results:
+            zones.append(self.__load_zone(result))
 
         return zones
 
@@ -115,7 +141,7 @@ class DNSManager:
         if not item:
             return False
 
-        return DNSZone(item)
+        return self.__load_zone(item)
 
     def get_all_logs(self):
         results = DNSQueryLogModel.query.order_by(DNSQueryLogModel.id).all()
@@ -136,3 +162,24 @@ class DNSManager:
             'types': types,
             'source_ips': source_ips
         }
+
+    def get_base_domain(self):
+        return self.settings.get('dns_base_domain', '')
+
+    def get_user_base_domain(self, username):
+        dns_base_domain = self.__fix_domain(self.get_base_domain()).lstrip('.')
+        # Keep only letters, digits, underscore.
+        username = re.sub(r'\W+', '', username)
+        return username + '.' + dns_base_domain
+
+    def duplicate_domain_exists(self, dns_zone_id, domain, base_domain):
+        return DNSZoneModel.query.filter(
+            DNSZoneModel.id != dns_zone_id,
+            DNSZoneModel.domain == domain,
+            DNSZoneModel.base_domain == base_domain
+        ).count() > 0
+
+    def can_access_zone(self, dns_zone_id, user_id):
+        if dns_zone_id == 0:
+            return True
+        return self.__get(id=dns_zone_id, user_id=user_id) is not None

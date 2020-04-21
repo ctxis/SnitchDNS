@@ -5,10 +5,13 @@
     <div class="col">
         <div class="clearfix mb-4">
             <div class="float-right">
-                <a href="{{ url_for('dns.edit', dns_zone_id=0) }}" class="btn btn-primary btn-sm">create new zone</a>
+                <a href="{{ url_for('dns.edit', dns_zone_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
             </div>
         </div>
 
+        {% if zones|length == 0 %}
+        <div class="alert alert-info text-center">No zones configured yet.</div>
+        {% else %}
         <table class="table table-sm table-striped">
             <thead>
             <tr>
@@ -19,6 +22,7 @@
                 <th class="text-right">Type</th>
                 <th class="text-right">Address</th>
                 <th class="text-center">Active</th>
+                <th class="text-center">Exact Match</th>
                 <th class="text-center"></th>
             </tr>
             </thead>
@@ -34,6 +38,7 @@
                 <td class="text-right">{{ zone.type }}</td>
                 <td class="text-right">{{ zone.address }}</td>
                 <td class="text-center">{{ 'Yes' if zone.active else 'No' }}</td>
+                <td class="text-center">{{ 'Yes' if zone.exact_match else 'No' }}</td>
                 <td class="text-center">
                     <a href="{{ url_for('dns.edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
                 </td>
@@ -41,6 +46,7 @@
             {% endfor %}
             </tbody>
         </table>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

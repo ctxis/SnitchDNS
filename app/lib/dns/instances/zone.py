@@ -11,6 +11,14 @@ class DNSZone(BaseDNSInstance):
         self.item.domain = value
 
     @property
+    def base_domain(self):
+        return self.item.base_domain
+
+    @base_domain.setter
+    def base_domain(self, value):
+        self.item.base_domain = value
+
+    @property
     def ttl(self):
         return self.item.ttl
 
@@ -49,6 +57,22 @@ class DNSZone(BaseDNSInstance):
     @active.setter
     def active(self, value):
         self.item.active = value
+
+    @property
+    def exact_match(self):
+        return self.item.exact_match
+
+    @exact_match.setter
+    def exact_match(self, value):
+        self.item.exact_match = value
+
+    @property
+    def user_id(self):
+        return self.item.user_id
+
+    @user_id.setter
+    def user_id(self, value):
+        self.item.user_id = value
 
     def build_zone(self, domain=None):
         domain = self.domain if domain is None else domain
