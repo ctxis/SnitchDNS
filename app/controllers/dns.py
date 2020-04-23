@@ -14,9 +14,11 @@ def index():
     provider = Provider()
     dns = provider.dns()
 
+    user_id = 0 if current_user.admin else current_user.id
+
     return render_template(
         'dns/index.html',
-        zones=dns.get_user_zones(current_user.id)
+        zones=dns.get_user_zones(user_id)
     )
 
 

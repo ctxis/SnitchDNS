@@ -6,6 +6,7 @@ class DNSZoneModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     domain = db.Column(db.String(255), nullable=True, default='', index=True)
     base_domain = db.Column(db.String(255), nullable=True, default='', index=True)
+    full_domain = db.Column(db.String(255), nullable=True, default='', index=True)
     ttl = db.Column(db.Integer, nullable=True, default=0)
     rclass = db.Column(db.String(32), nullable=True, default='', index=True)
     type = db.Column(db.String(32), nullable=True, default='', index=True)

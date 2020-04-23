@@ -4,6 +4,7 @@ from app.lib.models.dns import DNSZoneModel, DNSQueryLogModel
 from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.query_log import DNSQueryLog
 from app import db
+from sqlalchemy import func
 
 
 class DNSManager:
@@ -45,14 +46,15 @@ class DNSManager:
 
         return True
 
-    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None, active=None, exact_match=None, user_id=None):
+    def __get(self, id=None, domain=None, ttl=None, rclass=None, type=None, address=None, active=None, exact_match=None,
+              user_id=None, full_domain=None, base_domain=None):
         query = DNSZoneModel.query
 
         if id is not None:
             query = query.filter(DNSZoneModel.id == id)
 
         if domain is not None:
-            query = query.filter(DNSZoneModel.domain == domain)
+            query = query.filter(func.lower(DNSZoneModel.domain) == domain.lower())
 
         if ttl is not None:
             query = query.filter(DNSZoneModel.ttl == ttl)
@@ -74,6 +76,12 @@ class DNSManager:
 
         if user_id is not None:
             query = query.filter(DNSZoneModel.user_id == user_id)
+
+        if full_domain is not None:
+            query = query.filter(func.lower(DNSZoneModel.full_domain) == full_domain.lower())
+
+        if base_domain is not None:
+            query = query.filter(func.lower(DNSZoneModel.base_domain) == base_domain.lower())
 
         return query.first()
 
@@ -101,6 +109,7 @@ class DNSManager:
     def save(self, user_id, zone, domain, base_domain, ttl, rclass, type, address, active, exact_match):
         zone.domain = self.__fix_domain(domain)
         zone.base_domain = self.__fix_base_domain(base_domain)
+        zone.full_domain = zone.domain + zone.base_domain
         zone.ttl = ttl
         zone.rclass = rclass
         zone.type = type
@@ -137,7 +146,7 @@ class DNSManager:
         return zones
 
     def find_zone(self, domain=None, type=None, rclass=None):
-        item = self.__get(domain=domain, type=type, rclass=rclass, active=True)
+        item = self.__get(full_domain=domain, type=type, rclass=rclass, active=True)
         if not item:
             return False
 
@@ -170,7 +179,7 @@ class DNSManager:
         dns_base_domain = self.__fix_domain(self.get_base_domain()).lstrip('.')
         # Keep only letters, digits, underscore.
         username = re.sub(r'\W+', '', username)
-        return username + '.' + dns_base_domain
+        return '.' + username + '.' + dns_base_domain
 
     def duplicate_domain_exists(self, dns_zone_id, domain, base_domain):
         return DNSZoneModel.query.filter(

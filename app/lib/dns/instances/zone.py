@@ -85,3 +85,11 @@ class DNSZone(BaseDNSInstance):
         ]
 
         return "\t".join(zone_items)
+
+    @property
+    def full_domain(self):
+        return self.item.full_domain
+
+    @full_domain.setter
+    def full_domain(self, value):
+        self.item.full_domain = value

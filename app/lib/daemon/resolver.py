@@ -80,14 +80,24 @@ class DatabaseResolver(BaseResolver):
             path = ".".join(parts)
             db_zone = self.dns_manager.find_zone(domain=path, type=str(QTYPE[query.qtype]), rclass=str(CLASS[query.qclass]))
             if db_zone:
-                query_log.dns_zone_id = db_zone.id
-                query_log.resolved_to = db_zone.address
-                query_log.found = True
-                query_log.save()
+                is_accepted = True
+                # Check if the matched domain is marked as 'exact match'.
+                if db_zone.exact_match:
+                    # If it is, in order for it to be used here the query.qname (the DNS request that came in) must
+                    # match the 'full domain' of this result. Because the returned value could be 'hi.bye.contextis.com'
+                    # and set as 'exact match' but the original query could be for 'greeting.hi.bye.contextis.com'
+                    if db_zone.full_domain != str(query.qname):
+                        is_accepted = False
 
-                # We found a match.
-                zone = self.__build_zone(path, db_zone)
-                break
+                if is_accepted:
+                    query_log.dns_zone_id = db_zone.id
+                    query_log.resolved_to = db_zone.address
+                    query_log.found = True
+                    query_log.save()
+
+                    # We found a match.
+                    zone = self.__build_zone(path, db_zone)
+                    break
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
