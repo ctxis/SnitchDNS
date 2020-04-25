@@ -49,7 +49,7 @@ class DNSZone(BaseDNSInstance):
             str(record.ttl),
             str(record.rclass),
             str(record.type),
-            str(record.address)
+            str(record.data)
         ]
 
         return "\t".join(zone_items)

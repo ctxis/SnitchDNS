@@ -35,12 +35,12 @@ class DNSRecord(BaseDNSInstance):
         self.item.type = value
 
     @property
-    def address(self):
-        return self.item.address
+    def data(self):
+        return self.item.data
 
-    @address.setter
-    def address(self, value):
-        self.item.address = value
+    @data.setter
+    def data(self, value):
+        self.item.data = value
 
     @property
     def active(self):

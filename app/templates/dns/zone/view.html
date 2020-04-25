@@ -33,7 +33,7 @@
                 <td class="text-right">{{ record.type }}</td>
                 <td class="text-right">{{ record.rclass }}</td>
                 <td class="text-right">{{ record.ttl }}</td>
-                <td class="text-right">{{ record.address }}</td>
+                <td class="text-right">{{ record.data }}</td>
                 <td class="text-center">{{ 'Yes' if record.active else 'No' }}</td>
                 <td class="text-center">
                     <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>

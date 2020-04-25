@@ -22,7 +22,7 @@ class DNSRecordManager:
         items.sort()
         return items
 
-    def __get(self, id=None, dns_zone_id=None, ttl=None, rclass=None, type=None, address=None, active=None):
+    def __get(self, id=None, dns_zone_id=None, ttl=None, rclass=None, type=None, data=None, active=None):
         query = DNSRecordModel.query
 
         if id is not None:
@@ -40,8 +40,8 @@ class DNSRecordManager:
         if type is not None:
             query = query.filter(DNSRecordModel.type == type)
 
-        if address is not None:
-            query = query.filter(DNSRecordModel.address == address)
+        if data is not None:
+            query = query.filter(DNSRecordModel.data == data)
 
         if active is not None:
             query = query.filter(DNSRecordModel.active == active)
@@ -63,12 +63,12 @@ class DNSRecordManager:
         item.save()
         return item
 
-    def save(self, record, dns_zone_id, ttl, rclass, type, address, active):
+    def save(self, record, dns_zone_id, ttl, rclass, type, data, active):
         record.dns_zone_id = dns_zone_id
         record.ttl = ttl
         record.rclass = rclass
         record.type = type
-        record.address = address
+        record.data = data
         record.active = active
 
         record.save()

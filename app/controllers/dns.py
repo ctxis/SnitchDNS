@@ -167,7 +167,7 @@ def record_edit_save(dns_zone_id, dns_record_id):
     ttl = int(request.form['ttl'].strip())
     rclass = request.form['class'].strip()
     type = request.form['type'].strip()
-    address = request.form['address'].strip()
+    data = request.form['data'].strip()
     active = True if int(request.form.get('active', 0)) == 1 else False
 
     if ttl <= 0:
@@ -179,9 +179,9 @@ def record_edit_save(dns_zone_id, dns_record_id):
     elif type not in dns_types:
         flash('Invalid type value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
-    elif not dns.is_valid_ip_address(address):
-        flash('Invalid IP address value', 'error')
-        return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+    # elif not dns.is_valid_ip_address(address):
+    #     flash('Invalid IP address value', 'error')
+    #     return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 
     if dns_record_id > 0:
         record = records.get(zone.id, dns_record_id)
@@ -191,7 +191,7 @@ def record_edit_save(dns_zone_id, dns_record_id):
     else:
         record = records.create()
 
-    if not records.save(record, zone.id, ttl, rclass, type, address, active):
+    if not records.save(record, zone.id, ttl, rclass, type, data, active):
         flash('Could not save record', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 

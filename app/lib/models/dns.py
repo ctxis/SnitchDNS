@@ -23,7 +23,7 @@ class DNSRecordModel(db.Model):
     ttl = db.Column(db.Integer, nullable=True, default=0)
     rclass = db.Column(db.String(32), nullable=True, default='', index=True)
     type = db.Column(db.String(32), nullable=True, default='', index=True)
-    address = db.Column(db.String(255), nullable=True, default='', index=True)
+    data = db.Column(db.String(255), nullable=True, default='', index=True)
     active = db.Column(db.Boolean, default=True, index=True)
 
     # Required in all models.
