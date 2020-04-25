@@ -4,7 +4,7 @@ import socket
 
 
 class DatabaseResolver(BaseResolver):
-    def __init__(self, dns_manager, app):
+    def __init__(self, app, dns_manager):
         # Create application instance within this thread.
         self.app = app
         self.dns_manager = dns_manager
@@ -16,8 +16,7 @@ class DatabaseResolver(BaseResolver):
 
         # Try to find the requested zone.
         with self.app.app_context():
-            query_log = self.dns_manager.create_query_log()
-
+            query_log = self.dns_manager.logs_manager.create()
             query_log.source_ip = str(handler.client_address[0])
             query_log.domain = str(request.q.qname)
             query_log.type = str(QTYPE[request.q.qtype])
@@ -50,9 +49,10 @@ class DatabaseResolver(BaseResolver):
                 reply = DNSRecord.parse(proxy)
 
                 if reply.rr:
-                    query_log.resolved_to = str(reply.q.qname)
-                    query_log.forwarded = True
-                    query_log.save()
+                    pass
+                    # query_log.resolved_to = str(reply.q.qname)
+                    # query_log.forwarded = True
+                    # query_log.save()
             except socket.timeout:
                 # Error - move to the next DNS Forwarder.
                 pass
@@ -68,7 +68,8 @@ class DatabaseResolver(BaseResolver):
         #   1 => snitch
         #   2 => contextis
         #   3 => com
-        parts = str(query.qname).split('.')
+        original_domain = str(query.qname)
+        parts = original_domain.split('.')
 
         # The following loop will lookup from the longest to the shortest domain, for example:
         #   1 => something.snitch.contextis.com
@@ -79,25 +80,20 @@ class DatabaseResolver(BaseResolver):
         while len(parts) > 0:
             # Join all the current items to re-create the domain.
             path = ".".join(parts)
-            db_zone = self.dns_manager.find_zone(domain=path, type=str(QTYPE[query.qtype]), rclass=str(CLASS[query.qclass]))
+            db_zone = self.dns_manager.find_zone(path, original_domain)
             if db_zone:
-                is_accepted = True
-                # Check if the matched domain is marked as 'exact match'.
-                if db_zone.exact_match:
-                    # If it is, in order for it to be used here the query.qname (the DNS request that came in) must
-                    # match the 'full domain' of this result. Because the returned value could be 'hi.bye.contextis.com'
-                    # and set as 'exact match' but the original query could be for 'greeting.hi.bye.contextis.com'
-                    if db_zone.full_domain != str(query.qname):
-                        is_accepted = False
+                query_log.dns_zone_id = db_zone.id
+                query_log.save()
 
-                if is_accepted:
-                    query_log.dns_zone_id = db_zone.id
-                    query_log.resolved_to = db_zone.address
+                db_record = self.dns_manager.find_record(db_zone, str(CLASS[query.qclass]), str(QTYPE[query.qtype]))
+                if db_record:
+                    query_log.dns_record_id = db_record.id
+                    query_log.resolved_to = db_record.address
                     query_log.found = True
                     query_log.save()
 
                     # We found a match.
-                    zone = self.__build_zone(path, db_zone)
+                    zone = self.__build_zone(path, db_zone, db_record)
                     break
 
             # Remove the first element of the array, to continue searching for a matching domain.
@@ -105,9 +101,9 @@ class DatabaseResolver(BaseResolver):
 
         return zone
 
-    def __build_zone(self, domain, db_zone):
+    def __build_zone(self, domain, db_zone, db_record):
         # Create a tab separated string with the zone data.
-        zone = db_zone.build_zone(domain=domain)
+        zone = db_zone.build_zone(db_record, domain=domain)
         # Parse the zone into a new zone object.
         new_zone = [(rr.rname, QTYPE[rr.rtype], rr) for rr in RR.fromZone(zone)]
         # Cache it.

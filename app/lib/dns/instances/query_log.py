@@ -65,3 +65,11 @@ class DNSQueryLog(BaseDNSInstance):
     @dns_zone_id.setter
     def dns_zone_id(self, value):
         self.item.dns_zone_id = value
+
+    @property
+    def dns_record_id(self):
+        return self.item.dns_record_id
+
+    @dns_record_id.setter
+    def dns_record_id(self, value):
+        self.item.dns_record_id = value

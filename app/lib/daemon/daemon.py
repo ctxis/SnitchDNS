@@ -12,7 +12,7 @@ class SnitchDaemon:
 
     def start(self):
         dns_logger = DNSLogger()
-        dns_resolver = DatabaseResolver(Provider().dns(), create_app())
+        dns_resolver = DatabaseResolver(create_app(), Provider().dns_manager())
         dns_server = DNSServer(dns_resolver, address=self.__host, port=self.__port, logger=dns_logger)
 
         dns_server.start_thread()

@@ -1,6 +1,9 @@
 from app.lib.base.users import UserManager
 from app.lib.base.settings import SettingsManager
 from app.lib.dns.manager import DNSManager
+from app.lib.dns.zone_manager import DNSZoneManager
+from app.lib.dns.record_manager import DNSRecordManager
+from app.lib.dns.log_manager import DNSLogManager
 from app.lib.base.password_complexity import PasswordComplexityManager
 from app.lib.base.email import EmailManager
 
@@ -12,8 +15,22 @@ class Provider:
     def settings(self):
         return SettingsManager()
 
-    def dns(self):
-        return DNSManager(self.settings())
+    def dns_manager(self):
+        return DNSManager(
+            self.dns_zones(),
+            self.dns_records(),
+            self.dns_logs(),
+            self.settings()
+        )
+
+    def dns_zones(self):
+        return DNSZoneManager(self.settings())
+
+    def dns_records(self):
+        return DNSRecordManager()
+
+    def dns_logs(self):
+        return DNSLogManager()
 
     def password_complexity(self):
         settings = self.settings()

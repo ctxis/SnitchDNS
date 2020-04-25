@@ -9,7 +9,7 @@ class DNSZoneModel(db.Model):
     base_domain = db.Column(db.String(255), nullable=True, default='', index=True)
     full_domain = db.Column(db.String(255), nullable=True, default='', index=True)
     active = db.Column(db.Boolean, default=True, index=True)
-    forward_unmatched = db.Column(db.Boolean, default=True, index=True)
+    exact_match = db.Column(db.Boolean, default=True, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)
@@ -25,7 +25,6 @@ class DNSRecordModel(db.Model):
     type = db.Column(db.String(32), nullable=True, default='', index=True)
     address = db.Column(db.String(255), nullable=True, default='', index=True)
     active = db.Column(db.Boolean, default=True, index=True)
-    exact_match = db.Column(db.Boolean, default=True, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)

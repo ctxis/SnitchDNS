@@ -1,6 +1,6 @@
 from . import bp
 from flask import request, render_template, flash, redirect, url_for
-from flask_login import current_user, login_required
+from flask_login import login_required
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import admin_required
 
@@ -18,7 +18,7 @@ def dns():
 def dns_save():
     provider = Provider()
     settings = provider.settings()
-    dns = provider.dns()
+    dns = provider.dns_manager()
 
     forward_dns_address = request.form['forward_dns_address'].strip()
     dns_base_domain = request.form['dns_base_domain'].strip()

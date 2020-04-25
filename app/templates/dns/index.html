@@ -5,7 +5,7 @@
     <div class="col">
         <div class="clearfix mb-4">
             <div class="float-right">
-                <a href="{{ url_for('dns.edit', dns_zone_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
+                <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
             </div>
         </div>
 
@@ -17,30 +17,20 @@
             <tr>
                 <th>#</th>
                 <th>Domain</th>
-                <th class="text-right">TTL</th>
-                <th class="text-right">Class</th>
-                <th class="text-right">Type</th>
-                <th class="text-right">Address</th>
                 <th class="text-center">Active</th>
                 <th class="text-center">Exact Match</th>
                 <th class="text-center"></th>
             </tr>
             </thead>
             <tbody>
-            {% set counter = 0 %}
             {% for zone in zones %}
-            {% set counter = counter + 1 %}
             <tr>
-                <td>{{ counter }}</td>
-                <td>{{ zone.full_domain }}</td>
-                <td class="text-right">{{ zone.ttl }}</td>
-                <td class="text-right">{{ zone.rclass }}</td>
-                <td class="text-right">{{ zone.type }}</td>
-                <td class="text-right">{{ zone.address }}</td>
+                <td>{{ zone.id }}</td>
+                <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
                 <td class="text-center">{{ 'Yes' if zone.active else 'No' }}</td>
                 <td class="text-center">{{ 'Yes' if zone.exact_match else 'No' }}</td>
                 <td class="text-center">
-                    <a href="{{ url_for('dns.edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
+                    <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
                 </td>
             </tr>
             {% endfor %}

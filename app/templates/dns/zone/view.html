@@ -1,0 +1,48 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col">
+        <h2>{{ zone.full_domain }}</h2>
+
+        <div class="clearfix mb-4">
+            <div class="float-right">
+                <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new record</span></a>
+            </div>
+        </div>
+
+        {% if records|length == 0 %}
+        <div class="alert alert-info text-center">No records configured yet.</div>
+        {% else %}
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th class="text-right">Type</th>
+                <th class="text-right">Class</th>
+                <th class="text-right">TTL</th>
+                <th class="text-right">Resolve To</th>
+                <th class="text-center">Active</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in records %}
+            <tr>
+                <td class="text-right">{{ record.id }}</td>
+                <td class="text-right">{{ record.type }}</td>
+                <td class="text-right">{{ record.rclass }}</td>
+                <td class="text-right">{{ record.ttl }}</td>
+                <td class="text-right">{{ record.address }}</td>
+                <td class="text-center">{{ 'Yes' if record.active else 'No' }}</td>
+                <td class="text-center">
+                    <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
