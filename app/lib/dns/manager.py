@@ -188,7 +188,8 @@ class DNSManager:
             DNSZoneModel.base_domain == base_domain
         ).count() > 0
 
-    def can_access_zone(self, dns_zone_id, user_id):
-        if dns_zone_id == 0:
+    def can_access_zone(self, dns_zone_id, user_id, is_admin=False):
+        if is_admin:
+            # SuperUser
             return True
         return self.__get(id=dns_zone_id, user_id=user_id) is not None

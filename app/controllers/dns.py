@@ -14,6 +14,7 @@ def index():
     provider = Provider()
     dns = provider.dns()
 
+    # Admins should see global domains (user_id = 0)
     user_id = 0 if current_user.admin else current_user.id
 
     return render_template(
@@ -29,9 +30,11 @@ def edit(dns_zone_id):
     provider = Provider()
     dns = provider.dns()
 
-    if not dns.can_access_zone(dns_zone_id, current_user.id):
-        flash('Access Denied', 'error')
-        return redirect(url_for('home.index'))
+    dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
+    if dns_zone_id > 0:
+        if not dns.can_access_zone(dns_zone_id, current_user.id, is_admin=current_user.admin):
+            flash('Access Denied', 'error')
+            return redirect(url_for('home.index'))
 
     return render_template(
         'dns/edit.html',
@@ -50,6 +53,12 @@ def edit_save(dns_zone_id):
     provider = Provider()
     dns = provider.dns()
 
+    dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
+    if dns_zone_id > 0:
+        if not dns.can_access_zone(dns_zone_id, current_user.id, is_admin=current_user.admin):
+            flash('Access Denied', 'error')
+            return redirect(url_for('home.index'))
+
     dns_classes = dns.get_classes()
     dns_types = dns.get_types()
 
@@ -60,8 +69,6 @@ def edit_save(dns_zone_id):
     address = request.form['address'].strip()
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
-    notify_email = True if int(request.form.get('notify_email', 0)) == 1 else False
-    notify_push = True if int(request.form.get('notify_push', 0)) == 1 else False
 
     if len(domain) == 0:
         flash('Invalid domain', 'error')
@@ -92,6 +99,7 @@ def edit_save(dns_zone_id):
     else:
         zone = dns.create_zone()
 
+    # If it's an admin, create it as a global domain.
     user_id = 0 if current_user.admin else current_user.id
     if not dns.save(user_id, zone, domain, base_domain, ttl, rclass, type, address, active, exact_match):
         flash('Could not save zone', 'error')

@@ -23,7 +23,7 @@
                         <div class="input-group input-group-sm">
                             <input type="text" name="domain" id="domain" value="{{ zone.domain if dns_zone_id > 0 }}" class="form-control form-control-sm text-right" required autofocus>
                             <div class="input-group-append">
-                                <span class="input-group-text">.{{ user_domain }}</span>
+                                <span class="input-group-text">{{ user_domain }}</span>
                             </div>
                         </div>
                     </div>
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-
+                    <!--
                     <h5 class="pt-4">Notifications</h5>
 
                     <div class="form-group row py-0 my-0">
@@ -108,6 +108,7 @@
                             </div>
                         </div>
                     </div>
+                    -->
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block btn-sm">save</button>
