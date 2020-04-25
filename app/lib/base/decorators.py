@@ -19,7 +19,7 @@ def must_have_base_domain(f):
     @wraps(f)
     def wrapped_view(**kwargs):
         if not current_user.admin:
-            if len(Provider().dns().get_base_domain()) == 0:
+            if len(Provider().dns_zones().base_domain) == 0:
                 flash('The base domain has not been configured by your administrator.', 'error')
                 return redirect(url_for('home.index'))
         return f(**kwargs)
