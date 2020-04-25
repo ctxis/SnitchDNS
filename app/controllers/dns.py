@@ -125,9 +125,10 @@ def record_edit(dns_zone_id, dns_record_id):
 
     zone = zones.get(dns_zone_id)
     record = records.get(zone.id, dns_record_id)
-    if not record:
-        flash('Could not load record', 'error')
-        return redirect(url_for('home.index'))
+    if dns_record_id > 0:
+        if not record:
+            flash('Could not load record', 'error')
+            return redirect(url_for('home.index'))
 
     dns_types = records.get_types()
     dns_classes = records.get_classes()

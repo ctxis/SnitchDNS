@@ -2,7 +2,10 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col">
+    <div class="col"></div>
+    <div class="col-6">
+        <h2>{{ 'Global DNS Zones' if current_user.admin else 'Your DNS Zones' }}</h2>
+
         <div class="clearfix mb-4">
             <div class="float-right">
                 <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
@@ -38,5 +41,6 @@
         </table>
         {% endif %}
     </div>
+    <div class="col"></div>
 </div>
 {% endblock %}
