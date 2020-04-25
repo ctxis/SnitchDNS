@@ -49,17 +49,23 @@ def zone_edit(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
 
+    zone = None
     dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
     if dns_zone_id > 0:
         if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
             flash('Access Denied', 'error')
             return redirect(url_for('home.index'))
 
+        zone = zones.get(dns_zone_id)
+        if not zone:
+            flash('Zone not found', 'error')
+            return redirect(url_for('home.index'))
+
     return render_template(
         'dns/zone/edit.html',
         dns_zone_id=dns_zone_id,
         user_domain=zones.get_user_base_domain(current_user.username),
-        zone=zones.get(dns_zone_id)
+        zone=zone
     )
 
 
@@ -124,6 +130,10 @@ def record_edit(dns_zone_id, dns_record_id):
             return redirect(url_for('home.index'))
 
     zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+
     record = records.get(zone.id, dns_record_id)
     if dns_record_id > 0:
         if not record:
