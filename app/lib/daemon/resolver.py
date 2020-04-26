@@ -88,7 +88,7 @@ class DatabaseResolver(BaseResolver):
                 db_record = self.dns_manager.find_record(db_zone, str(CLASS[query.qclass]), str(QTYPE[query.qtype]))
                 if db_record:
                     query_log.dns_record_id = db_record.id
-                    query_log.resolved_to = db_record.data
+                    query_log.data = db_record.data
                     query_log.found = True
                     query_log.save()
 

@@ -51,12 +51,12 @@ class DNSQueryLog(BaseDNSInstance):
         self.item.found = value
 
     @property
-    def resolved_to(self):
-        return self.item.resolved_to
+    def data(self):
+        return self.item.data
 
-    @resolved_to.setter
-    def resolved_to(self, value):
-        self.item.resolved_to = value
+    @data.setter
+    def data(self, value):
+        self.item.data = value
 
     @property
     def dns_zone_id(self):
