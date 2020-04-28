@@ -51,7 +51,10 @@ def create_app(config_class=None):
     app.register_blueprint(dns_bp)
 
     from app.controllers.config import bp as config_bp
-    app.register_blueprint(config_bp, url_prefix='/config')
+    app.register_blueprint(config_bp)
+
+    from app.controllers.logs import bp as log_bp
+    app.register_blueprint(log_bp)
 
     from app.lib.base.provider import Provider
 

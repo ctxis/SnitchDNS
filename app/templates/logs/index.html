@@ -1,0 +1,45 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col">
+        <ul class="nav nav-pills nav-fill mb-5">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logs.index') }}">{{ 'Global' if current_user.admin else 'Your' }} DNS Matches</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logs.index_unmatched') }}">Unmatched Queries</a>
+            </li>
+        </ul>
+
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Source IP</th>
+                <th>Query Domain</th>
+                <th>Matched Domain</th>
+                <th>Class</th>
+                <th>Type</th>
+                <th>Data</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+            {% set class = 'success' if log.found else '' %}
+            <tr class="table-{{ class }}">
+                <td>{{ log.id }}</td>
+                <td>{{ log.source_ip }}</td>
+                <td>{{ log.domain }}</td>
+                <td>{{ log.full_domain }}</td>
+                <td>{{ log.rclass }}</td>
+                <td>{{ log.type }}</td>
+                <td>{{ log.data }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

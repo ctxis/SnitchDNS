@@ -49,10 +49,9 @@ class DatabaseResolver(BaseResolver):
                 reply = DNSRecord.parse(proxy)
 
                 if reply.rr:
-                    pass
-                    # query_log.resolved_to = str(reply.q.qname)
-                    # query_log.forwarded = True
-                    # query_log.save()
+                    query_log.data = str(reply.q.qname)
+                    query_log.forwarded = True
+                    query_log.save()
             except socket.timeout:
                 # Error - move to the next DNS Forwarder.
                 pass
