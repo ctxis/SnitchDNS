@@ -3,39 +3,79 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col">
-        <ul class="nav nav-pills nav-fill mb-5">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logs.index') }}">{{ 'Global' if current_user.admin else 'Your' }} DNS Matches</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logs.index_unmatched') }}">Unmatched Queries</a>
-            </li>
-        </ul>
+        <h1>Search Logs</h1>
+        <div class="mb-5">
+            <small>
+                <div>Searches use '=' unless you use the '%' operator</div>
+                <div>Search for domain 'example.com' will evaluate to &quot;WHERE domain = 'example.com'&quot;</div>
+                <div>Search for domain 'example.%' will evaluate to &quot;WHERE domain LIKE 'example.%'&quot;</div>
+            </small>
+        </div>
+
+        <div class="search-form">
+            <form action="{{ url_for('logs.index') }}" method="get">
+                <div class="form-group row">
+                    <div class="col">Domain</div>
+                    <div class="col">
+                        <input type="text" class="form-control form-control-sm" value="{{ params.domain }}" name="domain">
+                    </div>
+
+                    <div class="col">Source IP</div>
+                    <div class="col">
+                        <input type="text" class="form-control form-control-sm" value="{{ params.source_ip }}" name="source_ip">
+                    </div>
+
+                    <div class="col">Class</div>
+                    <div class="col">
+                        <select class="custom-select custom-select-sm" name="rclass">
+                            <option value=""></option>
+                            {% for class in filters.classes %}
+                            <option value="{{ class }}" {{ 'selected' if class == params.rclass }}>{{ class }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col">Type</div>
+                    <div class="col">
+                        <select class="custom-select custom-select-sm" name="type">
+                            <option value=""></option>
+                            {% for type in filters.types %}
+                            <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-sm btn-primary">search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <h1>Results</h1>
 
         <table class="table table-sm table-striped">
             <thead>
             <tr>
                 <th>#</th>
+                <th>Domain</th>
                 <th>Source IP</th>
-                <th>Query Domain</th>
-                <th>Matched Domain</th>
                 <th>Class</th>
                 <th>Type</th>
-                <th>Data</th>
-
             </tr>
             </thead>
             <tbody>
-            {% for log in logs %}
-            {% set class = 'success' if log.found else '' %}
-            <tr class="table-{{ class }}">
-                <td>{{ log.id }}</td>
-                <td>{{ log.source_ip }}</td>
-                <td>{{ log.domain }}</td>
-                <td>{{ log.full_domain }}</td>
-                <td>{{ log.rclass }}</td>
-                <td>{{ log.type }}</td>
-                <td>{{ log.data }}</td>
+            {% for result in results %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ result.domain }}</td>
+                <td>{{ result.source_ip }}</td>
+                <td>{{ result.rclass }}</td>
+                <td>{{ result.type }}</td>
             </tr>
             {% endfor %}
             </tbody>

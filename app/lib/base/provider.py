@@ -4,6 +4,7 @@ from app.lib.dns.manager import DNSManager
 from app.lib.dns.zone_manager import DNSZoneManager
 from app.lib.dns.record_manager import DNSRecordManager
 from app.lib.dns.log_manager import DNSLogManager
+from app.lib.dns.search_manager import SearchManager
 from app.lib.base.password_complexity import PasswordComplexityManager
 from app.lib.base.email import EmailManager
 
@@ -31,6 +32,9 @@ class Provider:
 
     def dns_logs(self):
         return DNSLogManager()
+
+    def search(self):
+        return SearchManager()
 
     def password_complexity(self):
         settings = self.settings()

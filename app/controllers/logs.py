@@ -11,14 +11,15 @@ bp = Blueprint('logs', __name__, url_prefix='/logs')
 @login_required
 def index():
     provider = Provider()
-    logs = provider.dns_logs()
+    search = provider.search()
 
-    user_id = 0 if current_user.admin else current_user.id
-    log_items = logs.get_user_logs(user_id)
+    results = search.search_from_request(request)
 
     return render_template(
         'logs/index.html',
-        logs=log_items
+        results=results['results'],
+        params=results['params'],
+        filters=results['filters']
     )
 
 
