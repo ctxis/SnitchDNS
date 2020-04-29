@@ -43,6 +43,10 @@ class SearchManager:
             where.append("ql.found = :found")
             params['found'] = search_params.matched
 
+        if search_params.forwarded in [0, 1]:
+            where.append("ql.forwarded = :forwarded")
+            params['forwarded'] = search_params.forwarded
+
         if len(where) > 0:
             where = " AND ".join(where)
             sql = sql + where

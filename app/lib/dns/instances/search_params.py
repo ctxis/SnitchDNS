@@ -10,6 +10,7 @@ class SearchParams:
         self.__rclass = None
         self.__type = None
         self.__matched = None
+        self.__forwarded = None
 
         self.__load()
 
@@ -19,11 +20,12 @@ class SearchParams:
         self.rclass = self.__get_param('rclass', '')
         self.type = self.__get_param('type', '')
         self.matched = self.__get_param('matched', -1, type='int')
+        self.forwarded = self.__get_param('forwarded', -1, type='int')
 
     def __get_param(self, name, default, type='str'):
         value = self.__request.args.get(name, default)
         if type == 'int':
-            value = int(value) if value.isdigit() else value
+            value = int(value) if str(value).isdigit() else default
 
         return value
 
@@ -76,3 +78,11 @@ class SearchParams:
     @matched.setter
     def matched(self, value):
         self.__matched = value
+
+    @property
+    def forwarded(self):
+        return self.__forwarded
+
+    @forwarded.setter
+    def forwarded(self, value):
+        self.__forwarded = value
