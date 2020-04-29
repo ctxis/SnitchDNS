@@ -66,6 +66,57 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <div class="col">From Date</div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm date" id="date_from" data-target-input="nearest">
+                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="date_from" data-target="#date_from" placeholder="date">
+                                <div class="input-group-append" data-target="#date_from" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">at</div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm date" id="time_from" data-target-input="nearest">
+                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="time_from" data-target="#time_from" placeholder="time">
+                                <div class="input-group-append" data-target="#time_from" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">To Date</div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm date" id="date_to" data-target-input="nearest">
+                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="date_to" data-target="#date_to" placeholder="date">
+                                <div class="input-group-append" data-target="#date_to" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">at</div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm date" id="time_to" data-target-input="nearest">
+                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="time_to" data-target="#time_to" placeholder="time">
+                                <div class="input-group-append" data-target="#time_to" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-sm btn-primary">search</button>
                 </div>
@@ -86,6 +137,7 @@
                 <th>Source IP</th>
                 <th>Class</th>
                 <th>Type</th>
+                <th>Date</th>
             </tr>
             </thead>
             <tbody>
@@ -96,10 +148,35 @@
                 <td>{{ result.source_ip }}</td>
                 <td>{{ result.rclass }}</td>
                 <td>{{ result.type }}</td>
+                <td>{{ result.created_at('%Y-%m-%d %H:%M:%S') }}</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#date_from').datetimepicker({
+            format: 'Y-MM-DD',
+            date: '{{ params.full_date_from }}'
+        });
+
+        $('#date_to').datetimepicker({
+            format: 'Y-MM-DD',
+            date: '{{ params.full_date_to }}'
+        });
+
+        $('#time_from').datetimepicker({
+            format: 'HH:mm',
+            date: '{{ params.full_date_from }}'
+        });
+
+        $('#time_to').datetimepicker({
+            format: 'HH:mm',
+            date: '{{ params.full_date_to }}'
+        });
+    });
+</script>
 {% endblock %}

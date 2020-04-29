@@ -1,5 +1,7 @@
 from app.lib.dns.instances.search_params import SearchParams
+from app.lib.dns.instances.search_result import SearchResult
 from app import db
+import datetime
 
 
 class SearchManager:
@@ -47,6 +49,16 @@ class SearchManager:
             where.append("ql.forwarded = :forwarded")
             params['forwarded'] = search_params.forwarded
 
+        date_from = search_params.full_date_from
+        date_to = search_params.full_date_to
+        if isinstance(date_from, datetime.datetime):
+            where.append("ql.created_at >= :date_from")
+            params['date_from'] = date_from.strftime('%Y-%m-%d %H:%M:%S')
+
+        if isinstance(date_to, datetime.datetime):
+            where.append("ql.created_at <= :date_to")
+            params['date_to'] = date_to.strftime('%Y-%m-%d %H:%M:%S')
+
         if len(where) > 0:
             where = " AND ".join(where)
             sql = sql + where
@@ -54,7 +66,11 @@ class SearchManager:
             sql = sql + " 1=1 "
 
         results = db.session.execute(sql, params)
-        return results
+        output = []
+        for result in results:
+            output.append(SearchResult(result))
+
+        return output
 
     def get_filters(self):
         filters = {
