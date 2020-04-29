@@ -9,21 +9,31 @@ class SearchParams:
         self.__source_ip = None
         self.__rclass = None
         self.__type = None
+        self.__matched = None
 
         self.__load()
 
     def __load(self):
-        self.__domain = self.__request.args.get('domain', '')
-        self.__source_ip = self.__request.args.get('source_ip', '')
-        self.__rclass = self.__request.args.get('rclass', '')
-        self.__type = self.__request.args.get('type', '')
+        self.domain = self.__get_param('domain', '')
+        self.source_ip = self.__get_param('source_ip', '')
+        self.rclass = self.__get_param('rclass', '')
+        self.type = self.__get_param('type', '')
+        self.matched = self.__get_param('matched', -1, type='int')
+
+    def __get_param(self, name, default, type='str'):
+        value = self.__request.args.get(name, default)
+        if type == 'int':
+            value = int(value) if value.isdigit() else value
+
+        return value
 
     def url(self):
         params = [
             'domain=' + urlencode(self.domain),
             'source_ip=' + urlencode(self.source_ip),
             'rclass=' + urlencode(self.rclass),
-            'type=' + urlencode(self.type)
+            'type=' + urlencode(self.type),
+            'matched=' + urlencode(self.matched)
         ]
         return "&".join(params)
 
@@ -58,3 +68,11 @@ class SearchParams:
     @type.setter
     def type(self, value):
         self.__type = value
+
+    @property
+    def matched(self):
+        return self.__matched
+
+    @matched.setter
+    def matched(self, value):
+        self.__matched = value

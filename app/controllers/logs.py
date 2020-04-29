@@ -21,18 +21,3 @@ def index():
         params=results['params'],
         filters=results['filters']
     )
-
-
-@bp.route('/unmatched', methods=['GET'])
-@login_required
-@admin_required
-def index_unmatched():
-    provider = Provider()
-    logs = provider.dns_logs()
-
-    log_items = logs.get_unmatched_logs()
-
-    return render_template(
-        'logs/index.html',
-        logs=log_items
-    )

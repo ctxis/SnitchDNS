@@ -39,6 +39,10 @@ class SearchManager:
             where.append("ql.type = :type")
             params['type'] = search_params.type
 
+        if search_params.matched in [0, 1]:
+            where.append("ql.found = :found")
+            params['found'] = search_params.matched
+
         if len(where) > 0:
             where = " AND ".join(where)
             sql = sql + where
