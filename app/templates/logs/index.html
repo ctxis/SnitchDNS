@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import render_pagination with context %}
 
 {% block content %}
 <div class="row mt-5">
@@ -143,20 +144,22 @@
             </tr>
             </thead>
             <tbody>
-            {% for result in results %}
+            {% for result in results.items %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
                 <td>{{ result.domain }}</td>
                 <td>{{ result.source_ip }}</td>
                 <td>{{ result.rclass }}</td>
                 <td>{{ result.type }}</td>
-                <td>{{ result.created_at('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>{{ 'Yes' if result.forwarded else 'No' }}</td>
                 <td>{{ 'Yes' if result.matched else 'No' }}</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+
+        {{ render_pagination(results, 'logs.index', params.url()) }}
     </div>
 </div>
 

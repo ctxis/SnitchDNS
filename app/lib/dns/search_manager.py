@@ -1,6 +1,7 @@
+from sqlalchemy import and_, func
 from app.lib.dns.instances.search_params import SearchParams
-from app.lib.dns.instances.search_result import SearchResult
 from app import db
+from app.lib.models.dns import DNSQueryLogModel
 import datetime
 
 
@@ -14,63 +15,42 @@ class SearchManager:
         }
 
     def search(self, search_params):
-        where = []
-        params = {}
-
-        sql = '''
-            SELECT *
-            FROM dns_query_log ql
-            WHERE 
-        '''
+        query = DNSQueryLogModel.query
 
         if len(search_params.domain) > 0:
-            operator = 'LIKE' if '%' in search_params.domain else '='
-            where.append("ql.domain {0} :domain".format(operator))
-            params['domain'] = search_params.domain
+            if '%' in search_params.domain:
+                query = query.filter(DNSQueryLogModel.domain.ilike(search_params.domain))
+            else:
+                query = query.filter(func.lower(DNSQueryLogModel.domain) == search_params.domain.lower())
 
         if len(search_params.source_ip) > 0:
-            operator = 'LIKE' if '%' in search_params.source_ip else '='
-            where.append("ql.source_ip {0} :source_ip".format(operator))
-            params['source_ip'] = search_params.source_ip
+            if '%' in search_params.source_ip:
+                query = query.filter(DNSQueryLogModel.source_ip.ilike(search_params.source_ip))
+            else:
+                query = query.filter(DNSQueryLogModel.source_ip == search_params.source_ip)
 
         if len(search_params.rclass) > 0:
-            where.append("ql.rclass = :rclass")
-            params['rclass'] = search_params.rclass
+            query = query.filter(DNSQueryLogModel.rclass == search_params.rclass)
 
         if len(search_params.type) > 0:
-            where.append("ql.type = :type")
-            params['type'] = search_params.type
+            query = query.filter(DNSQueryLogModel.type == search_params.type)
 
         if search_params.matched in [0, 1]:
-            where.append("ql.found = :found")
-            params['found'] = search_params.matched
+            query = query.filter(DNSQueryLogModel.found == search_params.matched)
 
         if search_params.forwarded in [0, 1]:
-            where.append("ql.forwarded = :forwarded")
-            params['forwarded'] = search_params.forwarded
+            query = query.filter(DNSQueryLogModel.forwarded == search_params.forwarded)
 
         date_from = search_params.full_date_from
         date_to = search_params.full_date_to
         if isinstance(date_from, datetime.datetime):
-            where.append("ql.created_at >= :date_from")
-            params['date_from'] = date_from.strftime('%Y-%m-%d %H:%M:%S')
+            query = query.filter(DNSQueryLogModel.created_at >= date_from)
 
         if isinstance(date_to, datetime.datetime):
-            where.append("ql.created_at <= :date_to")
-            params['date_to'] = date_to.strftime('%Y-%m-%d %H:%M:%S')
+            query = query.filter(DNSQueryLogModel.created_at <= date_to)
 
-        if len(where) > 0:
-            where = " AND ".join(where)
-            sql = sql + where
-        else:
-            sql = sql + " 1=1 "
-
-        results = db.session.execute(sql, params)
-        output = []
-        for result in results:
-            output.append(SearchResult(result))
-
-        return output
+        rows = query.paginate(search_params.page, search_params.per_page, False)
+        return rows
 
     def get_filters(self):
         filters = {

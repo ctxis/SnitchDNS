@@ -1,5 +1,5 @@
 import datetime
-from urllib.parse import urlencode
+from urllib.parse import quote_plus
 
 
 class SearchParams:
@@ -16,6 +16,8 @@ class SearchParams:
         self.__date_to = None
         self.__time_from = None
         self.__time_to = None
+        self.__page = None
+        self.__per_page = None
 
         self.__load()
 
@@ -30,6 +32,18 @@ class SearchParams:
         self.date_to = self.__get_param('date_to', '')
         self.time_from = self.__get_param('time_from', '')
         self.time_to = self.__get_param('time_to', '')
+        self.page = self.__get_param('page', 1, type='int')
+        self.per_page = self.__get_param('per_page', 10, type='int')
+
+        if len(self.date_from) > 0 and len(self.time_from) == 0:
+            self.time_from = '00:00:00'
+        elif len(self.time_from) > 0:
+            self.time_from += ':00'
+
+        if len(self.date_to) > 0 and len(self.time_to) == 0:
+            self.time_to = '23:59:59'
+        elif len(self.time_to) > 0:
+            self.time_to += ':59'
 
     def __get_param(self, name, default, type='str'):
         value = self.__request.args.get(name, default)
@@ -39,13 +53,20 @@ class SearchParams:
         return value
 
     def url(self):
-        params = [
-            'domain=' + urlencode(self.domain),
-            'source_ip=' + urlencode(self.source_ip),
-            'rclass=' + urlencode(self.rclass),
-            'type=' + urlencode(self.type),
-            'matched=' + urlencode(self.matched)
-        ]
+        params = []
+
+        params.append('domain=' + quote_plus(self.domain)) if len(self.domain) > 0 else False
+        params.append('source_ip=' + quote_plus(self.source_ip)) if len(self.source_ip) > 0 else False
+        params.append('rclass=' + quote_plus(self.rclass)) if len(self.rclass) > 0 else False
+        params.append('type=' + quote_plus(self.type)) if len(self.type) > 0 else False
+        params.append('matched=' + quote_plus(self.matched)) if self.matched in [0, 1] else False
+        params.append('forwarded=' + quote_plus(self.forwarded)) if self.forwarded in [0, 1] else False
+        params.append('date_from=' + quote_plus(self.date_from)) if len(self.date_from) > 0 else False
+        params.append('time_from=' + quote_plus(self.time_from)) if len(self.time_from) > 0 else False
+        params.append('date_to=' + quote_plus(self.date_to)) if len(self.date_to) > 0 else False
+        params.append('time_to=' + quote_plus(self.time_to)) if len(self.time_to) > 0 else False
+        params.append('page=')  # Must be last.
+
         return "&".join(params)
 
     @property
@@ -132,7 +153,7 @@ class SearchParams:
     def full_date_from(self):
         value = ''
         try:
-            value = datetime.datetime.strptime(self.date_from + ' ' + self.time_from, '%Y-%m-%d %H:%M')
+            value = datetime.datetime.strptime(self.date_from + ' ' + self.time_from, '%Y-%m-%d %H:%M:%S')
         except:
             pass
         return value
@@ -141,7 +162,23 @@ class SearchParams:
     def full_date_to(self):
         value = ''
         try:
-            value = datetime.datetime.strptime(self.date_to + ' ' + self.time_to, '%Y-%m-%d %H:%M')
+            value = datetime.datetime.strptime(self.date_to + ' ' + self.time_to, '%Y-%m-%d %H:%M:%S')
         except:
             pass
         return value
+
+    @property
+    def page(self):
+        return self.__page
+
+    @page.setter
+    def page(self, value):
+        self.__page = value
+
+    @property
+    def per_page(self):
+        return self.__per_page
+
+    @per_page.setter
+    def per_page(self, value):
+        self.__per_page = value

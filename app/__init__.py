@@ -26,6 +26,7 @@ def create_app(config_class=None):
     # First we load everything we need in order to end up with a working app.
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'snitchdns.sqlite3')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # app.config['SQLALCHEMY_ECHO'] = True
     app.config['SECRET_KEY'] = 'SnitchesGetStitches_:)'
     app.config['SESSION_COOKIE_HTTPONLY'] = True
 
