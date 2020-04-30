@@ -138,6 +138,8 @@
                 <th>Class</th>
                 <th>Type</th>
                 <th>Date</th>
+                <th>Forwarded</th>
+                <th>Matched</th>
             </tr>
             </thead>
             <tbody>
@@ -149,6 +151,8 @@
                 <td>{{ result.rclass }}</td>
                 <td>{{ result.type }}</td>
                 <td>{{ result.created_at('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{ 'Yes' if result.forwarded else 'No' }}</td>
+                <td>{{ 'Yes' if result.matched else 'No' }}</td>
             </tr>
             {% endfor %}
             </tbody>

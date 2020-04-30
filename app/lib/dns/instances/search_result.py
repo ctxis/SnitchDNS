@@ -28,3 +28,11 @@ class SearchResult:
         except:
             pass
         return date
+
+    @property
+    def forwarded(self):
+        return self.__result.forwarded
+
+    @property
+    def matched(self):
+        return self.__result.found
