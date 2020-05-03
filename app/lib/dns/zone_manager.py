@@ -91,26 +91,6 @@ class DNSZoneManager:
 
         return self.__load(results[0])
 
-    # def get_all_logs(self):
-    #     results = DNSQueryLogModel.query.order_by(DNSQueryLogModel.id).all()
-    #
-    #     logs = []
-    #     for result in results:
-    #         logs.append(DNSQueryLog(result))
-    #
-    #     return logs
-
-    # def get_log_filters(self):
-    #     classes = db.session.query(DNSQueryLogModel.rclass).group_by(DNSQueryLogModel.rclass).order_by(DNSQueryLogModel.rclass)
-    #     types = db.session.query(DNSQueryLogModel.type).group_by(DNSQueryLogModel.type).order_by(DNSQueryLogModel.type)
-    #     source_ips = db.session.query(DNSQueryLogModel.source_ip).group_by(DNSQueryLogModel.source_ip).order_by(DNSQueryLogModel.source_ip)
-    #
-    #     return {
-    #         'classes': classes,
-    #         'types': types,
-    #         'source_ips': source_ips
-    #     }
-
     @property
     def base_domain(self):
         return self.settings.get('dns_base_domain', '')
