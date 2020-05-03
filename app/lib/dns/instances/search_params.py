@@ -45,6 +45,9 @@ class SearchParams:
         elif len(self.time_to) > 0:
             self.time_to += ':59'
 
+        if self.page <= 0:
+            self.page = 1
+
     def __get_param(self, name, default, type='str'):
         value = self.__request.args.get(name, default)
         if type == 'int':
