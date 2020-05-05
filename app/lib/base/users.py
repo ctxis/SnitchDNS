@@ -3,6 +3,7 @@ from app import db
 import flask_bcrypt as bcrypt
 import random
 import string
+import datetime
 from sqlalchemy import and_, func
 
 
@@ -80,6 +81,9 @@ class UserManager:
     def all(self):
         return UserModel.query.order_by(UserModel.id).all()
 
+    def count(self):
+        return db.session.query(UserModel).count()
+
     def username_exists(self, username, return_object=False):
         user = UserModel.query.filter(and_(func.lower(UserModel.username) == func.lower(username))).first()
         if return_object:
@@ -137,6 +141,7 @@ class UserManager:
         user.active = True if active else False
 
         if user_id == 0:
+            user.created_at = datetime.datetime.now()
             db.session.add(user)
 
         db.session.commit()

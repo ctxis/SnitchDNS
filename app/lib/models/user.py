@@ -13,6 +13,7 @@ class UserModel(db.Model, UserMixin):
     admin = db.Column(db.Boolean, default=False, index=True)
     active = db.Column(db.Boolean, default=True, index=True)
     ldap = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, nullable=True)
 
     def get_id(self):
         return str(self.session_token)
