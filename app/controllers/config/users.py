@@ -36,7 +36,8 @@ def user_edit(user_id):
     return render_template(
         'config/users/edit.html',
         user_id=user_id,
-        user=user
+        user=user,
+        password_complexity=users.password_complexity.get_requirement_description()
     )
 
 

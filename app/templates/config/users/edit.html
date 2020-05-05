@@ -6,7 +6,7 @@
         {% set active_nav = 'users' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col-5">
+    <div class="col-7">
         <h4>{{ 'Create' if user_id == 0 else 'Edit' }} User</h4>
 
         <form action="{{ url_for('config.user_edit_save', user_id=user_id) }}" method="post">
@@ -27,6 +27,9 @@
                 </div>
                 <div class="col">
                     <input type="password" class="form-control form-control-sm text-right" name="password" id="password" value="{{ '********' if user_id > 0 }}" required>
+                </div>
+                <div class="row">
+                    <div class="col ml-5"><small class="font-italic">{{ password_complexity }}</small></div>
                 </div>
             </div>
 

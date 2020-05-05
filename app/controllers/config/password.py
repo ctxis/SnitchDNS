@@ -10,7 +10,13 @@ def password():
     if current_user.ldap:
         flash('LDAP users cannot change password')
         return redirect(url_for('home.index'))
-    return render_template('config/password.html')
+
+    users = Provider().users()
+
+    return render_template(
+        'config/password.html',
+        password_complexity=users.password_complexity.get_requirement_description()
+    )
 
 
 @bp.route('/password/save', methods=['POST'])
