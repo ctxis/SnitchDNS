@@ -42,6 +42,14 @@ class DNSZone(BaseDNSInstance):
     def user_id(self, value):
         self.item.user_id = value
 
+    @property
+    def master(self):
+        return self.item.master
+
+    @master.setter
+    def master(self, value):
+        self.item.master = value
+
     def build_zone(self, record, domain=None):
         domain = self.domain if domain is None else domain
         zone_items = [

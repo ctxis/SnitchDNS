@@ -16,15 +16,21 @@
                         <input type="text" name="domain" id="domain" class="form-control form-control-sm text-right" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                     </div>
                     {% else %}
-                    <div class="form-group">
-                        <label for="domain">Domain</label>
-                        <div class="input-group input-group-sm">
-                            <input type="text" name="domain" id="domain" value="{{ zone.domain if dns_zone_id > 0 }}" class="form-control form-control-sm text-right" required autofocus>
-                            <div class="input-group-append">
-                                <span class="input-group-text">{{ user_domain }}</span>
+                        {% if dns_zone_id > 0 and zone.master == True %}
+                        <div class="form-group">
+                            <div class="alert alert-info">This is a master zone - you can only edit the below settings.</div>
+                        </div>
+                        {% else %}
+                        <div class="form-group">
+                            <label for="domain">Domain</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="domain" id="domain" value="{{ zone.domain if dns_zone_id > 0 }}" class="form-control form-control-sm text-right" required autofocus>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">{{ user_domain }}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        {% endif %}
                     {% endif %}
 
                     <div class="form-group row py-0 my-0">

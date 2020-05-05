@@ -10,6 +10,7 @@ class DNSZoneModel(db.Model):
     full_domain = db.Column(db.String(255), nullable=True, default='', index=True)
     active = db.Column(db.Boolean, default=True, index=True)
     exact_match = db.Column(db.Boolean, default=True, index=True)
+    master = db.Column(db.Boolean, default=False, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)

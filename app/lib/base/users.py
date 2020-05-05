@@ -108,7 +108,7 @@ class UserManager:
             user.active = True if active else False
             db.session.commit()
             db.session.refresh(user)
-            return True
+            return user
 
         # If there was a username update, check to see if the new username already exists.
         if username != user.username:
@@ -147,7 +147,7 @@ class UserManager:
         db.session.commit()
         db.session.refresh(user)
 
-        return True
+        return user
 
     def get_user(self, user_id):
         return self.__get(user_id=user_id)

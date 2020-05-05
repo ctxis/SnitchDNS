@@ -82,11 +82,12 @@ def zone_edit_save(dns_zone_id):
             flash('Access Denied', 'error')
             return redirect(url_for('home.index'))
 
-    domain = request.form['domain'].strip()
+    domain = request.form['domain'].strip() if 'domain' in request.form else ''
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
+    master = False
 
-    if len(domain) == 0:
+    if len(domain) == 0 and 'domain' in request.form:
         flash('Invalid domain', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
@@ -100,12 +101,22 @@ def zone_edit_save(dns_zone_id):
         if not zone:
             flash('Could not get zone', 'error')
             return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
+
+        # Now check if it's a master zone and check if there's been an attempt to change the master domain.
+        if zone.master:
+            if len(domain) > 0 and domain != zone.domain and current_user.admin is False:
+                flash('You cannot edit the domain of the master zone.', 'error')
+                return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
+
+            domain = zone.domain
+            base_domain = zone.base_domain
+            master = True
     else:
         zone = zones.create()
 
     # If it's an admin, create it as a global domain.
     user_id = 0 if current_user.admin else current_user.id
-    if not zones.save(zone, user_id, domain, base_domain, active, exact_match):
+    if not zones.save(zone, user_id, domain, base_domain, active, exact_match, master):
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
@@ -189,9 +200,6 @@ def record_edit_save(dns_zone_id, dns_record_id):
     elif type not in dns_types:
         flash('Invalid type value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
-    # elif not dns.is_valid_ip_address(address):
-    #     flash('Invalid IP address value', 'error')
-    #     return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 
     if dns_record_id > 0:
         record = records.get(zone.id, dns_record_id)
@@ -207,18 +215,3 @@ def record_edit_save(dns_zone_id, dns_record_id):
 
     flash('Record saved', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
-
-# @bp.route('/logs', methods=['GET'])
-# @login_required
-# def logs():
-#     provider = Provider()
-#     dns = provider.dns()
-#
-#     logs = dns.get_all_logs()
-#     filters = dns.get_log_filters()
-#
-#     return render_template(
-#         'dns/logs.html',
-#         logs=logs,
-#         filters=filters
-#     )

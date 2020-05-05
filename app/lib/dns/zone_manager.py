@@ -8,7 +8,7 @@ class DNSZoneManager:
     def __init__(self, settings):
         self.settings = settings
 
-    def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None, exact_match=None):
+    def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None, exact_match=None, master=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -32,6 +32,9 @@ class DNSZoneManager:
         if base_domain is not None:
             query = query.filter(func.lower(DNSZoneModel.base_domain) == base_domain.lower())
 
+        if master is not None:
+            query = query.filter(DNSZoneModel.master == master)
+
         return query.all()
 
     def get(self, dns_zone_id):
@@ -49,16 +52,17 @@ class DNSZoneManager:
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, base_domain, active, exact_match):
+    def save(self, zone, user_id, domain, base_domain, active, exact_match, master):
         zone.user_id = user_id
         zone.domain = self.__fix_domain(domain)
         zone.base_domain = self.__fix_base_domain(base_domain)
         zone.full_domain = zone.domain + zone.base_domain
         zone.active = active
         zone.exact_match = exact_match
+        zone.master = master
         zone.save()
 
-        return True
+        return zone
 
     def __fix_domain(self, domain):
         return domain.rstrip('.')
@@ -98,8 +102,11 @@ class DNSZoneManager:
     def get_user_base_domain(self, username):
         dns_base_domain = self.__fix_domain(self.base_domain).lstrip('.')
         # Keep only letters, digits, underscore.
-        username = re.sub(r'\W+', '', username)
+        username = self.__clean_username(username)
         return '.' + username + '.' + dns_base_domain
+
+    def __clean_username(self, username):
+        return re.sub(r'\W+', '', username)
 
     def has_duplicate(self, dns_zone_id, domain, base_domain):
         return DNSZoneModel.query.filter(
@@ -113,3 +120,10 @@ class DNSZoneManager:
             # SuperUser
             return True
         return self.__get(id=dns_zone_id, user_id=user_id) is not None
+
+    def create_user_base_zone(self, user):
+        if len(self.base_domain) == 0:
+            return False
+
+        zone = self.create()
+        return self.save(zone, user.id, self.__clean_username(user.username), '.' + self.base_domain, True, False, True)

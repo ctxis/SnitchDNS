@@ -22,7 +22,9 @@ def users():
 @login_required
 @admin_required
 def user_edit(user_id):
-    users = Provider().users()
+    provider = Provider()
+    users = provider.users()
+    zones = provider.dns_zones()
 
     user = None
     if user_id <= 0:
@@ -37,7 +39,8 @@ def user_edit(user_id):
         'config/users/edit.html',
         user_id=user_id,
         user=user,
-        password_complexity=users.password_complexity.get_requirement_description()
+        password_complexity=users.password_complexity.get_requirement_description(),
+        base_domain=zones.base_domain
     )
 
 
@@ -47,6 +50,7 @@ def user_edit(user_id):
 def user_edit_save(user_id):
     provider = Provider()
     users = provider.users()
+    zones = provider.dns_zones()
 
     user = None
     if user_id <= 0:
@@ -84,9 +88,15 @@ def user_edit_save(user_id):
         flash('Please enter a valid e-mail', 'error')
         return redirect(url_for('config.user_edit', user_id=user_id))
 
-    if not users.save(user_id, username, password, full_name, email, admin, ldap, active):
+    user = users.save(user_id, username, password, full_name, email, admin, ldap, active)
+    if not user:
         flash('Could not save user: ' + users.last_error, 'error')
         return redirect(url_for('config.user_edit', user_id=user_id))
+
+    # Now create the base domain zone for that user.
+    if not zones.create_user_base_zone(user):
+        flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
+        return redirect(url_for('config.users'))
 
     flash('User saved', 'success')
     return redirect(url_for('config.users'))
