@@ -1,0 +1,75 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'system' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-5">
+        <h4>Health Check</h4>
+
+        <ul class="list-group">
+            <li class="list-group-item">
+                {% set class = 'success' if is_venv else 'danger' %}
+                {% set icon = 'check' if is_venv else 'times' %}
+                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                <span class="ml-2">Virtual Environment</span>
+            </li>
+
+            <li class="list-group-item">
+                {% set class = 'success' if flask else 'danger' %}
+                {% set icon = 'check' if flask else 'times' %}
+                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                <span class="ml-2">Flask Environment</span>
+            </li>
+
+            <li class="list-group-item">
+                {% set class = 'success' if version else 'danger' %}
+                {% set icon = 'check' if version else 'times' %}
+                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                <span class="ml-2">Python v3.6+</span>
+            </li>
+
+            <li class="list-group-item">
+                {% set class = 'success' if daemon_configured else 'danger' %}
+                {% set icon = 'check' if daemon_configured else 'times' %}
+                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                <span class="ml-2">DNS Daemon Configured</span>
+            </li>
+
+            <li class="list-group-item">
+                {% set class = 'success' if daemon_running else 'danger' %}
+                {% set icon = 'check' if daemon_running else 'times' %}
+                <div class="clearfix">
+                    <div class="float-left">
+                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                        <span class="ml-2">DNS Daemon Running</span>
+                    </div>
+                    <div class="float-right">
+                        <form method="post" action="{{ url_for('config.system_daemon') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% if daemon_running %}
+                            <input type="hidden" name="action" value="stop">
+                            <a href="#" class="submit-on-click" title="Stop Daemon">
+                                <span class="text-danger">
+                                    <i class="fas fa-stop fa-fw"></i>
+                                </span>
+                            </a>
+                        {% else %}
+                            <input type="hidden" name="action" value="start">
+                            <a href="#" class="submit-on-click" title="Start Daemon">
+                                <span class="text-success">
+                                    <i class="fas fa-play fa-fw"></i>
+                                </span>
+                            </a>
+                        {% endif %}
+                        </form>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

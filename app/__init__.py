@@ -70,7 +70,7 @@ def create_app(config_class=None):
 
     @app.after_request
     def after_request(response):
-        response.headers['Server'] = 'Windows 95'
+        response.headers['Server'] = 'SnitchesGetStitches'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -88,13 +88,18 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get)
 
-    @app.cli.command('daemon', help='SnitchDNS Daemon')
+    @app.cli.command('snitch_daemon', help='SnitchDNS Daemon')
     @click.option('--bind-ip', required=True, help='IP Address to bind daemon')
     @click.option('--bind-port', required=True, type=int, help='Port to bind daemon')
-    def daemon(bind_ip, bind_port):
+    def snitch_daemon(bind_ip, bind_port):
         from app.lib.daemon.cli import DNSDaemonCLI
         cli = DNSDaemonCLI()
         return cli.daemon(bind_ip, bind_port)
+
+    @app.cli.command('snitch_env', help='This is a helper to identify the running environment')
+    def snitch_env():
+        print('OK')
+        return True
 
     return app
 

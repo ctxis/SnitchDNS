@@ -7,6 +7,9 @@ from app.lib.dns.log_manager import DNSLogManager
 from app.lib.dns.search_manager import SearchManager
 from app.lib.base.password_complexity import PasswordComplexityManager
 from app.lib.base.email import EmailManager
+from app.lib.base.shell import ShellManager
+from app.lib.base.system import SystemManager
+from app.lib.daemon.manager import DaemonManager
 
 
 class Provider:
@@ -55,4 +58,19 @@ class Provider:
             settings.get('smtp_pass', ''),
             settings.get('smtp_sender', ''),
             True if int(settings.get('smtp_tls', '0')) == 1 else False
+        )
+
+    def shell(self):
+        return ShellManager()
+
+    def system(self):
+        return SystemManager(self.shell())
+
+    def daemon(self):
+        settings = self.settings()
+        return DaemonManager(
+            settings.get('dns_daemon_bind_ip', ''),
+            settings.get('dns_daemon_bind_port', 0),
+            self.system(),
+            self.shell()
         )

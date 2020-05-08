@@ -6,3 +6,5 @@ Flask-WTF
 Flask-Login
 Flask-Bcrypt
 Flask-Mail
+packaging
+psutil
