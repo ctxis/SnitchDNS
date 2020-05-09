@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+    ServerName {{ web.domain }}
+    DocumentRoot /var/www/html
+
+    ErrorLog ${APACHE_LOG_DIR}/snitch.error.log
+    CustomLog ${APACHE_LOG_DIR}/snitch.access.log combined
+
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName {{ web.domain }}
+    DocumentRoot /var/www/html
+
+    ErrorLog ${APACHE_LOG_DIR}/snitch.error.log
+    CustomLog ${APACHE_LOG_DIR}/snitch.access.log combined
+
+    ProxyPreserveHost On
+    ProxyPass	/	http://{{ web.bind_host }}:{{ web.bind_port }}/
+    ProxyPassReverse	/	http://{{ web.bind_host }}:{{ web.bind_port }}/
+
+    SSLEngine on
+
+    SSLCertificateFile	{{ snitch.destination }}/data/config/http/ssl.crt
+    SSLCertificateKeyFile {{ snitch.destination }}/data/config/http/ssl.pem
+</VirtualHost>

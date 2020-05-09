@@ -1,0 +1,7 @@
+- name: Configure Apache
+  import_tasks: server/apache.yml
+  when: web.server == 'apache'
+
+- name: Configure nginx
+  import_tasks: server/nginx.yml
+  when: web.server == 'nginx'

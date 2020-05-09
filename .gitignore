@@ -3,8 +3,6 @@ venv/
 *.pyc
 __pycache__/
 
-instance/
-
 .pytest_cache/
 .coverage
 htmlcov/
@@ -18,3 +16,5 @@ migrations/
 
 data/*
 !data/.gitkeep
+
+setup/ansible/vars.yml

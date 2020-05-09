@@ -1,0 +1,29 @@
+- name: "Checking destination config directory"
+  stat:
+    path: "{{ snitch.destination }}/data/config/service"
+  register: config_service_path
+
+- name: "Checking for existing service file"
+  stat:
+    path: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+  register: config_service_file
+
+- name: "Checking for installed service"
+  stat:
+    path: "/etc/systemd/system/snitchdns.service"
+  register: existing_service
+
+- name: "Creating directory"
+  when: existing_service.stat.exists == False and config_service_path.stat.exists == False
+  file:
+    path: "{{ snitch.destination }}/data/config/service"
+    state: directory
+    recurse: yes
+    owner: "{{ system.user }}"
+    group: "{{ system.group }}"
+
+- name: "Creating service file"
+  when: existing_service.stat.exists == False and config_service_file.stat.exists == False
+  template:
+    src: ubuntu/systemd.j2
+    dest: "{{ snitch.destination }}/data/config/service/snitchdns.service"

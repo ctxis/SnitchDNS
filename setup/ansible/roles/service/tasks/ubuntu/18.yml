@@ -1,0 +1,16 @@
+- name: "Create systemd service"
+  import_tasks: service/systemd.yml
+
+# In Ubuntu 18 it's enough to create a symlink to that folder before enabling.
+- name: "Creating link to service"
+  when: existing_service.stat.exists == False
+  file:
+    src: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+    dest: "/etc/systemd/system/snitchdns.service"
+    state: link
+
+- name: "Enabling and starting service"
+  service:
+    name: snitchdns
+    enabled: true
+    state: started

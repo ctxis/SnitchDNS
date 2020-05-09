@@ -1,0 +1,14 @@
+[Unit]
+Description=SnitchDNS Gunicorn
+After=network.target
+
+[Service]
+User={{ web.user }}
+Group={{ web.group }}
+WorkingDirectory={{ snitch.destination }}
+EnvironmentFile=/etc/environment
+Environment="PATH={{ snitch.destination }}/venv/bin:$PATH"
+ExecStart={{ snitch.destination }}/venv/bin/gunicorn --workers 3 --bind {{ web.bind_host }}:{{ web.bind_port }} -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

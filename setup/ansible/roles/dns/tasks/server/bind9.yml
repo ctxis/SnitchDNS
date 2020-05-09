@@ -1,0 +1,34 @@
+- name: "Install Bind9"
+  when: dns.server == 'bind9'
+  apt:
+    name: "bind9"
+
+- name: "Stop service"
+  when: dns.server == 'bind9'
+  service:
+    name: bind9
+    state: stopped
+
+- name: "Create timestamp for backup"
+  when: dns.server == 'bind9'
+  set_fact:
+    backup_timestamp: "{{ '%Y-%m-%d_%H_%M_%S'|strftime }}"
+
+- name: "Backup named.conf.options"
+  when: dns.server == 'bind9'
+  copy:
+    remote_src: yes
+    src: "/etc/bind/named.conf.options"
+    dest: "/etc/bind/named.conf.options_{{ backup_timestamp }}"
+
+- name: "Replace named.conf.options"
+  when: dns.server == 'bind9'
+  template:
+    src: named.conf.options.j2
+    dest: "/etc/bind/named.conf.options"
+
+- name: "Start service"
+  when: dns.server == 'bind9'
+  service:
+    name: bind9
+    state: started

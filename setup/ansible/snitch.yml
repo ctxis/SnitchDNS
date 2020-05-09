@@ -1,0 +1,40 @@
+---
+- name: "Install common packages"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - common
+
+- name: "Install SnitchDNS"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - snitch
+
+- name: "Install SnitchDNS Service"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - service
+
+- name: "Configure web server"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - webserver
+
+- name: "Install and Configure DNS Server"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - dns

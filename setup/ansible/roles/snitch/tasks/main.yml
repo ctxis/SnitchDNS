@@ -1,0 +1,65 @@
+- name: "Check for installation directory"
+  stat:
+    path: "{{ snitch.destination }}"
+  register: parent_path
+
+- name: "Creating directory"
+  when: parent_path.stat.exists == False
+  file:
+    path: "{{ snitch.destination }}"
+    state: directory
+    recurse: yes
+    owner: "{{ system.user }}"
+    group: "{{ system.group }}"
+
+- name: "Check if repo is already cloned"
+  git:
+    repo: "{{ snitch.repo }}"
+    dest: "{{ snitch.destination }}"
+    clone: no
+    update: no
+  register: git_info
+
+# I'm using this technique because git won't allow you to clone into an existing directory.
+# And if our user doesn't have permission to create the destination folder, ansible will throw a clone error.
+- name: "Clone repo"
+  when: git_info.before == None
+  become: yes
+  become_user: "{{ system.user }}"
+  shell:
+    chdir: "{{ snitch.destination }}"
+    cmd: "git init &&
+          git remote add origin {{ snitch.repo }} &&
+          git fetch -p &&
+          git checkout master"
+
+- name: "Checking for virtual environment"
+  stat:
+    path: "{{ snitch.destination }}/venv"
+  register: venv
+
+- name: "Setting up virtual environment"
+  when: venv.stat.exists == False
+  become: yes
+  become_user: "{{ system.user }}"
+  shell:
+    chdir: "{{ snitch.destination }}"
+    cmd: |
+      {{ system.python }} -m venv venv
+      . venv/bin/activate
+      pip install -r requirements.txt
+      flask db init
+      flask db migrate
+      flask db upgrade
+      flask crontab add
+      deactivate
+  args:
+    chdir: "{{ snitch.destination }}"
+
+- name: "Set {{ web.user }} as the owner for {{ snitch.destination }}"
+  file:
+    path: "{{ snitch.destination }}"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
