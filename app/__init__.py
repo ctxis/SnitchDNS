@@ -90,7 +90,10 @@ def create_app(config_class=None):
             provider = Provider()
             return provider.settings().get(name, default)
 
-        return dict(setting_get=setting_get)
+        def is_daemon_running():
+            return Provider().daemon().is_running()
+
+        return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
     @app.cli.command('snitch_daemon', help='SnitchDNS Daemon')
     @click.option('--bind-ip', required=True, help='IP Address to bind daemon')

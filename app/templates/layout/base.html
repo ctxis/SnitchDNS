@@ -5,6 +5,14 @@
 
 {% include 'layout/topmenu.html' %}
 
+{% if current_user.is_authenticated and is_daemon_running() == False %}
+<div class="container-flex">
+    <div class="text-center">
+        <div class="alert alert-danger">DNS Daemon Not Running</div>
+    </div>
+</div>
+{% endif %}
+
 <main role="main" class="flex-shrink-0">
     <div class="container">
         {% include 'layout/notifications.html' %}
