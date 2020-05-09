@@ -46,6 +46,10 @@ def login_process():
     user = users.login_session(user)
     login_user(user)
 
+    # On every login we get the hashcat version and the git hash version.
+    system = provider.system()
+    system.run_updates()
+
     if next and url_parse(next).netloc == '':
         return redirect(next)
 

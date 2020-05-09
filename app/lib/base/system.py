@@ -1,11 +1,13 @@
 import sys
 import psutil
+import datetime
 from packaging import version
 
 
 class SystemManager:
-    def __init__(self, shell):
+    def __init__(self, shell, settings):
         self.shell = shell
+        self.settings = settings
 
     def is_virtual_environment(self):
         # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv/42580137#42580137
@@ -38,3 +40,35 @@ class SystemManager:
                 proc.kill()
                 return True
         return False
+
+    def run_updates(self):
+        self.__update_git_hash_version()
+
+    def __update_git_hash_version(self):
+        git_binary = self.shell.execute(['which', 'git'])
+        if len(git_binary) == 0:
+            return False
+
+        # Save latest commit short hash.
+        version = self.shell.execute(['git', 'rev-parse', '--short', 'HEAD'])
+        self.settings.save('git_hash_version', version)
+
+        # Save commit count on the master branch (like a version tracker).
+        try:
+            count = int(self.shell.execute(['git', 'rev-list', '--count', 'master']))
+        except ValueError:
+            count = 0
+        self.settings.save('git_commit_count', count)
+
+        # Save last commit date.
+        try:
+            last_commit_timestamp = int(self.shell.execute(['git', 'log', '-1', '--format=%at']))
+        except ValueError:
+            last_commit_timestamp = 0
+
+        last_commit_date = ''
+        if last_commit_timestamp > 0:
+            last_commit_date = datetime.datetime.fromtimestamp(last_commit_timestamp).strftime('%Y-%m-%d %H:%M')
+        self.settings.save('last_commit_date', last_commit_date)
+
+        return True

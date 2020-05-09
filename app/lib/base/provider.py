@@ -64,7 +64,7 @@ class Provider:
         return ShellManager()
 
     def system(self):
-        return SystemManager(self.shell())
+        return SystemManager(self.shell(), self.settings())
 
     def daemon(self):
         settings = self.settings()
