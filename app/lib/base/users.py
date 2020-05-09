@@ -1,9 +1,11 @@
 from app.lib.models.user import UserModel
 from app import db
+from flask import current_app
 import flask_bcrypt as bcrypt
 import random
 import string
 import datetime
+import os
 from sqlalchemy import and_, func
 
 
@@ -151,3 +153,16 @@ class UserManager:
 
     def get_user(self, user_id):
         return self.__get(user_id=user_id)
+
+    def get_user_data_path(self, user_id, filename=''):
+        path = os.path.join(current_app.root_path, '..', 'data', 'users', str(user_id))
+        if not os.path.isdir(path):
+            os.makedirs(path, exist_ok=True)
+            if not os.path.isdir(path):
+                return False
+
+        if len(filename) > 0:
+            filename = filename.replace('..', '').replace('/', '')
+            path = os.path.join(path, filename)
+
+        return os.path.realpath(path)

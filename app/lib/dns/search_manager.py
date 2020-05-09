@@ -6,15 +6,15 @@ import datetime
 
 
 class SearchManager:
-    def search_from_request(self, request):
-        params = SearchParams(request)
+    def search_from_request(self, request, paginate=True, method='get'):
+        params = SearchParams(request, method)
         return {
-            'results': self.search(params),
+            'results': self.search(params, paginate=paginate),
             'params': params,
             'filters': self.get_filters()
         }
 
-    def search(self, search_params):
+    def search(self, search_params, paginate=False):
         query = DNSQueryLogModel.query
 
         if len(search_params.domain) > 0:
@@ -49,7 +49,10 @@ class SearchManager:
         if isinstance(date_to, datetime.datetime):
             query = query.filter(DNSQueryLogModel.created_at <= date_to)
 
-        rows = query.paginate(search_params.page, search_params.per_page, False)
+        if paginate:
+            rows = query.paginate(search_params.page, search_params.per_page, False)
+        else:
+            rows = query.all()
         return rows
 
     def get_filters(self):

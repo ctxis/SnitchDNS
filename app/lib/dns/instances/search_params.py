@@ -1,10 +1,12 @@
 import datetime
+import inspect
 from urllib.parse import quote_plus
 
 
 class SearchParams:
-    def __init__(self, request):
+    def __init__(self, request, method='get'):
         self.__request = request
+        self.__method = method.lower()
 
         self.__domain = None
         self.__source_ip = None
@@ -33,7 +35,7 @@ class SearchParams:
         self.time_from = self.__get_param('time_from', '')
         self.time_to = self.__get_param('time_to', '')
         self.page = self.__get_param('page', 1, type='int')
-        self.per_page = self.__get_param('per_page', 10, type='int')
+        self.per_page = self.__get_param('per_page', 100, type='int')
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
@@ -49,7 +51,7 @@ class SearchParams:
             self.page = 1
 
     def __get_param(self, name, default, type='str'):
-        value = self.__request.args.get(name, default)
+        value = self.__request.args.get(name, default) if self.__method == 'get' else self.__request.form.get(name, default)
         if type == 'int':
             value = int(value) if str(value).isdigit() else default
 
@@ -185,3 +187,17 @@ class SearchParams:
     @per_page.setter
     def per_page(self, value):
         self.__per_page = value
+
+    def get(self, name):
+        return getattr(self, name) if self.__is_property(name) else None
+
+    def all_properties(self):
+        # A lazy way to get all the properties of the class, so I could loop through them.
+        properties = []
+        for name in dir(self):
+            if self.__is_property(name):
+                properties.append(name)
+        return properties
+
+    def __is_property(self, name):
+        return isinstance(getattr(type(self), name, None), property)
