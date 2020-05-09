@@ -8,3 +8,4 @@ Flask-Bcrypt
 Flask-Mail
 packaging
 psutil
+gunicorn
