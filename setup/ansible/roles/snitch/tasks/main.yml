@@ -51,7 +51,6 @@
       flask db init
       flask db migrate
       flask db upgrade
-      flask crontab add
       deactivate
   args:
     chdir: "{{ snitch.destination }}"
