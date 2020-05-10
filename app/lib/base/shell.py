@@ -3,9 +3,15 @@ import shlex
 
 
 class ShellManager:
-    def execute(self, command, wait=True):
+    def __init__(self, venv_bash_script):
+        self.__venv_bash_script = venv_bash_script
+
+    def execute(self, command, wait=True, venv=False):
         if isinstance(command, dict):
             command = self.__build_command_from_dict(command)
+
+        if venv:
+            command = [self.__venv_bash_script] + command
 
         return self.__execute(command, wait)
 

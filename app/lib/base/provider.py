@@ -10,6 +10,8 @@ from app.lib.base.email import EmailManager
 from app.lib.base.shell import ShellManager
 from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
+from flask import current_app
+import os
 
 
 class Provider:
@@ -61,7 +63,15 @@ class Provider:
         )
 
     def shell(self):
-        return ShellManager()
+        return ShellManager(self.__get_venv_script())
+
+    def __get_venv_script(self):
+        script = os.path.realpath(os.path.join(current_app.root_path, '..', 'venv.sh'))
+        if not os.path.isfile(script):
+            raise Exception("venv.sh is missing from the root directory")
+        elif not os.access(script, os.EX_OK):
+            raise Exception("venv.sh in the root directory is not executable")
+        return script
 
     def system(self):
         return SystemManager(self.shell(), self.settings())

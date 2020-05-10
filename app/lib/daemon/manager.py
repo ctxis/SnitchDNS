@@ -27,7 +27,7 @@ class DaemonManager:
             str(self.port)
         ]
 
-        self.__shell.execute(command, wait=False)
+        self.__shell.execute(command, wait=False, venv=True)
 
         # Wait a little while - I'm not using a loop intentionally.
         time.sleep(5)
@@ -38,6 +38,9 @@ class DaemonManager:
         pid = self.is_running()
         if pid:
             self.__system.process_kill(pid)
+
+        # Wait a bit.
+        time.sleep(5)
 
         return not self.is_running()
 
