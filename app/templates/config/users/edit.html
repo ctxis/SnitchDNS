@@ -23,7 +23,7 @@
                     <label for="username">Username</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm" name="username" id="username" value="{{ user.username if user_id > 0 }}" required autofocus>
+                    <input type="text" class="form-control" name="username" id="username" value="{{ user.username if user_id > 0 }}" required autofocus>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@
                     <label for="password">Password</label>
                 </div>
                 <div class="col">
-                    <input type="password" class="form-control form-control-sm" name="password" id="password" value="{{ '********' if user_id > 0 }}" required>
+                    <input type="password" class="form-control" name="password" id="password" value="{{ '********' if user_id > 0 }}" required>
                 </div>
                 <div class="row">
                     <div class="col ml-5"><small class="font-italic">{{ password_complexity }}</small></div>
@@ -44,7 +44,7 @@
                     <label for="full_name">Full Name</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm" name="full_name" id="full_name" value="{{ user.full_name if user_id > 0 }}" required>
+                    <input type="text" class="form-control" name="full_name" id="full_name" value="{{ user.full_name if user_id > 0 }}" required>
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
                     <label for="email">E-mail</label>
                 </div>
                 <div class="col">
-                    <input type="email" class="form-control form-control-sm" name="email" id="email" value="{{ user.email if user_id > 0 }}" required>
+                    <input type="email" class="form-control" name="email" id="email" value="{{ user.email if user_id > 0 }}" required>
                 </div>
             </div>
 
@@ -94,7 +94,7 @@
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+                <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>
         </form>
     </div>

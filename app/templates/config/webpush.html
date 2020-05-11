@@ -30,7 +30,7 @@
                     <label for="vapid_private">VAPID Private Key</label>
                 </div>
                 <div class="col">
-                    <input name="vapid_private" type="password" id="vapid_private" class="form-control form-control-sm text-right" value="{{ '********' if setting_get('vapid_private', '')|length > 0 }}" placeholder="" required>
+                    <input name="vapid_private" type="password" id="vapid_private" class="form-control text-right" value="{{ '********' if setting_get('vapid_private', '')|length > 0 }}" placeholder="" required>
                 </div>
             </div>
 
@@ -39,12 +39,12 @@
                     <label for="vapid_public">VAPID Public Key</label>
                 </div>
                 <div class="col">
-                    <input name="vapid_public" type="text" id="vapid_public" class="form-control form-control-sm text-right" value="{{ setting_get('vapid_public', '') }}" placeholder="" required>
+                    <input name="vapid_public" type="text" id="vapid_public" class="form-control text-right" value="{{ setting_get('vapid_public', '') }}" placeholder="" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+                <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>
         </form>
     </div>

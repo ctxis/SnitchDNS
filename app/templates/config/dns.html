@@ -22,7 +22,7 @@
                     <label for="dns_base_domain">Domain</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm text-right" name="dns_base_domain" id="dns_base_domain" value="{{ setting_get('dns_base_domain', '') }}" placeholder="snitch.example.com" autofocus>
+                    <input type="text" class="form-control text-right" name="dns_base_domain" id="dns_base_domain" value="{{ setting_get('dns_base_domain', '') }}" placeholder="snitch.example.com" autofocus>
                 </div>
             </div>
 
@@ -44,12 +44,12 @@
                     <label for="forward_dns_address">Forward DNS Servers</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm text-right" name="forward_dns_address" id="forward_dns_address" value="{{ setting_get('forward_dns_address', '') }}" placeholder="8.8.8.8, 8.8.4.4">
+                    <input type="text" class="form-control text-right" name="forward_dns_address" id="forward_dns_address" value="{{ setting_get('forward_dns_address', '') }}" placeholder="8.8.8.8, 8.8.4.4">
                 </div>
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+                <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>
         </form>
     </div>

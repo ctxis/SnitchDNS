@@ -12,12 +12,12 @@
 
                     <div class="form-group">
                         <label for="ttl">TTL</label>
-                        <input type="number" name="ttl" id="ttl" class="form-control form-control-sm text-right hide-spin-buttons" value="{{ record.ttl if dns_record_id > 0 }}" placeholder="60" required>
+                        <input type="number" name="ttl" id="ttl" class="form-control text-right hide-spin-buttons" value="{{ record.ttl if dns_record_id > 0 }}" placeholder="60" required>
                     </div>
 
                     <div class="form-group">
                         <label for="class">Class</label>
-                        <select name="class" id="class" class="custom-select custom-select-sm form-control text-right" required>
+                        <select name="class" id="class" class="custom-select form-control text-right" required>
                             <option value=""></option>
                             {% for dns_class in dns_classes %}
                             <option value="{{ dns_class }}" {{ 'selected' if dns_record_id > 0 and record.rclass == dns_class }}>{{ dns_class }}</option>
@@ -27,7 +27,7 @@
 
                     <div class="form-group">
                         <label for="type">Type</label>
-                        <select name="type" id="type" class="custom-select custom-select-sm form-control text-right" required>
+                        <select name="type" id="type" class="custom-select form-control text-right" required>
                             <option value=""></option>
                             {% for dns_type in dns_types %}
                             <option value="{{ dns_type }}" {{ 'selected' if dns_record_id > 0 and record.type == dns_type }}>{{ dns_type }}</option>
@@ -37,7 +37,7 @@
 
                     <div class="form-group">
                         <label for="data">Data</label>
-                        <input type="text" name="data" id="data" class="form-control form-control-sm text-right" value="{{ record.data if dns_record_id > 0 }}" placeholder="192.168.0.1" required>
+                        <input type="text" name="data" id="data" class="form-control text-right" value="{{ record.data if dns_record_id > 0 }}" placeholder="192.168.0.1" required>
                     </div>
 
                     <div class="form-group row py-0 my-0">
@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block btn-sm">save</button>
+                        <button type="submit" class="btn btn-primary btn-block">save</button>
                     </div>
                 </form>
             </div>

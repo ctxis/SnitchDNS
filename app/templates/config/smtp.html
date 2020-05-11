@@ -29,7 +29,7 @@
                     <label for="smtp_host">SMTP Host</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm text-right" name="smtp_host" id="smtp_host" value="{{ setting_get('smtp_host', '') }}" placeholder="" required>
+                    <input type="text" class="form-control text-right" name="smtp_host" id="smtp_host" value="{{ setting_get('smtp_host', '') }}" placeholder="" required>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@
                     <label for="smtp_port">SMTP Port</label>
                 </div>
                 <div class="col">
-                    <input type="number" class="form-control form-control-sm text-right hide-spin-buttons" name="smtp_port" id="smtp_port" value="{{ setting_get('smtp_port', '') }}" placeholder="" required>
+                    <input type="number" class="form-control text-right hide-spin-buttons" name="smtp_port" id="smtp_port" value="{{ setting_get('smtp_port', '') }}" placeholder="" required>
                 </div>
             </div>
 
@@ -59,7 +59,7 @@
                     <label for="smtp_user">SMTP User</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control form-control-sm text-right" name="smtp_user" id="smtp_user" value="{{ setting_get('smtp_user', '') }}" placeholder="" required>
+                    <input type="text" class="form-control text-right" name="smtp_user" id="smtp_user" value="{{ setting_get('smtp_user', '') }}" placeholder="" required>
                 </div>
             </div>
 
@@ -68,7 +68,7 @@
                     <label for="smtp_pass">SMTP Pass</label>
                 </div>
                 <div class="col">
-                    <input type="password" class="form-control form-control-sm text-right" name="smtp_pass" id="smtp_pass" value="{{ '********' if setting_get('smtp_pass', '')|length > 0 }}" placeholder="" required>
+                    <input type="password" class="form-control text-right" name="smtp_pass" id="smtp_pass" value="{{ '********' if setting_get('smtp_pass', '')|length > 0 }}" placeholder="" required>
                 </div>
             </div>
 
@@ -77,12 +77,12 @@
                     <label for="smtp_sender">SMTP Sender E-mail</label>
                 </div>
                 <div class="col">
-                    <input type="email" class="form-control form-control-sm text-right" name="smtp_sender" id="smtp_sender" value="{{ setting_get('smtp_sender', '') }}" placeholder="from@example.com" required>
+                    <input type="email" class="form-control text-right" name="smtp_sender" id="smtp_sender" value="{{ setting_get('smtp_sender', '') }}" placeholder="from@example.com" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-block btn-sm btn-primary">save</button>
+                <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>
         </form>
 
@@ -93,10 +93,10 @@
 
             <div class="form-group row">
                 <div class="col">
-                    <input name="test_email_recipient" type="email" value="" placeholder="recipient@example.com" class="form-control form-control-sm" required>
+                    <input name="test_email_recipient" type="email" value="" placeholder="recipient@example.com" class="form-control" required>
                 </div>
                 <div class="col-3">
-                    <a href="#" class="submit-on-click btn btn-sm btn-info"><i class="fas fa-paper-plane"></i> <span class="ml-2">send</span></a>
+                    <a href="#" class="submit-on-click btn btn-info"><i class="fas fa-paper-plane"></i> <span class="ml-2">send</span></a>
                 </div>
             </div>
         </form>

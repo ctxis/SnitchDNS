@@ -7,14 +7,14 @@
 
         <div class="clearfix mb-4">
             <div class="float-right">
-                <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=0) }}" class="btn btn-primary btn-sm"> <i class="fas fa-plus"></i> <span class="ml-1">new record</span></a>
+                <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=0) }}" class="btn btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new record</span></a>
             </div>
         </div>
 
         {% if records|length == 0 %}
         <div class="alert alert-info text-center">No records configured yet.</div>
         {% else %}
-        <table class="table table-sm table-striped">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th>#</th>
