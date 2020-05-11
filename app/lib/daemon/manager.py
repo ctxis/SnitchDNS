@@ -35,9 +35,10 @@ class DaemonManager:
         return self.is_running()
 
     def stop(self):
-        pid = self.is_running()
-        if pid:
-            self.__system.process_kill(pid)
+        pids = self.is_running()
+        if pids:
+            for pid in pids:
+                self.__system.process_kill(pid)
 
         # Wait a bit.
         time.sleep(5)
@@ -45,13 +46,14 @@ class DaemonManager:
         return not self.is_running()
 
     def is_running(self):
+        ids = []
         processes = self.__system.process_list()
         for process in processes:
             cmdline = process['cmdline']
             if ('snitch_daemon' in cmdline) and (self.ip in cmdline) and (str(self.port) in cmdline) :
-                return process['id']
+                ids.append(process['id'])
 
-        return False
+        return ids if len(ids) > 0 else False
 
     def is_configured(self):
         if self.port < 1024 or self.port > 65535:
