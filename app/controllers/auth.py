@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.models.user import UserModel
 from sqlalchemy import and_, func
@@ -57,6 +57,7 @@ def login_process():
 
 
 @bp.route('/logout', methods=['GET'])
+@login_required
 def logout():
     provider = Provider()
     users = provider.users()
