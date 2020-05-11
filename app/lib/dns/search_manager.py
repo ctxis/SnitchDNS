@@ -1,21 +1,24 @@
 from sqlalchemy import and_, func
 from app.lib.dns.instances.search_params import SearchParams
 from app import db
-from app.lib.models.dns import DNSQueryLogModel
+from app.lib.models.dns import DNSQueryLogModel, DNSZoneModel
 import datetime
 
 
 class SearchManager:
-    def search_from_request(self, request, paginate=True, method='get'):
+    def search_from_request(self, request, paginate=True, method='get', user_ids=None):
         params = SearchParams(request, method)
         return {
-            'results': self.search(params, paginate=paginate),
+            'results': self.search(params, paginate=paginate, user_ids=user_ids),
             'params': params,
             'filters': self.get_filters()
         }
 
-    def search(self, search_params, paginate=False):
+    def search(self, search_params, paginate=False, user_ids=None):
         query = DNSQueryLogModel.query
+        if user_ids and len(user_ids) > 0:
+            query = query.outerjoin(DNSZoneModel, DNSZoneModel.id == DNSQueryLogModel.dns_zone_id)
+            query = query.filter(DNSZoneModel.user_id.in_(user_ids))
 
         if len(search_params.domain) > 0:
             if '%' in search_params.domain:

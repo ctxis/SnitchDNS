@@ -13,7 +13,8 @@ def index():
     provider = Provider()
     search = provider.search()
 
-    results = search.search_from_request(request)
+    user_ids = [] if current_user.admin else [current_user.id]
+    results = search.search_from_request(request, user_ids=user_ids)
 
     return render_template(
         'logs/index.html',
@@ -37,7 +38,8 @@ def export():
     save_results_as = users.get_user_data_path(current_user.id, filename=filename)
 
     # Perform the search.
-    results = search.search_from_request(request, paginate=False, method='post')
+    user_ids = [] if current_user.admin else [current_user.id]
+    results = search.search_from_request(request, paginate=False, method='post', user_ids=user_ids)
     rows = results['results']
 
     # Export to disk.
