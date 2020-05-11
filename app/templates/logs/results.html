@@ -1,0 +1,64 @@
+{% from 'layout/macros.html' import render_pagination with context %}
+
+{% if results.total == 0 %}
+<div class="row">
+    <div class="col text-center">
+        <div class="alert alert-info">Nothing to show</div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col">
+        <div class="clearfix mb-3">
+            <div class="float-right">
+                <form action="{{ url_for('logs.export') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    {% for name in params.all_properties() %}
+                    <input type="hidden" name="{{ name }}" value="{{ params.get(name) }}">
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-sm btn-primary">export to csv</button>
+                </form>
+            </div>
+        </div>
+
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Domain</th>
+                <th>Source IP</th>
+                <th>Type</th>
+                <th class="text-center">Forwarded</th>
+                <th class="text-center">Matched</th>
+                <th class="text-right">Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for result in results.items %}
+            <tr>
+                <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
+                <td>{{ result.domain }}</td>
+                <td>{{ result.source_ip }}</td>
+                <td>{{ result.type }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if result.forwarded else 'danger' %}
+                    {% set icon = 'check' if result.forwarded else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if result.found else 'danger' %}
+                    {% set icon = 'check' if result.found else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-right">{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {{ render_pagination(results, 'logs.index', params.url()) }}
+    </div>
+</div>
+{% endif %}

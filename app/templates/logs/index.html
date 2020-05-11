@@ -1,5 +1,4 @@
 {% extends 'layout/base.html' %}
-{% from 'layout/macros.html' import render_pagination with context %}
 
 {% block content %}
 <div class="row mt-5">
@@ -16,165 +15,128 @@
         <div class="search-form">
             <form action="{{ url_for('logs.index') }}" method="get">
                 <div class="form-group row">
-                    <div class="col">Domain</div>
                     <div class="col">
-                        <input type="text" class="form-control form-control-sm" value="{{ params.domain }}" name="domain">
-                    </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">Domain</span></div>
+                            <input type="text" class="form-control" value="{{ params.domain }}" name="domain" placeholder="%.example.com">
 
-                    <div class="col">Source IP</div>
-                    <div class="col">
-                        <input type="text" class="form-control form-control-sm" value="{{ params.source_ip }}" name="source_ip">
-                    </div>
-
-                    <div class="col">Class</div>
-                    <div class="col">
-                        <select class="custom-select custom-select-sm" name="rclass">
-                            <option value=""></option>
-                            {% for class in filters.classes %}
-                            <option value="{{ class }}" {{ 'selected' if class == params.rclass }}>{{ class }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col">Type</div>
-                    <div class="col">
-                        <select class="custom-select custom-select-sm" name="type">
-                            <option value=""></option>
-                            {% for type in filters.types %}
-                            <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
-                            {% endfor %}
-                        </select>
+                            <div class="input-group-prepend"><span class="input-group-text">Source IP</span></div>
+                            <input type="text" class="form-control" value="{{ params.source_ip }}" name="source_ip" placeholder="192.168.%">
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <div class="col">Matched</div>
                     <div class="col">
-                        <select class="custom-select custom-select-sm" name="matched">
-                            <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
-                            <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
-                            <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
-                        </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group date" id="date_from" data-target-input="nearest">
+                                    <div class="input-group-prepend"><span class="input-group-text">From</span></div>
+                                    <input type="text" class="form-control datetimepicker-input text-right" name="date_from" data-target="#date_from" placeholder="YYYY-MM-DD">
+                                    <div class="input-group-append" data-target="#date_from" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group date" id="time_from" data-target-input="nearest">
+                                    <div class="input-group-prepend"><span class="input-group-text">At</span></div>
+                                    <input type="text" class="form-control datetimepicker-input text-right" name="time_from" data-target="#time_from" placeholder="HH:MM">
+                                    <div class="input-group-append" data-target="#time_from" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="col">Forwarded</div>
                     <div class="col">
-                        <select class="custom-select custom-select-sm" name="forwarded">
-                            <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
-                            <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
-                            <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
-                        </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Type</span></div>
+                                    <select class="custom-select" name="type">
+                                        <option value=""></option>
+                                        {% for type in filters.types %}
+                                        <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!--
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Class</span></div>
+                                    <select class="custom-select" name="rclass">
+                                        <option value=""></option>
+                                        {% for class in filters.classes %}
+                                        <option value="{{ class }}" {{ 'selected' if class == params.rclass }}>{{ class }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            -->
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <div class="col">From Date</div>
                     <div class="col">
-                        <div class="form-group">
-                            <div class="input-group input-group-sm date" id="date_from" data-target-input="nearest">
-                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="date_from" data-target="#date_from" placeholder="date">
-                                <div class="input-group-append" data-target="#date_from" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group date" id="date_to" data-target-input="nearest">
+                                    <div class="input-group-prepend"><span class="input-group-text">To</span></div>
+                                    <input type="text" class="form-control datetimepicker-input text-right" name="date_to" data-target="#date_to" placeholder="YYYY-MM-DD">
+                                    <div class="input-group-append" data-target="#date_to" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group date" id="time_to" data-target-input="nearest">
+                                    <div class="input-group-prepend"><span class="input-group-text">At</span></div>
+                                    <input type="text" class="form-control datetimepicker-input text-right" name="time_to" data-target="#time_to" placeholder="HH:MM">
+                                    <div class="input-group-append" data-target="#time_to" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col">at</div>
                     <div class="col">
-                        <div class="form-group">
-                            <div class="input-group input-group-sm date" id="time_from" data-target-input="nearest">
-                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="time_from" data-target="#time_from" placeholder="time">
-                                <div class="input-group-append" data-target="#time_from" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Matched</span></div>
+                                    <select class="custom-select" name="matched">
+                                        <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
+                                        <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
+                                        <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
+                                    <select class="custom-select" name="forwarded">
+                                        <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
+                                        <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
+                                        <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col">To Date</div>
-                    <div class="col">
-                        <div class="form-group">
-                            <div class="input-group input-group-sm date" id="date_to" data-target-input="nearest">
-                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="date_to" data-target="#date_to" placeholder="date">
-                                <div class="input-group-append" data-target="#date_to" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col">at</div>
-                    <div class="col">
-                        <div class="form-group">
-                            <div class="input-group input-group-sm date" id="time_to" data-target-input="nearest">
-                                <input type="text" class="form-control form-control-sm datetimepicker-input text-right" name="time_to" data-target="#time_to" placeholder="time">
-                                <div class="input-group-append" data-target="#time_to" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-sm btn-primary">search</button>
+                    <button type="submit" class="btn btn-block btn-search btn-outline-info">search</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col">
-        <h1>Results</h1>
-        <div class="clearfix mb-3">
-            <div class="float-right">
-                <form action="{{ url_for('logs.export') }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                    {% for name in params.all_properties() %}
-                    <input type="hidden" name="{{ name }}" value="{{ params.get(name) }}">
-                    {% endfor %}
-
-                    <button type="submit" class="btn btn-sm btn-primary">export to csv</button>
-                </form>
-            </div>
-        </div>
-
-        <table class="table table-sm table-striped">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Domain</th>
-                <th>Source IP</th>
-                <th>Class</th>
-                <th>Type</th>
-                <th>Date</th>
-                <th>Forwarded</th>
-                <th>Matched</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for result in results.items %}
-            <tr>
-                <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
-                <td>{{ result.domain }}</td>
-                <td>{{ result.source_ip }}</td>
-                <td>{{ result.rclass }}</td>
-                <td>{{ result.type }}</td>
-                <td>{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                <td>{{ 'Yes' if result.forwarded else 'No' }}</td>
-                <td>{{ 'Yes' if result.found else 'No' }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        {{ render_pagination(results, 'logs.index', params.url()) }}
-    </div>
-</div>
+{% include 'logs/results.html' %}
 
 <script type="text/javascript">
     $(document).ready(function() {

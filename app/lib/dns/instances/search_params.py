@@ -35,7 +35,7 @@ class SearchParams:
         self.time_from = self.__get_param('time_from', '')
         self.time_to = self.__get_param('time_to', '')
         self.page = self.__get_param('page', 1, type='int')
-        self.per_page = self.__get_param('per_page', 100, type='int')
+        self.per_page = self.__get_param('per_page', 50, type='int')
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
@@ -64,8 +64,8 @@ class SearchParams:
         params.append('source_ip=' + quote_plus(self.source_ip)) if len(self.source_ip) > 0 else False
         params.append('rclass=' + quote_plus(self.rclass)) if len(self.rclass) > 0 else False
         params.append('type=' + quote_plus(self.type)) if len(self.type) > 0 else False
-        params.append('matched=' + quote_plus(self.matched)) if self.matched in [0, 1] else False
-        params.append('forwarded=' + quote_plus(self.forwarded)) if self.forwarded in [0, 1] else False
+        params.append('matched=' + quote_plus(str(self.matched))) if self.matched in [0, 1] else False
+        params.append('forwarded=' + quote_plus(str(self.forwarded))) if self.forwarded in [0, 1] else False
         params.append('date_from=' + quote_plus(self.date_from)) if len(self.date_from) > 0 else False
         params.append('time_from=' + quote_plus(self.time_from)) if len(self.time_from) > 0 else False
         params.append('date_to=' + quote_plus(self.date_to)) if len(self.date_to) > 0 else False

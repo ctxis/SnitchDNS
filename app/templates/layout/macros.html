@@ -1,5 +1,5 @@
 {% macro render_pagination(pagination, endpoint, query) %}
-<ul class="pagination pagination-sm justify-content-center">
+<ul class="pagination justify-content-center">
 {% for page in pagination.iter_pages() %}
     {% if page %}
     <li class="page-item {{ 'active' if page == pagination.page else '' }}"><a class="page-link" href="{{ url_for(endpoint) }}?{{ query }}{{ page }}">{{ page }}</a></li>
