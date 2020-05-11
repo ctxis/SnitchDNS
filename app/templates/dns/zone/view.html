@@ -2,7 +2,8 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col">
+    <div class="col"></div>
+    <div class="col-9">
         <h2>{{ zone.full_domain }}</h2>
 
         <div class="clearfix mb-4">
@@ -14,14 +15,14 @@
         {% if records|length == 0 %}
         <div class="alert alert-info text-center">No records configured yet.</div>
         {% else %}
-        <table class="table table-striped">
+        <table class="table table-sm table-striped">
             <thead>
             <tr>
-                <th>#</th>
-                <th class="text-right">Type</th>
+                <th class="text-center">#</th>
+                <th>Type</th>
+                <th>Data</th>
                 <th class="text-right">Class</th>
                 <th class="text-right">TTL</th>
-                <th class="text-right">Resolve To</th>
                 <th class="text-center">Active</th>
                 <th></th>
             </tr>
@@ -29,12 +30,16 @@
             <tbody>
             {% for record in records %}
             <tr>
-                <td class="text-right">{{ record.id }}</td>
-                <td class="text-right">{{ record.type }}</td>
+                <td class="text-center">{{ record.id }}</td>
+                <td>{{ record.type }}</td>
+                <td>{{ record.data }}</td>
                 <td class="text-right">{{ record.rclass }}</td>
                 <td class="text-right">{{ record.ttl }}</td>
-                <td class="text-right">{{ record.data }}</td>
-                <td class="text-center">{{ 'Yes' if record.active else 'No' }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if record.active else 'danger' %}
+                    {% set icon = 'check' if record.active else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
                 <td class="text-center">
                     <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
                 </td>
@@ -44,5 +49,6 @@
         </table>
         {% endif %}
     </div>
+    <div class="col"></div>
 </div>
 {% endblock %}

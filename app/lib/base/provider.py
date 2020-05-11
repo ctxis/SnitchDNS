@@ -30,7 +30,10 @@ class Provider:
         )
 
     def dns_zones(self):
-        return DNSZoneManager(self.settings())
+        return DNSZoneManager(
+            self.settings(),
+            self.dns_records()
+        )
 
     def dns_records(self):
         return DNSRecordManager()

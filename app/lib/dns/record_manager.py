@@ -97,3 +97,6 @@ class DNSRecordManager:
             return False
 
         return self.__load(results[0])
+
+    def count(self, dns_zone_id):
+        return len(self.__get(dns_zone_id=dns_zone_id))

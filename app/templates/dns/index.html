@@ -22,6 +22,7 @@
                 <th>Domain</th>
                 <th class="text-center">Active</th>
                 <th class="text-center">Exact Match</th>
+                <th class="text-center">Records</th>
                 <th class="text-center"></th>
             </tr>
             </thead>
@@ -30,8 +31,17 @@
             <tr>
                 <td>{{ zone.id }}</td>
                 <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
-                <td class="text-center">{{ 'Yes' if zone.active else 'No' }}</td>
-                <td class="text-center">{{ 'Yes' if zone.exact_match else 'No' }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if zone.active else 'danger' %}
+                    {% set icon = 'check' if zone.active else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if zone.exact_match else 'danger' %}
+                    {% set icon = 'check' if zone.exact_match else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">{{ zone.record_count }}</td>
                 <td class="text-center">
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
                 </td>

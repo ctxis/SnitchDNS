@@ -2,6 +2,11 @@ from app.lib.dns.base_instance import BaseDNSInstance
 
 
 class DNSZone(BaseDNSInstance):
+    def __init__(self, item):
+        super().__init__(item)
+
+        self.__record_count = 0
+
     @property
     def domain(self):
         return self.item.domain
@@ -69,3 +74,11 @@ class DNSZone(BaseDNSInstance):
     @full_domain.setter
     def full_domain(self, value):
         self.item.full_domain = value
+
+    @property
+    def record_count(self):
+        return self.__record_count
+
+    @record_count.setter
+    def record_count(self, value):
+        self.__record_count = value
