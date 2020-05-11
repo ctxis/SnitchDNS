@@ -1,4 +1,4 @@
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, desc
 from app.lib.dns.instances.search_params import SearchParams
 from app import db
 from app.lib.models.dns import DNSQueryLogModel, DNSZoneModel
@@ -51,6 +51,8 @@ class SearchManager:
 
         if isinstance(date_to, datetime.datetime):
             query = query.filter(DNSQueryLogModel.created_at <= date_to)
+
+        query = query.order_by(desc(DNSQueryLogModel.id))
 
         if paginate:
             rows = query.paginate(search_params.page, search_params.per_page, False)
