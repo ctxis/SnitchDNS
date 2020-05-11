@@ -20,7 +20,8 @@ def index():
         'logs/index.html',
         results=results['results'],
         params=results['params'],
-        filters=results['filters']
+        filters=results['filters'],
+        page_url='logs.index'
     )
 
 

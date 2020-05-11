@@ -8,10 +8,11 @@ bp = Blueprint('home', __name__, url_prefix='/')
 
 @bp.route('/', methods=['GET'])
 def index():
+    provider = Provider()
     # This function deliberately doesn't have a @login_required parameter because we want to run a check for a
     # 'first-visit' type scenario, in order to create the administrator.
 
-    users = Provider().users()
+    users = provider.users()
     if users.count() == 0:
         # Looks like we need to setup the administrator.
         return redirect(url_for('install.index'))
@@ -19,4 +20,13 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
 
-    return render_template('home/index.html')
+    search = provider.search()
+    user_ids = [] if current_user.admin else [current_user.id]
+    results = search.search_from_request(request, user_ids=user_ids)
+
+    return render_template(
+        'home/index.html',
+        results=results['results'],
+        params=results['params'],
+        page_url='home.index'
+    )

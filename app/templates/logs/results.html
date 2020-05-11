@@ -29,7 +29,7 @@
                 <th>#</th>
                 <th>Domain</th>
                 <th>Source IP</th>
-                <th>Type</th>
+                <th class="text-right">Type</th>
                 <th class="text-center">Forwarded</th>
                 <th class="text-center">Matched</th>
                 <th class="text-right">Date</th>
@@ -41,7 +41,7 @@
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
                 <td>{{ result.domain }}</td>
                 <td>{{ result.source_ip }}</td>
-                <td>{{ result.type }}</td>
+                <td class="text-right">{{ result.type }}</td>
                 <td class="text-center">
                     {% set class = 'success' if result.forwarded else 'danger' %}
                     {% set icon = 'check' if result.forwarded else 'times' %}
@@ -58,7 +58,9 @@
             </tbody>
         </table>
 
-        {{ render_pagination(results, 'logs.index', params.url()) }}
+        {% if results.pages > 1 %}
+            {{ render_pagination(results, page_url, params.url()) }}
+        {% endif %}
     </div>
 </div>
 {% endif %}
