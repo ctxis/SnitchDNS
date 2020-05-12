@@ -92,7 +92,7 @@ class DatabaseResolver(BaseResolver):
                     query_log.save()
 
                     # We found a match.
-                    zone = self.__build_zone(path, db_zone, db_record)
+                    zone = self.__build_zone(original_domain, db_zone, db_record)
                     break
 
             # Remove the first element of the array, to continue searching for a matching domain.
