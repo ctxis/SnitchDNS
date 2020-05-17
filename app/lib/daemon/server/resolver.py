@@ -1,4 +1,5 @@
-from twisted.names import dns
+from twisted.names import dns, error
+from twisted.internet import defer
 
 
 class DatabaseDNSResolver:
@@ -8,7 +9,9 @@ class DatabaseDNSResolver:
 
     def query(self, query, timeout=None):
         data = self.__lookup(query)
-        return data['answers'], data['authority'], data['additional']
+        if data['found']:
+            return defer.succeed((data['answers'], data['authority'], data['additional']))
+        return defer.fail(error.DomainError())
 
     def __lookup(self, query):
         data = {
@@ -21,6 +24,7 @@ class DatabaseDNSResolver:
         with self.__app.app_context():
             answer = self.__find(query)
             if answer:
+                data['found'] = True
                 data['answers'].append(answer)
 
         return data

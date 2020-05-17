@@ -99,9 +99,13 @@ def create_app(config_class=None):
     @click.option('--bind-ip', required=True, help='IP Address to bind daemon')
     @click.option('--bind-port', required=True, type=int, help='Port to bind daemon')
     def snitch_daemon(bind_ip, bind_port):
+        settings = Provider().settings()
+        forward_dns_enabled = int(settings.get('forward_dns_enabled', 0))
+        forward_dns_address = settings.get_list('forward_dns_address')
+
         from app.lib.daemon.cli import DNSDaemonCLI
         cli = DNSDaemonCLI()
-        return cli.daemon(bind_ip, bind_port)
+        return cli.daemon(bind_ip, bind_port, forward_dns_enabled, forward_dns_address)
 
     @app.cli.command('snitch_env', help='This is a helper to identify the running environment')
     def snitch_env():
