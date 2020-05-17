@@ -9,3 +9,4 @@ Flask-Mail
 packaging
 psutil
 gunicorn
+Twisted

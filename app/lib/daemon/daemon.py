@@ -1,8 +1,9 @@
-from dnslib.server import DNSLogger, DNSServer
-from app.lib.daemon.resolver import DatabaseResolver
-import time
 from app.lib.base.provider import Provider
 from app import create_app
+from twisted.internet import reactor
+from twisted.names.dns import DNSDatagramProtocol
+from app.lib.daemon.server.resolver import DatabaseDNSResolver
+from app.lib.daemon.server.factory import DatabaseDNSFactory
 
 
 class SnitchDaemon:
@@ -11,14 +12,9 @@ class SnitchDaemon:
         self.__port = port
 
     def start(self):
-        dns_logger = DNSLogger()
-        dns_resolver = DatabaseResolver(create_app(), Provider().dns_manager())
-        dns_server = DNSServer(dns_resolver, address=self.__host, port=self.__port, logger=dns_logger)
+        resolver = DatabaseDNSResolver(create_app(), Provider().dns_manager())
+        factory = DatabaseDNSFactory(clients=[resolver])
 
-        dns_server.start_thread()
-
-        try:
-            while dns_server.isAlive():
-                time.sleep(1)
-        except KeyboardInterrupt:
-            dns_server.stop()
+        reactor.listenUDP(self.__port, DNSDatagramProtocol(factory), interface=self.__host)
+        reactor.listenTCP(self.__port, factory, interface=self.__host)
+        reactor.run()
