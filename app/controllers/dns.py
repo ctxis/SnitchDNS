@@ -91,7 +91,7 @@ def zone_edit_save(dns_zone_id):
         flash('Invalid domain', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    base_domain = '.' if current_user.admin else zones.get_user_base_domain(current_user.username)
+    base_domain = '' if current_user.admin else zones.get_user_base_domain(current_user.username)
     if zones.has_duplicate(dns_zone_id, domain, base_domain):
         flash('This domain already exists.', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
