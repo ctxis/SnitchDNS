@@ -1,6 +1,5 @@
 from twisted.names import dns, error
 from twisted.internet import defer
-from app.lib.daemon.server.logging import DatabaseDNSLogging
 
 
 class DatabaseDNSResolver:
