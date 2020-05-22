@@ -3,7 +3,6 @@
 <nav class="nav nav-pills flex-column pb-3">
     <a class="nav-link {{ 'active' if active_nav == 'system' }}" href="{{ url_for('config.system') }}"><i class="fas fa-stethoscope fa-fw"></i> <span class="pl-2">System</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'dns' }}" href="{{ url_for('config.dns') }}"><i class="fas fa-satellite fa-fw"></i> <span class="pl-2">DNS</span></a>
-    <a class="nav-link {{ 'active' if active_nav == 'daemon' }}" href="{{ url_for('config.daemon') }}"><i class="fas fa-robot fa-fw"></i> <span class="pl-2">DNS Daemon</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'smtp' }}" href="{{ url_for('config.smtp') }}"><i class="fas fa-at fa-fw"></i> <span class="pl-2">SMTP</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'webpush' }}" href="{{ url_for('config.webpush') }}"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Push Notifications</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'ldap' }}" href="{{ url_for('config.ldap') }}"><i class="fas fa-passport fa-fw"></i> <span class="pl-2">LDAP</span></a>
