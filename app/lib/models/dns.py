@@ -42,6 +42,7 @@ class DNSQueryLogModel(db.Model):
     data = db.Column(db.String(128), nullable=True, default='', index=True)
     found = db.Column(db.Boolean, default=False, index=True)
     forwarded = db.Column(db.Boolean, default=False, index=True)
+    completed = db.Column(db.Boolean, default=False, index=True)
     dns_zone_id = db.Column(db.Integer, nullable=True, default=0, index=True)
     dns_record_id = db.Column(db.Integer, nullable=True, default=0, index=True)
 

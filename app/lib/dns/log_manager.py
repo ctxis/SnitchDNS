@@ -1,3 +1,4 @@
+from sqlalchemy import asc, desc
 from app.lib.models.dns import DNSQueryLogModel
 from app.lib.dns.instances.query_log import DNSQueryLog
 import os
@@ -12,6 +13,36 @@ class DNSLogManager:
 
     def __load(self, item):
         return DNSQueryLog(item)
+
+    def __get(self, id=None, source_ip=None, domain=None, rclass=None, type=None, completed=None, order_by='asc'):
+        query = DNSQueryLogModel.query
+
+        if id is not None:
+            query = query.filter(DNSQueryLogModel.id == id)
+
+        if source_ip is not None:
+            query = query.filter(DNSQueryLogModel.source_ip == source_ip)
+
+        if domain is not None:
+            query = query.filter(DNSQueryLogModel.domain == domain)
+
+        if rclass is not None:
+            query = query.filter(DNSQueryLogModel.rclass == rclass)
+
+        if type is not None:
+            query = query.filter(DNSQueryLogModel.type == type)
+
+        if completed is not None:
+            query = query.filter(DNSQueryLogModel.completed == completed)
+
+        order = asc(DNSQueryLogModel.id) if order_by == 'asc' else desc(DNSQueryLogModel.id)
+        query = query.order_by(order)
+
+        return query.all()
+
+    def find(self, domain, rclass, type, completed, source_ip):
+        results = self.__get(domain=domain, rclass=rclass, type=type, completed=completed, source_ip=source_ip)
+        return self.__load(results[0]) if results else None
 
     def __prepare_path(self, save_as, overwrite, create_path):
         if save_as != os.path.realpath(save_as):

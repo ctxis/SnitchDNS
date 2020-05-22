@@ -1,11 +1,13 @@
 from twisted.names import dns, error
 from twisted.internet import defer
+from app.lib.daemon.server.logging import DatabaseDNSLogging
 
 
 class DatabaseDNSResolver:
-    def __init__(self, app, dns_manager):
+    def __init__(self, app, dns_manager, logging):
         self.__app = app
         self.__dns_manager = dns_manager
+        self.__logging = logging
 
     def query(self, query, timeout=None):
         data = self.__lookup(query)
@@ -32,13 +34,22 @@ class DatabaseDNSResolver:
     def __find(self, query):
         answer = None
 
+        domain = str(query.name.name.decode('utf-8'))
+        type = str(dns.QUERY_TYPES.get(query.type, None))
+        cls = str(dns.QUERY_CLASSES.get(query.cls, None))
+
+        # Try to find the logging record.
+        log = self.__logging.find(None, domain, cls, type, False)
+        if not log:
+            # TODO / Log error, as this record won't be reliable.
+            pass
+
         # Split the query into an array.
         # 'something.snitch.contextis.com' will become:
         #   0 => something
         #   1 => snitch
         #   2 => contextis
         #   3 => com
-        domain = str(query.name.name.decode('utf-8'))
         parts = domain.split('.')
 
         # The following loop will lookup from the longest to the shortest domain, for example:
@@ -52,18 +63,25 @@ class DatabaseDNSResolver:
             path = ".".join(parts)
             db_zone = self.__dns_manager.find_zone(path, domain)
             if db_zone:
-                db_record = self.__dns_manager.find_record(
-                    db_zone,
-                    str(dns.QUERY_CLASSES.get(query.cls, None)),
-                    str(dns.QUERY_TYPES.get(query.type, None))
-                )
+                # Save log item.
+                if log:
+                    log.dns_zone_id = db_zone.id
+                    log.save()
 
+                db_record = self.__dns_manager.find_record(db_zone, cls, type)
                 if db_record:
                     # We found a match.
                     answer = self.__build_answer(query, db_zone, db_record)
                     if not answer:
                         # TODO / Something went terribly wrong. If it dies, it dies.
                         pass
+
+                    # Update log item.
+                    log.dns_record_id = db_record.id
+                    log.found = True
+                    log.completed = True
+                    log.data = str(answer)
+                    log.save()
                     break
 
             # Remove the first element of the array, to continue searching for a matching domain.

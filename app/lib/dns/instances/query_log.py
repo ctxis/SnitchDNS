@@ -51,6 +51,14 @@ class DNSQueryLog(BaseDNSInstance):
         self.item.found = value
 
     @property
+    def completed(self):
+        return self.item.completed
+
+    @completed.setter
+    def completed(self, value):
+        self.item.completed = value
+
+    @property
     def data(self):
         return self.item.data
 
