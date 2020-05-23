@@ -3,41 +3,42 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col"></div>
-    <div class="col-6">
+    <div class="col-7">
         <div class="card">
-            <div class="card-header">{{ 'Edit' if dns_record_id > 0 else 'Create' }} DNS Record</div>
+            <div class="card-header">{{ 'Edit' if dns_record_id > 0 else 'Create' }} DNS Record for <a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}">{{ zone.full_domain }}</a></div>
             <div class="card-body">
                 <form action="{{ url_for('dns.record_edit_save', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                    <div class="form-group">
-                        <label for="ttl">TTL</label>
-                        <input type="number" name="ttl" id="ttl" class="form-control hide-spin-buttons" value="{{ record.ttl if dns_record_id > 0 }}" placeholder="60" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="class">Class</label>
-                        <select name="class" id="class" class="custom-select form-control" required>
-                            <option value=""></option>
-                            {% for dns_class in dns_classes %}
-                            <option value="{{ dns_class }}" {{ 'selected' if dns_record_id > 0 and record.rclass == dns_class }}>{{ dns_class }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="type">Type</label>
-                        <select name="type" id="type" class="custom-select form-control" required>
-                            <option value=""></option>
-                            {% for dns_type in dns_types %}
-                            <option value="{{ dns_type }}" {{ 'selected' if dns_record_id > 0 and record.type == dns_type }}>{{ dns_type }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="data">Data</label>
-                        <input type="text" name="data" id="data" class="form-control" value="{{ record.data if dns_record_id > 0 }}" placeholder="192.168.0.1" required>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="class">Class</label>
+                                <select name="class" id="class" class="custom-select form-control" required>
+                                    <option value=""></option>
+                                    {% for dns_class in dns_classes %}
+                                    <option value="{{ dns_class }}" {{ 'selected' if (dns_record_id == 0 and dns_class == 'IN') or (dns_record_id > 0 and record.rclass == dns_class) }}>{{ dns_class }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="type">Type</label>
+                                <select name="type" id="type" class="custom-select form-control" required>
+                                    <option value=""></option>
+                                    {% for dns_type in dns_types %}
+                                    <option value="{{ dns_type }}" {{ 'selected' if (dns_record_id == 0 and dns_type == 'A') or (dns_record_id > 0 and record.type == dns_type) }}>{{ dns_type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="ttl">TTL</label>
+                                <input type="number" name="ttl" id="ttl" class="form-control hide-spin-buttons text-right" value="{{ record.ttl if dns_record_id > 0 }}" placeholder="60" required>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group row py-0 my-0">
@@ -46,8 +47,305 @@
                         </div>
                         <div class="col text-right">
                             <div class="custom-control custom-switch">
-                                <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if dns_record_id > 0 and record.active }}>
+                                <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.active) }}>
                                 <label class="custom-control-label" for="active"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NS, CNAME, PTR, DNAME -->
+                    <div class="record-group record-group-1 d-none">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" name="name" id="name" class="form-control" value="">
+                        </div>
+                    </div>
+
+                    <!-- A, AAAA -->
+                    <div class="record-group record-group-2 d-none">
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" name="address" id="address" class="form-control" value="">
+                        </div>
+                    </div>
+
+                    <!-- SOA -->
+                    <div class="record-group record-group-3 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="mname">MName</label>
+                                    <input type="text" name="mname" id="mname" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="rname">RName</label>
+                                    <input type="text" name="rname" id="rname" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col pr-0">
+                                <div class="form-group">
+                                    <label for="serial">Serial</label>
+                                    <input type="text" name="serial" id="serial" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col pr-0 pl-1">
+                                <div class="form-group">
+                                    <label for="refresh">Refresh</label>
+                                    <input type="text" name="refresh" id="refresh" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col pr-0 pl-1">
+                                <div class="form-group">
+                                    <label for="retry">Retry</label>
+                                    <input type="text" name="retry" id="retry" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col pr-0 pl-1">
+                                <div class="form-group">
+                                    <label for="expire">Expire</label>
+                                    <input type="text" name="expire" id="expire" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col pl-1">
+                                <div class="form-group">
+                                    <label for="minimum">Minimum</label>
+                                    <input type="text" name="minimum" id="minimum" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SRV -->
+                    <div class="record-group record-group-4 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="target">Target</label>
+                                    <input type="text" name="target" id="target" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="port">Port</label>
+                                    <input type="text" name="port" id="port" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="priority">Priority</label>
+                                    <input type="text" name="priority" id="priority" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="weight">Weight</label>
+                                    <input type="text" name="weight" id="weight" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NAPTR -->
+                    <div class="record-group record-group-5 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="order">Order</label>
+                                    <input type="text" name="order" id="order" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="preference">Preference</label>
+                                    <input type="text" name="preference" id="preference" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="flags">Flags</label>
+                                    <input type="text" name="flags" id="flags" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="service">Service</label>
+                                    <input type="text" name="service" id="service" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="regexp">RegExp</label>
+                                    <input type="text" name="regexp" id="regexp" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="replacement">Replacement</label>
+                                    <input type="text" name="replacement" id="replacement" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AFSDB -->
+                    <div class="record-group record-group-6 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="hostname">Hostname</label>
+                                    <input type="text" name="hostname" id="hostname" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="subtype">SubType</label>
+                                    <input type="text" name="subtype" id="subtype" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RP -->
+                    <div class="record-group record-group-7 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="mbox">MBox</label>
+                                    <input type="text" name="mbox" id="mbox" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="txt">Txt</label>
+                                    <input type="text" name="txt" id="txt" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HINFO -->
+                    <div class="record-group record-group-8 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="cpu">CPU</label>
+                                    <input type="text" name="cpu" id="cpu" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="os">OS</label>
+                                    <input type="text" name="os" id="os" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MX -->
+                    <div class="record-group record-group-9 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="preference2">Preference</label>
+                                    <input type="text" name="preference2" id="preference2" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="name2">Name</label>
+                                    <input type="text" name="name2" id="name2" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SSHFP -->
+                    <div class="record-group record-group-10 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="algorithm">Algorithm</label>
+                                    <input type="text" name="algorithm" id="algorithm" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="fingerprint_type">Fingerprint Type</label>
+                                    <input type="text" name="fingerprint_type" id="fingerprint_type" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="fingerprint">Fingerprint</label>
+                                    <input type="text" name="fingerprint" id="fingerprint" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TXT, SPF -->
+                    <div class="record-group record-group-11 d-none">
+                        <div class="form-group">
+                            <label for="data">Data</label>
+                            <input type="text" name="data" id="data" class="form-control" value="">
+                        </div>
+                    </div>
+
+                    <!-- TSIG -->
+                    <div class="record-group record-group-12 d-none">
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="algorithm2">Algorithm</label>
+                                    <input type="text" name="algorithm2" id="algorithm2" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="timesigned">Time Signed</label>
+                                    <input type="text" name="timesigned" id="timesigned" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="fudge">Fudge</label>
+                                    <input type="text" name="fudge" id="fudge" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="original_id">Original ID</label>
+                                    <input type="text" name="original_id" id="original_id" class="form-control text-right" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="mac">MAC</label>
+                                    <input type="text" name="mac" id="mac" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="other_data">Other Data</label>
+                                    <input type="text" name="other_data" id="other_data" class="form-control" value="">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -61,4 +359,12 @@
     </div>
     <div class="col"></div>
 </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/snitch/records.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        SnitchDNSRecords.init({{ record.data|safe }});
+    });
+</script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from app.lib.models.dns import DNSRecordModel
 from app.lib.dns.instances.record import DNSRecord
 from twisted.names.dns import QUERY_TYPES, QUERY_CLASSES
+import json
 
 
 class DNSRecordManager:
@@ -10,7 +11,13 @@ class DNSRecordManager:
         return items
 
     def get_types(self):
-        items = list(QUERY_TYPES.values())
+        copy = QUERY_TYPES.copy()
+        # Remove experimental or obsolete record types. Have to covert to list cause we delete while iterating.
+        for rec, name in list(copy.items()):
+            if name in ['MD', 'MF', 'MB', 'MG', 'MR', 'NULL', 'WKS', 'A6', 'MINFO', 'OPT', 'TKEY']:
+                del copy[rec]
+
+        items = list(copy.values())
         items.sort()
         return items
 
@@ -60,7 +67,7 @@ class DNSRecordManager:
         record.ttl = ttl
         record.rclass = rclass
         record.type = type
-        record.data = data
+        record.data = json.dumps(data) if isinstance(data, dict) else data
         record.active = active
 
         record.save()

@@ -35,9 +35,14 @@ def zone_view(dns_zone_id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+
     return render_template(
         'dns/zone/view.html',
-        zone=zones.get(dns_zone_id),
+        zone=zone,
         records=records.get_zone_records(dns_zone_id)
     )
 
@@ -116,12 +121,13 @@ def zone_edit_save(dns_zone_id):
 
     # If it's an admin, create it as a global domain.
     user_id = 0 if current_user.admin else current_user.id
-    if not zones.save(zone, user_id, domain, base_domain, active, exact_match, master):
+    zone = zones.save(zone, user_id, domain, base_domain, active, exact_match, master)
+    if not zone:
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
     flash('Zone saved', 'success')
-    return redirect(url_for('dns.index'))
+    return redirect(url_for('dns.zone_view', dns_zone_id=zone.id))
 
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/edit', methods=['GET'])
@@ -145,7 +151,7 @@ def record_edit(dns_zone_id, dns_record_id):
         flash('Zone not found', 'error')
         return redirect(url_for('home.index'))
 
-    record = records.get(zone.id, dns_record_id)
+    record = records.get(dns_record_id, zone.id)
     if dns_record_id > 0:
         if not record:
             flash('Could not load record', 'error')
@@ -171,7 +177,6 @@ def record_edit_save(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()
     records = provider.dns_records()
-    dns = provider.dns_manager()
 
     if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
         flash('Access Denied', 'error')
@@ -188,7 +193,6 @@ def record_edit_save(dns_zone_id, dns_record_id):
     ttl = int(request.form['ttl'].strip())
     rclass = request.form['class'].strip()
     type = request.form['type'].strip()
-    data = request.form['data'].strip()
     active = True if int(request.form.get('active', 0)) == 1 else False
 
     if ttl <= 0:
@@ -201,8 +205,14 @@ def record_edit_save(dns_zone_id, dns_record_id):
         flash('Invalid type value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 
+    # Depending on the type, get the right properties.
+    data = gather_record_data(type)
+    if data is False:
+        # Flash errors should already be set in gather_record_data()
+        return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+
     if dns_record_id > 0:
-        record = records.get(zone.id, dns_record_id)
+        record = records.get(dns_record_id, zone.id)
         if not record:
             flash('Could not get record', 'error')
             return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
@@ -215,3 +225,101 @@ def record_edit_save(dns_zone_id, dns_record_id):
 
     flash('Record saved', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
+
+
+def gather_record_data(record_type):
+    data = {}
+    properties = {}
+    if record_type in ['NS', 'CNAME', 'PTR', 'DNAME']:
+        properties = {
+            'name': 'str'
+        }
+    elif record_type in ['A', 'AAAA']:
+        properties = {
+            'address': 'str'
+        }
+    elif record_type in ['SOA']:
+        properties = {
+            'mname': 'str',
+            'rname': 'str',
+            'serial': 'int',
+            'refresh': 'int',
+            'retry': 'int',
+            'expire': 'int',
+            'minimum': 'int'
+        }
+    elif record_type in ['SRV']:
+        properties = {
+            'target': 'str',
+            'port': 'int',
+            'priority': 'int',
+            'weight': 'int'
+        }
+    elif record_type in ['NAPTR']:
+        properties = {
+            'order': 'int',
+            'preference': 'int',
+            'flags': 'str',
+            'service': 'str',
+            'regexp': 'str',
+            'replacement': 'str'
+        }
+    elif record_type in ['AFSDB']:
+        properties = {
+            'hostname': 'str',
+            'subtype': 'int'
+        }
+    elif record_type in ['RP']:
+        properties = {
+            'mbox': 'str',
+            'txt': 'str'
+        }
+    elif record_type in ['HINFO']:
+        properties = {
+            'cpu': 'str',
+            'os': 'str'
+        }
+    elif record_type in ['MX']:
+        properties = {
+            'name2': 'str',
+            'preference2': 'int'
+        }
+    elif record_type in ['SSHFP']:
+        properties = {
+            'algorithm': 'int',
+            'fingerprint_type': 'int',
+            'fingerprint': 'str'
+        }
+    elif record_type in ['TXT', 'SPF']:
+        properties = {
+            'data': 'str'
+        }
+    elif record_type in ['TSIG']:
+        properties = {
+            'algorithm2': 'int',
+            'timesigned': 'int',
+            'fudge': 'int',
+            'original_id': 'int',
+            'mac': 'str',
+            'other_data': 'str'
+        }
+
+    for property, type in properties.items():
+        value = request.form[property].strip()
+        if type == 'int':
+            value = int(value)
+
+        if (type == 'str') and (len(value) == 0):
+            flash('Invalid {0} value'.format(property), 'error')
+            return False
+        elif (type == 'int') and (value < 0):
+            flash('Invalid {0} value'.format(property), 'error')
+            return False
+
+        if property in ['name2', 'preference2', 'algorithm2']:
+            # There are multiple form fields like 'name', 'name2', 'name3',
+            # it's easier to clean them up this way than use duplicate names.
+            property = property.rstrip('2')
+        data[property] = value
+
+    return data

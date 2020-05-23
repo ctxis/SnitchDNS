@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col"></div>
-    <div class="col-6">
+    <div class="col-7">
         <h2>{{ 'Global DNS Zones' if current_user.admin else 'Your DNS Zones' }}</h2>
 
         <div class="clearfix mb-4">
@@ -19,11 +19,10 @@
             <thead>
             <tr>
                 <th>#</th>
-                <th>Domain</th>
+                <th style="width: 100%;">Domain</th>
                 <th class="text-center">Active</th>
-                <th class="text-center">Exact Match</th>
+                <th class="text-center" style="white-space: nowrap;">Exact Match</th>
                 <th class="text-center">Records</th>
-                <th class="text-center"></th>
             </tr>
             </thead>
             <tbody>
@@ -42,9 +41,6 @@
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">{{ zone.record_count }}</td>
-                <td class="text-center">
-                    <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
-                </td>
             </tr>
             {% endfor %}
             </tbody>

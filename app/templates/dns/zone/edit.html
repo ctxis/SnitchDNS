@@ -39,7 +39,7 @@
                         </div>
                         <div class="col text-right">
                             <div class="custom-control custom-switch">
-                                <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if dns_zone_id > 0 and zone.active }}>
+                                <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if (dns_zone_id == 0) or (dns_zone_id > 0 and zone.active) }}>
                                 <label class="custom-control-label" for="active"></label>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                         </div>
                         <div class="col text-right">
                             <div class="custom-control custom-switch">
-                                <input name="exact_match" type="checkbox" class="custom-control-input" id="exact_match" value="1" {{ 'checked' if dns_zone_id > 0 and zone.exact_match }}>
+                                <input name="exact_match" type="checkbox" class="custom-control-input" id="exact_match" value="1" {{ 'checked' if (dns_zone_id == 0) or (dns_zone_id > 0 and zone.exact_match) }}>
                                 <label class="custom-control-label" for="exact_match"></label>
                             </div>
                         </div>

@@ -92,8 +92,6 @@ class DatabaseDNSResolver:
         record = None
         if query.type == dns.A:
             record = dns.Record_A(address=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.A6:
-            pass
         elif query.type == dns.AAAA:
             record = dns.Record_AAAA(address=db_record.data, ttl=db_record.ttl)
         elif query.type == dns.AFSDB:
@@ -104,26 +102,12 @@ class DatabaseDNSResolver:
             record = dns.Record_DNAME(name=db_record.data, ttl=db_record.ttl)
         elif query.type == dns.HINFO:
             pass
-        elif query.type == dns.MB:
-            record = dns.Record_MB(name=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.MD:
-            record = dns.Record_MD(name=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.MF:
-            record = dns.Record_MF(name=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.MG:
-            record = dns.Record_MG(name=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.MINFO:
-            pass
-        elif query.type == dns.MR:
-            record = dns.Record_MR(name=db_record.data, ttl=db_record.ttl)
         elif query.type == dns.MX:
             pass
         elif query.type == dns.NAPTR:
             pass
         elif query.type == dns.NS:
             record = dns.Record_NS(name=db_record.data, ttl=db_record.ttl)
-        elif query.type == dns.NULL:
-            record = dns.Record_NULL(payload=db_record.data, ttl=db_record.ttl)
         elif query.type == dns.PTR:
             record = dns.Record_PTR(name=db_record.data, ttl=db_record.ttl)
         elif query.type == dns.RP:
@@ -139,8 +123,6 @@ class DatabaseDNSResolver:
         elif query.type == dns.TSIG:
             pass
         elif query.type == dns.TXT:
-            pass
-        elif query.type == dns.WKS:
             pass
         else:
             pass
