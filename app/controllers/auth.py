@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask_login import login_user, logout_user, current_user, login_required
+from flask_login import login_user, current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.models.user import UserModel
 from sqlalchemy import and_, func
@@ -63,5 +63,4 @@ def logout():
     users = provider.users()
 
     users.logout_session(current_user.id)
-    logout_user()
     return redirect(url_for('auth.login'))

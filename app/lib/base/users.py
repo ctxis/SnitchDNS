@@ -7,6 +7,7 @@ import string
 import datetime
 import os
 from sqlalchemy import and_, func
+from flask_login import logout_user
 
 
 class UserManager:
@@ -51,6 +52,7 @@ class UserManager:
             user.session_token = ''
             db.session.commit()
             db.session.refresh(user)
+        logout_user()
         return True
 
     def validate_user_password(self, user_id, password):

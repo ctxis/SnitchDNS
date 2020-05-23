@@ -50,5 +50,8 @@ def password_save():
         flash('Could not update password: ' + users.last_error, 'error')
         return redirect(url_for('config.password'))
 
-    flash('Password updated', 'success')
+    # Force the user to re-login.
+    users.logout_session(current_user.id)
+
+    flash('Please login with your new password', 'success')
     return redirect(url_for('config.password'))
