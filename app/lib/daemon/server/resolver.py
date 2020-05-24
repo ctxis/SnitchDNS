@@ -91,39 +91,104 @@ class DatabaseDNSResolver:
     def __build_answer(self, query, db_zone, db_record):
         record = None
         if query.type == dns.A:
-            record = dns.Record_A(address=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_A(
+                address=db_record.property('address'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.AAAA:
-            record = dns.Record_AAAA(address=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_AAAA(
+                address=db_record.property('address'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.AFSDB:
-            pass
+            record = dns.Record_AFSDB(
+                subtype=int(db_record.property('subtype')),
+                hostname=db_record.property('hostname')
+            )
         elif query.type == dns.CNAME:
-            record = dns.Record_CNAME(name=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_CNAME(
+                name=db_record.property('name'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.DNAME:
-            record = dns.Record_DNAME(name=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_DNAME(
+                name=db_record.property('name'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.HINFO:
-            pass
+            record = dns.Record_HINFO(
+                cpu=db_record.property('cpu').encode(),
+                os=db_record.property('os').encode()
+            )
         elif query.type == dns.MX:
-            pass
+            record = dns.Record_MX(
+                preference=int(db_record.property('preference')),
+                name=db_record.property('name')
+            )
         elif query.type == dns.NAPTR:
-            pass
+            record = dns.Record_NAPTR(
+                order=int(db_record.property('order')),
+                preference=int(db_record.property('preference')),
+                flags=db_record.property('flags').encode(),
+                service=db_record.property('service').encode(),
+                regexp=db_record.property('regexp').encode(),
+                replacement=db_record.property('replacement')
+            )
         elif query.type == dns.NS:
-            record = dns.Record_NS(name=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_NS(
+                name=db_record.property('name'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.PTR:
-            record = dns.Record_PTR(name=db_record.data, ttl=db_record.ttl)
+            record = dns.Record_PTR(
+                name=db_record.property('name'),
+                ttl=db_record.ttl
+            )
         elif query.type == dns.RP:
-            pass
+            record = dns.Record_RP(
+                mbox=db_record.property('mbox'),
+                txt=db_record.property('txt')
+            )
         elif query.type == dns.SOA:
-            pass
+            record = dns.Record_SOA(
+                mname=db_record.property('mname'),
+                rname=db_record.property('rname'),
+                serial=int(db_record.property('serial')),
+                refresh=int(db_record.property('refresh')),
+                retry=int(db_record.property('retry')),
+                expire=int(db_record.property('expire')),
+                minimum=int(db_record.property('minimum'))
+            )
         elif query.type == dns.SPF:
-            pass
+            record = dns.Record_SPF(
+                db_record.property('data').encode()
+            )
         elif query.type == dns.SRV:
-            pass
+            record = dns.Record_SRV(
+                priority=int(db_record.property('priority')),
+                port=int(db_record.property('port')),
+                weight=int(db_record.property('weight')),
+                target=db_record.property('target')
+            )
         elif query.type == dns.SSHFP:
-            pass
+            record = dns.Record_SSHFP(
+                algorithm=int(db_record.property('algorithm')),
+                fingerprintType=int(db_record.property('fingerprint_type')),
+                fingerprint=db_record.property('fingerprint').encode()
+            )
         elif query.type == dns.TSIG:
-            pass
+            record = dns.Record_TSIG(
+                algorithm=db_record.property('algorithm').encode(),
+                timeSigned=int(db_record.property('timesigned')),
+                fudge=int(db_record.property('fudge')),
+                originalID=int(db_record.property('original_id')),
+                MAC=db_record.property('mac').encode(),
+                otherData=db_record.property('other_data').encode()
+            )
         elif query.type == dns.TXT:
-            pass
+            record = dns.Record_TXT(
+                db_record.property('data').encode()
+            )
         else:
             pass
 
@@ -134,4 +199,3 @@ class DatabaseDNSResolver:
             ttl=db_record.ttl,
             payload=record
         ) if record else None
-

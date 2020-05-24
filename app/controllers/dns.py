@@ -296,7 +296,7 @@ def gather_record_data(record_type):
         }
     elif record_type in ['TSIG']:
         properties = {
-            'algorithm2': 'int',
+            'algorithm2': 'str',
             'timesigned': 'int',
             'fudge': 'int',
             'original_id': 'int',
