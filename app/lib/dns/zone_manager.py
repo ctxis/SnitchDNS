@@ -45,6 +45,19 @@ class DNSZoneManager:
 
         return self.__load(results[0])
 
+    def delete(self, dns_zone_id):
+        zone = self.get(dns_zone_id)
+        if not zone:
+            return False
+
+        records = self.dns_records.get_zone_records(zone.id)
+        for record in records:
+            record.delete()
+
+        zone.delete()
+
+        return True
+
     def __load(self, item):
         zone = DNSZone(item)
         zone.record_count = self.dns_records.count(zone.id)

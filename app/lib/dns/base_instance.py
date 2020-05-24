@@ -14,6 +14,10 @@ class BaseDNSInstance:
         db.session.commit()
         db.session.refresh(self.item)
 
+    def delete(self):
+        db.session.delete(self.item)
+        db.session.commit()
+
     @property
     def id(self):
         return self.item.id

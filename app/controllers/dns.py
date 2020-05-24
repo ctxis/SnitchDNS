@@ -130,6 +130,26 @@ def zone_edit_save(dns_zone_id):
     return redirect(url_for('dns.zone_view', dns_zone_id=zone.id))
 
 
+@bp.route('/<int:dns_zone_id>/delete', methods=['POST'])
+@login_required
+@must_have_base_domain
+def zone_delete(dns_zone_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+
+    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+
+    # Not using the instance's .delete() attribute because we first need to delete all child records.
+    if not zones.delete(dns_zone_id):
+        flash('Could not delete zone', 'error')
+        return redirect(url_for('home.index'))
+
+    flash('Zone deleted', 'success')
+    return redirect(url_for('home.index'))
+
+
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/edit', methods=['GET'])
 @login_required
 @must_have_base_domain
@@ -224,6 +244,32 @@ def record_edit_save(dns_zone_id, dns_record_id):
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 
     flash('Record saved', 'success')
+    return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
+
+
+@bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/delete', methods=['POST'])
+@login_required
+@must_have_base_domain
+def record_delete(dns_zone_id, dns_record_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+    records = provider.dns_records()
+
+    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+
+    zone = zones.get(dns_zone_id)
+    record = records.get(dns_record_id, dns_zone_id=zone.id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+    elif not record:
+        flash('Record not found', 'error')
+        return redirect(url_for('home.index'))
+
+    record.delete()
+    flash('Record deleted', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
 
 

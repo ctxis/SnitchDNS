@@ -23,6 +23,7 @@
                 <th class="text-center">Active</th>
                 <th class="text-center" style="white-space: nowrap;">Exact Match</th>
                 <th class="text-center">Records</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -41,6 +42,13 @@
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">{{ zone.record_count }}</td>
+                <td class="text-center" style="white-space: nowrap;">
+                    <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit"></i></a>
+                    <form action="{{ url_for('dns.zone_delete', dns_zone_id=zone.id) }}" method="post" class="d-inline ml-1" id="delete-zone-form-{{ zone.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
             </tbody>
