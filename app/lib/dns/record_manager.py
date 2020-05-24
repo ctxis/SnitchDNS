@@ -87,12 +87,7 @@ class DNSRecordManager:
 
     def get_zone_records(self, dns_zone_id, order_column='id', order_by='asc'):
         results = self.__get(dns_zone_id=dns_zone_id, order_column=order_column, order_by=order_by)
-
-        records = []
-        for result in results:
-            records.append(self.__load(result))
-
-        return records
+        return self.__load_results(results)
 
     def can_access(self, dns_zone_id, dns_record_id, is_admin=False):
         if is_admin:
@@ -101,12 +96,18 @@ class DNSRecordManager:
         record = self.__get(id=dns_record_id, dns_zone_id=dns_zone_id)
         return len(record) > 0
 
-    def find(self, dns_zone_id, rclass, type):
+    def find(self, dns_zone_id, rclass, type, return_all=True):
         results = self.__get(dns_zone_id=dns_zone_id, rclass=rclass, type=type)
         if len(results) == 0:
             return False
 
-        return self.__load(results[0])
+        return self.__load_results(results) if return_all else self.__load(results[0])
 
     def count(self, dns_zone_id):
         return len(self.__get(dns_zone_id=dns_zone_id))
+
+    def __load_results(self, results):
+        records = []
+        for result in results:
+            records.append(self.__load(result))
+        return records

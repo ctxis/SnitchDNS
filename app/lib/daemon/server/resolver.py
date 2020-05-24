@@ -23,15 +23,15 @@ class DatabaseDNSResolver:
         }
 
         with self.__app.app_context():
-            answer = self.__find(query)
-            if answer:
+            answers = self.__find(query)
+            if len(answers) > 0:
                 data['found'] = True
-                data['answers'].append(answer)
+                data['answers'] = answers
 
         return data
 
     def __find(self, query):
-        answer = None
+        answers = []
 
         domain = str(query.name.name.decode('utf-8'))
         type = str(dns.QUERY_TYPES.get(query.type, None))
@@ -67,26 +67,37 @@ class DatabaseDNSResolver:
                     log.dns_zone_id = db_zone.id
                     log.save()
 
-                db_record = self.__dns_manager.find_record(db_zone, cls, type)
-                if db_record:
-                    # We found a match.
-                    answer = self.__build_answer(query, db_zone, db_record)
-                    if not answer:
-                        # TODO / Something went terribly wrong. If it dies, it dies.
-                        pass
+                # Look for more than one records (nameservers, mx records etc may have more than one).
+                db_records = self.__dns_manager.find_all_records(db_zone, cls, type)
+                if len(db_records) > 0:
+                    log_updated = False
+                    for db_record in db_records:
+                        if not db_record.active:
+                            continue
 
-                    # Update log item.
-                    log.dns_record_id = db_record.id
-                    log.found = True
-                    log.completed = True
-                    log.data = str(answer)
-                    log.save()
-                    break
+                        # It's a match! Don't let them wait, message first!
+                        answer = self.__build_answer(query, db_zone, db_record)
+                        if not answer:
+                            # Something went terribly wrong. If it dies, it dies.
+                            # This can be caused if the UI allows more record types to be created than the
+                            # __build_answer() method supports. Probably I should add some logging here, but NOT TODAY!
+                            continue
+
+                        if not log_updated:
+                            log_updated = True
+
+                            log.dns_record_id = db_record.id
+                            log.found = True
+                            log.completed = True
+                            log.data = str(answer)
+                            log.save()
+
+                        answers.append(answer)
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
 
-        return answer
+        return answers
 
     def __build_answer(self, query, db_zone, db_record):
         record = None
