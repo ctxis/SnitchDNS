@@ -140,3 +140,6 @@ class DNSZoneManager:
 
         zone = self.create()
         return self.save(zone, user.id, self.__clean_username(user.username), '.' + self.base_domain, True, False, True)
+
+    def count(self, user_id=None):
+        return len(self.__get(user_id=user_id))

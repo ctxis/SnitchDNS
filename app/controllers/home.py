@@ -8,10 +8,11 @@ bp = Blueprint('home', __name__, url_prefix='/')
 
 @bp.route('/', methods=['GET'])
 def index():
-    provider = Provider()
     # This function deliberately doesn't have a @login_required parameter because we want to run a check for a
     # 'first-visit' type scenario, in order to create the administrator.
 
+    provider = Provider()
+    zones = provider.dns_zones()
     users = provider.users()
     if users.count() == 0:
         # Looks like we need to setup the administrator.
@@ -24,9 +25,12 @@ def index():
     user_ids = [] if current_user.admin else [current_user.id]
     results = search.search_from_request(request, user_ids=user_ids)
 
+    user_id = 0 if current_user.admin else current_user.id
+
     return render_template(
         'home/index.html',
         results=results['results'],
         params=results['params'],
-        page_url='home.index'
+        page_url='home.index',
+        zone_count=zones.count(user_id=user_id)
     )
