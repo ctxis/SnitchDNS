@@ -43,7 +43,7 @@ def zone_view(dns_zone_id):
     return render_template(
         'dns/zone/view.html',
         zone=zone,
-        records=records.get_zone_records(dns_zone_id)
+        records=records.get_zone_records(dns_zone_id, order_column='type')
     )
 
 

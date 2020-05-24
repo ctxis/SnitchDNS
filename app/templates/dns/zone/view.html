@@ -44,7 +44,7 @@
             <tbody>
             {% for record in records %}
             <tr>
-                <td class="text-center">{{ record.id }}</td>
+                <td class="text-center">{{ loop.index }}</td>
                 <td>{{ record.type }}</td>
                 <td>
                     {% for name,value in record.properties().items() %}

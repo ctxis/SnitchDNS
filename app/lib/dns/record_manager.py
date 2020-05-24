@@ -2,6 +2,7 @@ from app.lib.models.dns import DNSRecordModel
 from app.lib.dns.instances.record import DNSRecord
 from twisted.names.dns import QUERY_TYPES, QUERY_CLASSES
 import json
+from sqlalchemy import desc, asc
 
 
 class DNSRecordManager:
@@ -21,7 +22,7 @@ class DNSRecordManager:
         items.sort()
         return items
 
-    def __get(self, id=None, dns_zone_id=None, ttl=None, rclass=None, type=None, data=None, active=None):
+    def __get(self, id=None, dns_zone_id=None, ttl=None, rclass=None, type=None, data=None, active=None, order_column=None, order_by=None):
         query = DNSRecordModel.query
 
         if id is not None:
@@ -44,6 +45,16 @@ class DNSRecordManager:
 
         if active is not None:
             query = query.filter(DNSRecordModel.active == active)
+
+        if (order_column is not None) and (order_by is not None):
+            order = None
+            if order_column == 'id':
+                order = asc(DNSRecordModel.id) if order_by == 'asc' else desc(DNSRecordModel.id)
+            elif order_column == 'type':
+                order = asc(DNSRecordModel.type) if order_by == 'asc' else desc(DNSRecordModel.type)
+
+            if order is not None:
+                query = query.order_by(order)
 
         return query.all()
 
@@ -74,8 +85,8 @@ class DNSRecordManager:
 
         return True
 
-    def get_zone_records(self, dns_zone_id):
-        results = self.__get(dns_zone_id=dns_zone_id)
+    def get_zone_records(self, dns_zone_id, order_column='id', order_by='asc'):
+        results = self.__get(dns_zone_id=dns_zone_id, order_column=order_column, order_by=order_by)
 
         records = []
         for result in results:
