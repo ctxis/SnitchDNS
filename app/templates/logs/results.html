@@ -39,7 +39,7 @@
             {% for result in results.items %}
             <tr>
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
-                <td>{{ result.domain }}</td>
+                <td><a href="{{ url_for('logs.index', domain=result.domain) }}">{{ result.domain }}</a></td>
                 <td>{{ result.source_ip }}</td>
                 <td class="text-right">{{ result.type }}</td>
                 <td class="text-center">
