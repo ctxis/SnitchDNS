@@ -34,7 +34,7 @@
             <tr>
                 <th class="text-center">#</th>
                 <th>Type</th>
-                <th>Data</th>
+                <th style="width: 100%;">Data</th>
                 <th class="text-right">Class</th>
                 <th class="text-right">TTL</th>
                 <th class="text-center">Active</th>
@@ -58,12 +58,13 @@
                     {% set icon = 'check' if record.active else 'times' %}
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
-                <td class="text-center">
+                <td class="text-center" style="white-space: nowrap;">
                     <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
                     <form action="{{ url_for('dns.record_delete', dns_zone_id=zone.id, dns_record_id=record.id) }}" method="post" class="d-inline ml-1" id="delete-record-form-{{ record.id }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>
                     </form>
+                    <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, type=record.type) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
                 </td>
             </tr>
             {% endfor %}
