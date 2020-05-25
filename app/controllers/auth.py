@@ -30,19 +30,38 @@ def login_process():
     next = urllib.parse.unquote_plus(request.form['next'].strip())
     provider = Provider()
     users = provider.users()
+    ldap = provider.ldap()
 
-    user = UserModel.query.filter(and_(func.lower(UserModel.username) == func.lower(username))).first()
-    if not user:
+    # First lookup local users.
+    user = users.find_user_login(username, False)
+    if user:
+        if not users.validate_password(user.password, password):
+            flash('Invalid credentials', 'error')
+            return redirect(url_for('auth.login', next=next))
+    elif ldap.enabled:
+        ldap_user = ldap.authenticate(username, password)
+        if not ldap_user:
+            flash('Invalid credentials', 'error')
+            return redirect(url_for('auth.login', next=next))
+
+        # Now see if the user exists.
+        user = users.find_user_login(username, True)
+        if not user:
+            # Doesn't exist yet, we'll have to create them now.
+            user = users.save(0, ldap_user['username'], password, ldap_user['fullname'], ldap_user['email'], False, True, True)
+            if not user:
+                flash('Could not create LDAP user: {0}'.format(users.last_error), 'error')
+                return redirect(url_for('auth.login', next=next))
+    else:
         flash('Invalid credentials', 'error')
         return redirect(url_for('auth.login', next=next))
-    elif not users.validate_password(user.password, password):
-        flash('Invalid credentials', 'error')
-        return redirect(url_for('auth.login', next=next))
-    elif not user.active:
+
+    if not user.active:
         # This check has to be after the password validation.
         flash('Your account is disabled.', 'error')
         return redirect(url_for('auth.login', next=next))
 
+    # If we reach this point it means that our user exists. Check if the user is active.
     user = users.login_session(user)
     login_user(user)
 

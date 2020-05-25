@@ -10,6 +10,7 @@ from app.lib.base.email import EmailManager
 from app.lib.base.shell import ShellManager
 from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
+from app.lib.base.ldap import LDAPManager
 from flask import current_app
 import os
 
@@ -87,3 +88,20 @@ class Provider:
             self.system(),
             self.shell()
         )
+
+    def ldap(self):
+        settings = self.settings()
+        manager = LDAPManager()
+
+        manager.enabled = int(settings.get('ldap_enabled', 0)) > 0
+        manager.ssl = int(settings.get('ldap_ssl', 0)) > 0
+        manager.host = settings.get('ldap_host', '')
+        manager.base_dn = settings.get('ldap_base_dn', '')
+        manager.domain = settings.get('ldap_domain', '')
+        manager.bind_user = settings.get('ldap_bind_user', '')
+        manager.bind_pass = settings.get('ldap_bind_pass', '')
+        manager.mapping_username = settings.get('ldap_mapping_username', '')
+        manager.mapping_fullname = settings.get('ldap_mapping_fullname', '')
+        manager.mapping_email = settings.get('ldap_mapping_email', '')
+
+        return manager

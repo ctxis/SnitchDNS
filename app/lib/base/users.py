@@ -23,19 +23,25 @@ class UserManager:
     def last_error(self, value):
         self.__last_error = value
 
-    def __get(self, user_id=None, username=None, email=None):
+    def __get(self, user_id=None, username=None, email=None, ldap=None, active=None):
         query = UserModel.query
 
         if user_id is not None:
             query = query.filter(UserModel.id == user_id)
 
         if username is not None:
-            query = query.filter(UserModel.username == username)
+            query = query.filter(func.lower(UserModel.username) == func.lower(username))
 
         if email is not None:
-            query = query.filter(UserModel.email == email)
+            query = query.filter(func.lower(UserModel.email) == func.lower(email))
 
-        return query.first()
+        if ldap is not None:
+            query = query.filter(UserModel.ldap == ldap)
+
+        if active is not None:
+            query = query.filter(UserModel.active == active)
+
+        return query.all()
 
     def validate_password(self, hash, password):
         return bcrypt.check_password_hash(hash, password)
@@ -47,7 +53,7 @@ class UserManager:
         return user
 
     def logout_session(self, user_id):
-        user = self.__get(user_id=user_id)
+        user = self.get_user(user_id)
         if user:
             user.session_token = ''
             db.session.commit()
@@ -56,7 +62,7 @@ class UserManager:
         return True
 
     def validate_user_password(self, user_id, password):
-        user = self.__get(user_id=user_id)
+        user = self.get_user(user_id)
         if not user:
             self.last_error = 'Could not load user'
             return False
@@ -64,7 +70,7 @@ class UserManager:
         return bcrypt.check_password_hash(user.password, password)
 
     def update_user_password(self, user_id, password, check_complexity=True):
-        user = self.__get(user_id=user_id)
+        user = self.get_user(user_id)
         if not user:
             self.last_error = 'Could not load user'
             return False
@@ -97,7 +103,7 @@ class UserManager:
     def save(self, user_id, username, password, full_name, email, admin, ldap, active, check_complexity=True):
         if user_id > 0:
             # Editing an existing user.
-            user = self.__get(user_id=user_id)
+            user = self.get_user(user_id)
             if not user:
                 self.last_error = 'Could not load user'
                 return False
@@ -132,8 +138,7 @@ class UserManager:
                 # If the password is empty, it means it wasn't changed.
                 password = bcrypt.generate_password_hash(password)
 
-        if not ldap:
-            # There is no point in updating these if it's an LDAP user.
+        if (user_id == 0) or (ldap is False):
             user.username = username
             if len(password) > 0:
                 user.password = password
@@ -154,7 +159,16 @@ class UserManager:
         return user
 
     def get_user(self, user_id):
-        return self.__get(user_id=user_id)
+        users = self.__get(user_id=user_id)
+        if len(users) == 0:
+            return False
+        return users[0]
+
+    def find_user_login(self, username, ldap):
+        users = self.__get(username=username, ldap=ldap)
+        if len(users) == 0:
+            return False
+        return users[0]
 
     def get_user_data_path(self, user_id, filename=''):
         path = os.path.join(current_app.root_path, '..', 'data', 'users', str(user_id))

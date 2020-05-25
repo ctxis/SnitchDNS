@@ -9,3 +9,4 @@ packaging
 psutil
 gunicorn
 Twisted
+ldap3

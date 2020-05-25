@@ -35,9 +35,21 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.full_name }}</td>
                 <td>{{ user.email }}</td>
-                <td class="text-center">{{ 'Yes' if user.admin else 'No' }}</td>
-                <td class="text-center">{{ 'Yes' if user.ldap else 'No' }}</td>
-                <td class="text-center">{{ 'Yes' if user.active else 'No' }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if user.admin else 'danger' %}
+                    {% set icon = 'check' if user.admin else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if user.ldap else 'danger' %}
+                    {% set icon = 'check' if user.ldap else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if user.active else 'danger' %}
+                    {% set icon = 'check' if user.active else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
                 <td class="text-right">
                     <a href="{{ url_for('config.user_edit', user_id=user.id) }}"><i class="fas fa-edit"></i></a>
                 </td>
