@@ -9,7 +9,7 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def password_complexity():
-    return render_template('config/password_complexity.html')
+    return render_template('config/system/password_complexity.html')
 
 
 @bp.route('/password/complexity/save', methods=['POST'])

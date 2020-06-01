@@ -13,7 +13,7 @@ def users():
     users = Provider().users()
 
     return render_template(
-        'config/users/index.html',
+        'config/system/users/index.html',
         users=users.all()
     )
 
@@ -36,7 +36,7 @@ def user_edit(user_id):
             return redirect(url_for('config.users'))
 
     return render_template(
-        'config/users/edit.html',
+        'config/system/users/edit.html',
         user_id=user_id,
         user=user,
         password_complexity=users.password_complexity.get_requirement_description(),

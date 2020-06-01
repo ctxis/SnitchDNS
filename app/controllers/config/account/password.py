@@ -14,7 +14,7 @@ def password():
     users = Provider().users()
 
     return render_template(
-        'config/password.html',
+        'config/account/password.html',
         password_complexity=users.password_complexity.get_requirement_description()
     )
 

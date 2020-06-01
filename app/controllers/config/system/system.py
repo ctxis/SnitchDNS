@@ -14,7 +14,7 @@ def system():
     daemon = provider.daemon()
 
     return render_template(
-        'config/system.html',
+        'config/system/system.html',
         is_venv=system.is_virtual_environment(),
         flask=system.can_run_flask(),
         version=system.check_version(system.get_python_version(), '3.6'),

@@ -9,7 +9,7 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def smtp():
-    return render_template('config/smtp.html')
+    return render_template('config/system/smtp.html')
 
 
 @bp.route('/smtp/save', methods=['POST'])

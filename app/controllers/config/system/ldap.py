@@ -9,7 +9,7 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def ldap():
-    return render_template('config/ldap.html')
+    return render_template('config/system/ldap.html')
 
 
 @bp.route('/ldap/save', methods=['POST'])

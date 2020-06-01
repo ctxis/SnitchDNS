@@ -9,7 +9,7 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def webpush():
-    return render_template('config/webpush.html')
+    return render_template('config/system/webpush.html')
 
 
 @bp.route('/webpush/save', methods=['POST'])

@@ -9,7 +9,7 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def dns():
-    return render_template('config/dns.html')
+    return render_template('config/system/dns.html')
 
 
 @bp.route('/dns/save', methods=['POST'])
