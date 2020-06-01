@@ -1,4 +1,4 @@
-from . import bp
+from .. import bp
 from flask import request, render_template, flash, redirect, url_for
 from flask_login import login_required
 from app.lib.base.provider import Provider
