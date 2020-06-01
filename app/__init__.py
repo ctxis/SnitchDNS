@@ -114,4 +114,4 @@ def create_app(config_class=None):
 
     return app
 
-from app.lib.models import user, config, dns
+from app.lib.models import user, config, dns, api

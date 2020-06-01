@@ -1,7 +1,7 @@
-from app.lib.dns.base_instance import BaseDNSInstance
+from app.lib.base.instance.base_instance import BaseInstance
 
 
-class DNSQueryLog(BaseDNSInstance):
+class DNSQueryLog(BaseInstance):
     @property
     def source_ip(self):
         return self.item.source_ip

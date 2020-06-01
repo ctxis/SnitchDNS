@@ -11,6 +11,7 @@ from app.lib.base.shell import ShellManager
 from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
 from app.lib.base.ldap import LDAPManager
+from app.lib.api.manager import ApiManager
 from flask import current_app
 import os
 
@@ -105,3 +106,6 @@ class Provider:
         manager.mapping_email = settings.get('ldap_mapping_email', '')
 
         return manager
+
+    def api(self):
+        return ApiManager()

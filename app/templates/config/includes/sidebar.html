@@ -14,6 +14,7 @@
 <h4>Account</h4>
 <nav class="nav nav-pills flex-column">
     {% if not current_user.ldap %}
-    <a class="nav-link {{ 'active' if active_nav == 'password' }}" href="{{ url_for('config.password') }}"><i class="fas fa-key fa-fw"></i> <span class="pl-2">Change Password</span></a>
+    <a class="nav-link {{ 'active' if active_nav == 'password' }}" href="{{ url_for('config.password') }}"><i class="fas fa-lock fa-fw"></i> <span class="pl-2">Change Password</span></a>
     {% endif %}
+    <a class="nav-link {{ 'active' if active_nav == 'api' }}" href="{{ url_for('config.api') }}"><i class="fas fa-key fa-fw"></i> <span class="pl-2">API Keys</span></a>
 </nav>

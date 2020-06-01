@@ -1,7 +1,7 @@
-from app.lib.dns.base_instance import BaseDNSInstance
+from app.lib.base.instance.base_instance import BaseInstance
 
 
-class DNSZone(BaseDNSInstance):
+class DNSZone(BaseInstance):
     def __init__(self, item):
         super().__init__(item)
 

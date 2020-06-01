@@ -2,7 +2,7 @@ import datetime
 from app import db
 
 
-class BaseDNSInstance:
+class BaseInstance:
     def __init__(self, item):
         self.item = item
 

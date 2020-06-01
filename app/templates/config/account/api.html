@@ -1,0 +1,93 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'api' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-6">
+        <h4>Your API Keys</h4>
+        <p><a href="#">For the Swagger 2.0 definition click here</a></p>
+        <form action="{{ url_for('config.api_action', action='add') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col-9">
+                    <input type="text" value="" name="name" id="name" class="form-control" placeholder="key name - something unique" required autofocus>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary btn-block">create</button>
+                </div>
+            </div>
+        </form>
+
+        {% if keys|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Key</th>
+                <th class="text-center">Enabled</th>
+                <th class="text-center"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for apikey in keys %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td style="width: 100%;">{{ apikey.name }}</td>
+                <td class="text-center">
+                    <a href="#" title="copy to clipboard" class="text-info copy-apikey">
+                        <input type="hidden" value="{{ apikey.apikey }}">
+                        <i class="fas fa-copy"></i>
+                    </a>
+                </td>
+                <td class="text-center">
+                    <form action="{{ url_for('config.api_action', action='toggle', id=apikey.id) }}" method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% set class = 'success' if apikey.enabled else 'danger' %}
+                        {% set icon = 'check' if apikey.enabled else 'times' %}
+                        <a href="#" class="submit-on-click" title="toggle status">
+                            <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                        </a>
+                    </form>
+                </td>
+                <th class="text-center">
+                    <form action="{{ url_for('config.api_action', action='delete', id=apikey.id) }}" method="post" class="d-inline ml-1" id="delete-zone-form-{{ apikey.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <a href="#" class="confirm-delete text-danger" title="delete zone"><i class="fas fa-trash"></i></a>
+                    </form>
+                </th>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <div class="col"></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.copy-apikey').tooltip({
+            trigger: 'click',
+            placement: 'top'
+        });
+
+        var keyClipboard = new ClipboardJS('.copy-apikey', {
+            text: function(elem) {
+                return $(elem).find('input').val();
+            }
+        });
+
+        keyClipboard.on('success', function(e) {
+            $(e.trigger).tooltip('hide').attr('data-original-title', 'Copied!').tooltip('show');
+            setTimeout(() => {
+                $(e.trigger).tooltip('hide');
+            }, 1000);
+        });
+    });
+</script>
+{% endblock %}
