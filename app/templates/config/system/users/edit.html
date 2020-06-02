@@ -87,7 +87,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if user_id > 0 and user.active }}>
+                        <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if (user_id == 0) or (user_id > 0 and user.active) }}>
                         <label class="custom-control-label" for="active"></label>
                     </div>
                 </div>
