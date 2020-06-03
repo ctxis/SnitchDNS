@@ -1,10 +1,12 @@
 import click
+from flask.cli import with_appcontext
 from app.lib.base.provider import Provider
 
 
 @click.command('snitch_daemon', help='SnitchDNS Daemon')
 @click.option('--bind-ip', required=True, help='IP Address to bind daemon')
 @click.option('--bind-port', required=True, type=int, help='Port to bind daemon')
+@with_appcontext
 def main(bind_ip, bind_port):
     settings = Provider().settings()
     forward_dns_enabled = int(settings.get('forward_dns_enabled', 0))
