@@ -1,5 +1,4 @@
 import os
-import click
 import datetime
 from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
@@ -99,22 +98,9 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
-    @app.cli.command('snitch_daemon', help='SnitchDNS Daemon')
-    @click.option('--bind-ip', required=True, help='IP Address to bind daemon')
-    @click.option('--bind-port', required=True, type=int, help='Port to bind daemon')
-    def snitch_daemon(bind_ip, bind_port):
-        settings = Provider().settings()
-        forward_dns_enabled = int(settings.get('forward_dns_enabled', 0))
-        forward_dns_address = settings.get_list('forward_dns_address')
-
-        from app.lib.daemon.cli import DNSDaemonCLI
-        cli = DNSDaemonCLI()
-        return cli.daemon(bind_ip, bind_port, forward_dns_enabled, forward_dns_address)
-
-    @app.cli.command('snitch_env', help='This is a helper to identify the running environment')
-    def snitch_env():
-        print('OK')
-        return True
+    from app.lib.cli import snitch_env, snitch_daemon
+    app.cli.add_command(snitch_env.main)
+    app.cli.add_command(snitch_daemon.main)
 
     return app
 
