@@ -128,11 +128,11 @@ class DNSZoneManager:
             DNSZoneModel.base_domain == base_domain
         ).count() > 0
 
-    def can_access(self, dns_zone_id, user_id, is_admin=False):
-        if is_admin:
+    def can_access(self, dns_zone_id, user_id, is_admin=None):
+        if is_admin is True:
             # SuperUser
             return True
-        return self.__get(id=dns_zone_id, user_id=user_id) is not None
+        return len(self.__get(id=dns_zone_id, user_id=user_id)) > 0
 
     def create_user_base_zone(self, user):
         if len(self.base_domain) == 0:

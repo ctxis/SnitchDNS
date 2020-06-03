@@ -24,3 +24,14 @@ def must_have_base_domain(f):
                 return redirect(url_for('home.index'))
         return f(**kwargs)
     return wrapped_view
+
+
+def api_auth(f):
+    @wraps(f)
+    def wrapped_view(**kwargs):
+        from app.lib.api.auth import ApiAuth
+        from app.lib.api.base import ApiBase
+        if not ApiAuth().auth(True):
+            return ApiBase().send_access_denied_response()
+        return f(**kwargs)
+    return wrapped_view

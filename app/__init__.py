@@ -64,6 +64,10 @@ def create_app(config_class=None):
     from app.controllers.install import bp as install_bp
     app.register_blueprint(install_bp)
 
+    from app.controllers.api import bp as api_bp
+    app.register_blueprint(api_bp)
+    csrf.exempt(api_bp)
+
     from app.lib.base.provider import Provider
 
     @app.before_request

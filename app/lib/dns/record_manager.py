@@ -83,7 +83,7 @@ class DNSRecordManager:
 
         record.save()
 
-        return True
+        return record
 
     def get_zone_records(self, dns_zone_id, order_column='id', order_by='asc'):
         results = self.__get(dns_zone_id=dns_zone_id, order_column=order_column, order_by=order_by)
@@ -111,3 +111,87 @@ class DNSRecordManager:
         for result in results:
             records.append(self.__load(result))
         return records
+
+    def get_record_type_properties(self, record_type, clean=False):
+        properties = {}
+        if record_type in ['NS', 'CNAME', 'PTR', 'DNAME']:
+            properties = {
+                'name': 'str'
+            }
+        elif record_type in ['A', 'AAAA']:
+            properties = {
+                'address': 'str'
+            }
+        elif record_type in ['SOA']:
+            properties = {
+                'mname': 'str',
+                'rname': 'str',
+                'serial': 'int',
+                'refresh': 'int',
+                'retry': 'int',
+                'expire': 'int',
+                'minimum': 'int'
+            }
+        elif record_type in ['SRV']:
+            properties = {
+                'target': 'str',
+                'port': 'int',
+                'priority': 'int',
+                'weight': 'int'
+            }
+        elif record_type in ['NAPTR']:
+            properties = {
+                'order': 'int',
+                'preference': 'int',
+                'flags': 'str',
+                'service': 'str',
+                'regexp': 'str',
+                'replacement': 'str'
+            }
+        elif record_type in ['AFSDB']:
+            properties = {
+                'hostname': 'str',
+                'subtype': 'int'
+            }
+        elif record_type in ['RP']:
+            properties = {
+                'mbox': 'str',
+                'txt': 'str'
+            }
+        elif record_type in ['HINFO']:
+            properties = {
+                'cpu': 'str',
+                'os': 'str'
+            }
+        elif record_type in ['MX']:
+            properties = {
+                'name2': 'str',
+                'preference2': 'int'
+            }
+        elif record_type in ['SSHFP']:
+            properties = {
+                'algorithm': 'int',
+                'fingerprint_type': 'int',
+                'fingerprint': 'str'
+            }
+        elif record_type in ['TXT', 'SPF']:
+            properties = {
+                'data': 'str'
+            }
+        elif record_type in ['TSIG']:
+            properties = {
+                'algorithm2': 'str',
+                'timesigned': 'int',
+                'fudge': 'int',
+                'original_id': 'int',
+                'mac': 'str',
+                'other_data': 'str'
+            }
+
+        if clean:
+            to_clean = ['name2', 'preference2', 'algorithm2']
+            for name in to_clean:
+                if name in properties:
+                    properties[name.rstrip('2')] = properties.pop(name)
+
+        return properties

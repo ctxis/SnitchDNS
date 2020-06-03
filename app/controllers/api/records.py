@@ -1,0 +1,51 @@
+from . import bp
+from app.lib.base.decorators import api_auth
+from app.lib.api.records import ApiRecords
+from flask_login import current_user
+
+
+@bp.route('/zones/<int:zone_id>/records', methods=['GET'])
+@api_auth
+def zone_records(zone_id):
+    user_id = 0 if current_user.admin else current_user.id
+    return ApiRecords().all(zone_id, user_id, current_user.admin)
+
+
+@bp.route('/zones/<int:zone_id>/records', methods=['POST'])
+@api_auth
+def zone_records_create(zone_id):
+    user_id = 0 if current_user.admin else current_user.id
+    return ApiRecords().create(zone_id, user_id, current_user.admin)
+
+
+@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['GET'])
+@api_auth
+def zone_record_by_id(zone_id, record_id):
+    user_id = 0 if current_user.admin else current_user.id
+    return ApiRecords().one(zone_id, record_id, user_id, current_user.admin)
+
+
+@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['POST'])
+@api_auth
+def zone_records_update(zone_id, record_id):
+    user_id = 0 if current_user.admin else current_user.id
+    return ApiRecords().update(zone_id, record_id, user_id, current_user.admin)
+
+
+@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['DELETE'])
+@api_auth
+def zone_record_delete(zone_id, record_id):
+    user_id = 0 if current_user.admin else current_user.id
+    return ApiRecords().delete(zone_id, record_id, user_id, current_user.admin)
+
+
+@bp.route('/records/classes', methods=['GET'])
+@api_auth
+def record_classes():
+    return ApiRecords().classes()
+
+
+@bp.route('/records/types', methods=['GET'])
+@api_auth
+def record_types():
+    return ApiRecords().types()

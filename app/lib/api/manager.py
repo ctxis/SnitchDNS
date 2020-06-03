@@ -74,3 +74,10 @@ class ApiManager:
 
         key.delete()
         return True
+
+    def find(self, apikey):
+        results = self.__get(apikey=apikey)
+        if len(results) == 0:
+            return False
+
+        return self.__load(results[0])
