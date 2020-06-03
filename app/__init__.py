@@ -98,8 +98,8 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
-    from app.lib.cli import snitch_env, snitch_daemon
-    app.cli.add_command(snitch_env.main)
+    from app.lib.cli import env, snitch_daemon
+    app.cli.add_command(env.main)
     app.cli.add_command(snitch_daemon.main)
 
     return app
