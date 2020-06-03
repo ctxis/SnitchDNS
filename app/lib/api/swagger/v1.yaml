@@ -152,6 +152,188 @@ paths:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
+  /records/classes:
+    get:
+      summary: Return all supported classes
+      tags:
+        - record
+      responses:
+        200:
+          description: Supported classes
+          schema:
+            type: array
+            items:
+              type: string
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /records/types:
+    get:
+      summary: Return all supported types
+      tags:
+        - record
+      responses:
+        200:
+          description: Supported types
+          schema:
+            type: array
+            items:
+              type: string
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{zone}/records:
+    get:
+      summary: Return all zone records.
+      tags:
+        - record
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Zone records
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Record'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Create new record
+      tags:
+        - record
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: record
+          description: Record data
+          in: body
+          schema:
+            type: object
+            required:
+              - class
+              - type
+              - ttl
+              - active
+              - data
+            properties:
+              class:
+                type: string
+              type:
+                type: string
+              ttl:
+                type: integer
+              active:
+                type: boolean
+              data:
+                type: object
+      responses:
+        200:
+          $ref: '#/definitions/Record'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{zone}/records/{record}:
+    get:
+      summary: Return specific zone record.
+      tags:
+        - record
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: record
+          description: Record Id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          $ref: '#/definitions/Record'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Update record.
+      tags:
+        - record
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: record
+          description: Record Id
+          in: path
+          required: true
+          type: integer
+        - name: data
+          description: Record type data
+          in: body
+          schema:
+            type: object
+            required:
+              - class
+              - type
+              - ttl
+              - active
+              - data
+            properties:
+              class:
+                type: string
+              type:
+                type: string
+              ttl:
+                type: integer
+              active:
+                type: boolean
+              data:
+                type: object
+      responses:
+        200:
+          $ref: '#/definitions/Record'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    delete:
+      summary: Delete specific recorrrd.
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: record
+          description: Record Id
+          in: path
+          required: true
+          type: integer
+      tags:
+        - record
+      responses:
+        200:
+          $ref: '#/definitions/Response'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
 definitions:
   Response:
     type: object
@@ -189,3 +371,27 @@ definitions:
       domain:
         type: string
         description: Zone Domain
+  Record:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Record Id
+      zone_id:
+        type: integer
+        description: Zone Id
+      active:
+        type: boolean
+        description: Whether the record is active.
+      cls:
+        type: string
+        description: Class
+      type:
+        type: string
+        description: Record Type
+      ttl:
+        type: integer
+        description: TTL
+      data:
+        type: object
+        description: Record Type properties
