@@ -1,1 +1,191 @@
-PLACEHOLDER
+swagger: '2.0'
+info:
+  title: SnitchDNS API
+  version: "1.0.0"
+schemes:
+  - https
+  - http
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: X-SnitchDNS-Auth
+basePath: /api/v1
+produces:
+  - application/json
+consumes:
+  - application/json
+security:
+  - APIKeyHeader: []
+paths:
+  /zones:
+    get:
+      summary: For administrators it will return global domains, and for low privileged users it will return only their subdomains.
+      tags:
+        - zone
+      responses:
+        200:
+          description: All zones
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Zone'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Create new zone.
+      tags:
+        - zone
+      parameters:
+        - in: body
+          name: zone
+          description: New zone details
+          schema:
+            type: object
+            required:
+              - domain
+              - active
+              - exact_match
+              - master
+            properties:
+              domain:
+                type: string
+              active:
+                type: boolean
+              exact_match:
+                type: boolean
+              master:
+                type: boolean
+      responses:
+        200:
+          $ref: '#/definitions/Zone'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/all:
+    get:
+      summary: Administrrators will retrieve all domains for all users. For non-admin users this endpoint is identical to /zones
+      tags:
+        - zone
+      responses:
+        200:
+          description: All zones
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Zone'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{id}:
+    get:
+      summary: Get specific zone.
+      parameters:
+        - name: id
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+      tags:
+        - zone
+      responses:
+        200:
+          $ref: '#/definitions/Zone'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Update specific zone.
+      parameters:
+        - name: id
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: zone
+          description: Zone data
+          in: body
+          schema:
+            type: object
+            required:
+              - domain
+              - active
+              - exact_match
+              - master
+            properties:
+              domain:
+                type: string
+              active:
+                type: boolean
+              exact_match:
+                type: boolean
+              master:
+                type: boolean
+      tags:
+        - zone
+      responses:
+        200:
+          $ref: '#/definitions/Zone'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    delete:
+      summary: Delete specific zone.
+      parameters:
+        - name: id
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+      tags:
+        - zone
+      responses:
+        200:
+          $ref: '#/definitions/Response'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+definitions:
+  Response:
+    type: object
+    properties:
+      success:
+        type: boolean
+        description: Action result
+      code:
+        type: integer
+        description: Error code, if any.
+      message:
+        type: string
+        description: Short Message
+      details:
+        type: string
+        description: Additional details
+  Zone:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Zone Id
+      user_id:
+        type: integer
+        description: Owner's User Id
+      active:
+        type: boolean
+        description: Whether the zone is active.
+      exact_match:
+        type: boolean
+        description: Whether the domain has to be matched exactly in order to return a result.
+      master:
+        type: boolean
+        description: Whether the domain is a master domain (affects only low-privileged users)
+      domain:
+        type: string
+        description: Zone Domain
