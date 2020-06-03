@@ -14,7 +14,7 @@ class SystemManager:
         return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
 
     def can_run_flask(self):
-        output = self.shell.execute(['flask', 'snitch_env'], venv=True)
+        output = self.shell.execute(['flask', 'env'], venv=True)
         return True if output == 'OK' else False
 
     def get_python_version(self):
