@@ -7,7 +7,7 @@ import datetime
 
 class SearchManager:
     def search_from_request(self, request, paginate=True, method='get', user_ids=None):
-        params = SearchParams(request, method)
+        params = SearchParams(request=request, method=method)
         return {
             'results': self.search(params, paginate=paginate, user_ids=user_ids),
             'params': params,
@@ -16,9 +16,13 @@ class SearchManager:
 
     def search(self, search_params, paginate=False, user_ids=None):
         query = DNSQueryLogModel.query
-        if user_ids and len(user_ids) > 0:
-            query = query.outerjoin(DNSZoneModel, DNSZoneModel.id == DNSQueryLogModel.dns_zone_id)
-            query = query.filter(DNSZoneModel.user_id.in_(user_ids))
+        if user_ids is not None:
+            if isinstance(user_ids, str) or isinstance(user_ids, int):
+                user_ids = [user_ids]
+
+            if isinstance(user_ids, list) and len(user_ids) > 0:
+                query = query.outerjoin(DNSZoneModel, DNSZoneModel.id == DNSQueryLogModel.dns_zone_id)
+                query = query.filter(DNSZoneModel.user_id.in_(user_ids))
 
         if len(search_params.domain) > 0:
             if '%' in search_params.domain:

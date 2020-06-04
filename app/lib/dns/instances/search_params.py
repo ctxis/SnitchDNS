@@ -1,12 +1,13 @@
 import datetime
-import inspect
 from urllib.parse import quote_plus
 
 
 class SearchParams:
-    def __init__(self, request, method='get'):
+    def __init__(self, request=None, method='get'):
         self.__request = request
         self.__method = method.lower()
+        if self.__method not in ['dict', 'get', 'post']:
+            raise Exception("Coding Error: Invalid SearchParams() method: {0}".format(self.__method))
 
         self.__domain = None
         self.__source_ip = None
@@ -51,7 +52,15 @@ class SearchParams:
             self.page = 1
 
     def __get_param(self, name, default, type='str'):
-        value = self.__request.args.get(name, default) if self.__method == 'get' else self.__request.form.get(name, default)
+        if self.__request is None:
+            return default
+
+        value = default
+        if self.__method in ['get', 'post']:
+            value = self.__request.args.get(name, default) if self.__method == 'get' else self.__request.form.get(name, default)
+        elif self.__method == 'dict':
+            value = self.__request[name] if name in self.__request else default
+
         if type == 'int':
             value = int(value) if str(value).isdigit() else default
 

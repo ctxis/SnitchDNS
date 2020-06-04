@@ -313,7 +313,7 @@ paths:
         500:
           $ref: '#/definitions/Response'
     delete:
-      summary: Delete specific recorrrd.
+      summary: Delete specific record.
       parameters:
         - name: zone
           description: Zone Id
@@ -330,6 +330,63 @@ paths:
       responses:
         200:
           $ref: '#/definitions/Response'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /search:
+    get:
+      summary: Search logs
+      parameters:
+        - name: domain
+          required: false
+          in: query
+          type: string
+        - name: source_ip
+          required: false
+          in: query
+          type: string
+        - name: date_from
+          required: false
+          in: query
+          type: string
+        - name: time_from
+          required: false
+          in: query
+          type: string
+        - name: date_to
+          required: false
+          in: query
+          type: string
+        - name: time_to
+          required: false
+          in: query
+          type: string
+        - name: type
+          required: false
+          in: query
+          type: string
+        - name: matched
+          required: false
+          in: query
+          type: boolean
+        - name: forwarded
+          required: false
+          in: query
+          type: boolean
+        - name: page
+          required: false
+          in: query
+          type: integer
+        - name: per_page
+          required: false
+          in: query
+          type: integer
+      tags:
+          - search
+      responses:
+        200:
+          $ref: '#/definitions/Search'
         401:
           $ref: '#/definitions/Response'
         500:
@@ -395,3 +452,43 @@ definitions:
       data:
         type: object
         description: Record Type properties
+  SearchResult:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Database primary key
+      domain:
+        type: string
+        description: Domain name
+      source_ip:
+        type: string
+        description: Source IP
+      type:
+        type: string
+        description: Record Type
+      matched:
+        type: boolean
+        description: Whether the domain query was matched
+      forwarded:
+        type: boolean
+        description: Whether the query was forwarded
+      date:
+        type: string
+        description: Query date
+  Search:
+    type: object
+    properties:
+      page:
+        type: integer
+        description: Current result page
+      pages:
+        type: integer
+        description: All pages
+      count:
+        type: integer
+        description: Number of results
+      results:
+        type: array
+        items:
+          $ref: '#/definitions/SearchResult'
