@@ -67,7 +67,7 @@ def smtp_test():
 
     recipient = request.form['test_email_recipient'].strip()
 
-    result = emails.send(recipient, 'SnitchDNS - Test Message', 'It works!')
+    result = emails.send(recipient, 'SnitchDNS - Test Message', 'Snitches get notifications!')
     if result is not True:
         flash('Could not send e-mail: ' + str(result), 'error')
     else:

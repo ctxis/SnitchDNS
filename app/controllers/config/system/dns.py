@@ -61,5 +61,5 @@ def dns_save():
     settings.save_list('forward_dns_address', forwarders)
     settings.save('forward_dns_enabled', forward_dns_enabled)
 
-    flash('Settings saved', 'success')
+    flash('Settings saved - Please restart the DNS Daemon.', 'success')
     return redirect(url_for('config.dns'))
