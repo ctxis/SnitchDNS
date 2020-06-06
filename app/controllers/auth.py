@@ -31,6 +31,7 @@ def login_process():
     provider = Provider()
     users = provider.users()
     ldap = provider.ldap()
+    zones = provider.dns_zones()
 
     # First lookup local users.
     user = users.find_user_login(username, False)
@@ -51,6 +52,11 @@ def login_process():
             user = users.save(0, ldap_user['username'], password, ldap_user['fullname'], ldap_user['email'], False, True, True)
             if not user:
                 flash('Could not create LDAP user: {0}'.format(users.last_error), 'error')
+                return redirect(url_for('auth.login', next=next))
+
+            # Now we need to create a zone for that user.
+            if not zones.create_user_base_zone(user):
+                flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
                 return redirect(url_for('auth.login', next=next))
     else:
         flash('Invalid credentials', 'error')
