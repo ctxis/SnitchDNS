@@ -12,6 +12,7 @@ from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
 from app.lib.base.ldap import LDAPManager
 from app.lib.api.manager import ApiManager
+from app.lib.base.cron import CronManager
 from flask import current_app
 import os
 
@@ -109,3 +110,6 @@ class Provider:
 
     def api(self):
         return ApiManager()
+
+    def cron(self):
+        return CronManager()

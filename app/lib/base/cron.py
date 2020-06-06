@@ -1,0 +1,2 @@
+class CronManager:
+    pass
