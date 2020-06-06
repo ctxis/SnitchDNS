@@ -82,3 +82,11 @@ class DNSZone(BaseInstance):
     @record_count.setter
     def record_count(self, value):
         self.__record_count = value
+
+    @property
+    def is_global(self):
+        return self.item.is_global
+
+    @is_global.setter
+    def is_global(self, value):
+        self.item.is_global = value
