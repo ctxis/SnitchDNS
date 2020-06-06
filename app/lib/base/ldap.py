@@ -117,6 +117,7 @@ class LDAPManager:
 
     def authenticate(self, username, password, test_only=False):
         self.error_message = ''
+        self.error_details = ''
         connection = self.__connect(username, password)
         if connection:
             # Authentication worked - close connection.
@@ -128,6 +129,15 @@ class LDAPManager:
             return self.__load_user(username)
         return False
 
+    def test_connection(self):
+        self.error_message = ''
+        self.error_details = ''
+        connection = self.__connect(self.bind_user, self.bind_pass)
+        if connection:
+            connection.unbind()
+            return True
+        return False
+
     def __connect(self, username, password):
         server = ldap3.Server(self.host, get_info=ldap3.ALL, use_ssl=self.ssl)
         ldap_user = "{0}\\{1}".format(self.domain, username)
@@ -137,12 +147,12 @@ class LDAPManager:
         except (LDAPSocketOpenError, LDAPSocketSendError) as e:
             # I kept these separately as these are when it can't connect to the server.
             self.error_message = 'Internal Error: Could not connect to the LDAP Server.'
-            self.error_details = 'Internal Error: {0}'.format(str(e))
+            self.error_details = str(e)
 
             return False
         except Exception as e:
             self.error_message = 'Internal Error: Something is wrong with the LDAP Server.'
-            self.error_details = 'Internal Error: {0}'.format(str(e))
+            self.error_details = str(e)
 
             return False
         return connection if result else False
@@ -163,10 +173,16 @@ class LDAPManager:
         connection.search(self.base_dn, search, attributes=attributes)
         if len(connection.entries) != 1:
             # We're only looking for one record - anything else is an error and it shouldn't have reached this point.
+            connection.unbind()
             return False
 
-        return {
+        data = {
             'username': connection.entries[0][self.mapping_username].value,
             'fullname': connection.entries[0][self.mapping_fullname].value,
             'email': connection.entries[0][self.mapping_email].value if len(self.mapping_email) > 0 else ''
         }
+
+        # Close connection.
+        connection.unbind()
+
+        return data

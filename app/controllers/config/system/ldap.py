@@ -60,62 +60,16 @@ def ldap_save():
     return redirect(url_for('config.ldap'))
 
 
+@bp.route('/ldap/test', methods=['POST'])
+@login_required
+@admin_required
+def ldap_test():
+    provider = Provider()
+    ldap = provider.ldap()
 
-
-
-
-
-
-
-
-
-
-
-
-
-    smtp_enable = True if int(request.form.get('smtp_enable', 0)) == 1 else False
-    smtp_host = request.form['smtp_host'].strip()
-    smtp_port = int(request.form['smtp_port'].strip())
-    smtp_tls = True if int(request.form.get('smtp_tls', 0)) == 1 else False
-    smtp_user = request.form['smtp_user'].strip()
-    smtp_pass = request.form['smtp_pass'].strip()
-    if smtp_pass == '********':
-        smtp_pass = ''
-
-    if len(smtp_host) == 0:
-        flash('Please enter SMTP Host', 'error')
-        return redirect(url_for('config.smtp'))
-    elif smtp_port <= 0 or smtp_port > 65535:
-        flash('Please enter SMTP Port', 'error')
-        return redirect(url_for('config.smtp'))
-    elif len(smtp_user) == 0:
-        flash('Please enter SMTP User', 'error')
-        return redirect(url_for('config.smtp'))
-
-    # Checking for the password is a bit different. If there's a password stored already in the database, we check
-    # if the password is ********. If it is, we don't update but we let it go through. If it isn't, we update.
-    existing_password = settings.get('smtp_pass', '')
-    if len(existing_password) == 0:
-        # If there's no stored password, require one.
-        if len(smtp_pass) == 0:
-            flash('Please enter SMTP Pass', 'error')
-            return redirect(url_for('config.smtp'))
-        else:
-            update_password = True
+    if not ldap.test_connection():
+        message = ldap.error_details if len(ldap.error_details) > 0 else 'Could not connect to LDAP Server'
+        flash('LDAP Response: {0}'.format(message), 'error')
     else:
-        if len(smtp_pass) > 0:
-            update_password = True
-        else:
-            # Don't update the password as the user probably updated something else on the form.
-            update_password = False
-
-    settings.save('smtp_enable', smtp_enable)
-    settings.save('smtp_host', smtp_host)
-    settings.save('smtp_port', smtp_port)
-    settings.save('smtp_tls', smtp_tls)
-    settings.save('smtp_user', smtp_user)
-    if update_password:
-        settings.save('smtp_pass', smtp_pass)
-
-    flash('Settings saved', 'success')
-    return redirect(url_for('config.smtp'))
+        flash('Connection established!', 'success')
+    return redirect(url_for('config.ldap'))
