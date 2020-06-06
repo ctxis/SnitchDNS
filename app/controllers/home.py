@@ -22,15 +22,12 @@ def index():
         return redirect(url_for('auth.login'))
 
     search = provider.search()
-    user_ids = [] if current_user.admin else [current_user.id]
-    results = search.search_from_request(request, user_ids=user_ids)
-
-    user_id = 0 if current_user.admin else current_user.id
+    results = search.search_from_request(request, user_ids=current_user.id)
 
     return render_template(
         'home/index.html',
         results=results['results'],
         params=results['params'],
         page_url='home.index',
-        zone_count=zones.count(user_id=user_id)
+        zone_count=zones.count(user_id=current_user.id)
     )

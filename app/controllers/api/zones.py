@@ -7,15 +7,13 @@ from flask_login import current_user
 @bp.route('/zones', methods=['GET'])
 @api_auth
 def zones():
-    user_id = 0 if current_user.admin else current_user.id
-    return ApiZones().all(user_id)
+    return ApiZones().all(current_user.id)
 
 
 @bp.route('/zones', methods=['POST'])
 @api_auth
 def zones_create():
-    user_id = 0 if current_user.admin else current_user.id
-    return ApiZones().create(user_id, current_user.username, current_user.admin)
+    return ApiZones().create(current_user.id, current_user.username, current_user.admin)
 
 
 @bp.route('/zones/all', methods=['GET'])
@@ -29,19 +27,16 @@ def zones_all():
 @bp.route('/zones/<int:zone_id>', methods=['POST'])
 @api_auth
 def zones_update(zone_id):
-    user_id = 0 if current_user.admin else current_user.id
-    return ApiZones().update(zone_id, user_id, current_user.username, current_user.admin)
+    return ApiZones().update(zone_id, current_user.id, current_user.username, current_user.admin)
 
 
 @bp.route('/zones/<int:zone_id>', methods=['GET'])
 @api_auth
 def zones_by_id(zone_id):
-    user_id = 0 if current_user.admin else current_user.id
-    return ApiZones().one(zone_id, user_id, current_user.admin)
+    return ApiZones().one(zone_id, current_user.id, current_user.admin)
 
 
 @bp.route('/zones/<int:zone_id>', methods=['DELETE'])
 @api_auth
 def zone_delete(zone_id):
-    user_id = 0 if current_user.admin else current_user.id
-    return ApiZones().delete(zone_id, user_id, current_user.admin)
+    return ApiZones().delete(zone_id, current_user.id, current_user.admin)

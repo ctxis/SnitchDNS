@@ -8,5 +8,4 @@ from flask import request
 @bp.route('/search', methods=['GET'])
 @api_auth
 def search():
-    user_id = None if current_user.admin else current_user.id
-    return ApiSearch().search(request, user_id, current_user.admin)
+    return ApiSearch().search(request, current_user.id, current_user.admin)
