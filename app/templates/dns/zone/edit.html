@@ -13,7 +13,7 @@
                     {% if current_user.admin %}
                     <div class="form-group">
                         <label for="domain">Domain</label>
-                        <input type="text" name="domain" id="domain" class="form-control text-right" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
+                        <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                     </div>
                     {% else %}
                         {% if dns_zone_id > 0 and zone.master == True %}

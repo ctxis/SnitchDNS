@@ -14,12 +14,9 @@ def index():
     provider = Provider()
     zones = provider.dns_zones()
 
-    # Admins should see global domains (user_id = 0)
-    user_id = 0 if current_user.admin else current_user.id
-
     return render_template(
         'dns/index.html',
-        zones=zones.get_user_zones(user_id)
+        zones=zones.get_user_zones(current_user.id)
     )
 
 
@@ -112,9 +109,7 @@ def zone_edit_save(dns_zone_id):
         base_domain = zone.base_domain
         master = True
 
-    # If it's an admin, create it as a global domain.
-    user_id = 0 if current_user.admin else current_user.id
-    zone = zones.save(zone, user_id, domain, base_domain, active, exact_match, master)
+    zone = zones.save(zone, current_user.id, domain, base_domain, active, exact_match, master)
     if not zone:
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
