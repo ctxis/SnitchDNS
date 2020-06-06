@@ -22,7 +22,7 @@
                     <label for="dns_base_domain">Domain</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control text-right" name="dns_base_domain" id="dns_base_domain" value="{{ setting_get('dns_base_domain', '') }}" placeholder="snitch.example.com" autofocus>
+                    <input type="text" class="form-control text-right" name="dns_base_domain" id="dns_base_domain" value="{{ setting_get('dns_base_domain', '') }}" placeholder="snitch.example.com" autofocus required>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@
                     <label for="dns_daemon_bind_ip">Bind Local IP Address</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control text-right" name="dns_daemon_bind_ip" id="dns_daemon_bind_ip" value="{{ setting_get('dns_daemon_bind_ip', '') }}" placeholder="Local IP or 0.0.0.0" autofocus>
+                    <input type="text" class="form-control text-right" name="dns_daemon_bind_ip" id="dns_daemon_bind_ip" value="{{ setting_get('dns_daemon_bind_ip', '') }}" placeholder="Local IP or 0.0.0.0" required>
                 </div>
             </div>
 
@@ -41,7 +41,7 @@
                     <label for="dns_daemon_bind_port">Bind Local Port</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control text-right" name="dns_daemon_bind_port" id="dns_daemon_bind_port" value="{{ setting_get('dns_daemon_bind_port', '') }}" placeholder="between 1024 and 65535">
+                    <input type="text" class="form-control text-right" name="dns_daemon_bind_port" id="dns_daemon_bind_port" value="{{ setting_get('dns_daemon_bind_port', '') }}" placeholder="between 1024 and 65535" required>
                 </div>
             </div>
 

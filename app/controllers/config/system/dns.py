@@ -25,7 +25,8 @@ def dns_save():
 
     # DNS Daemon
     dns_daemon_bind_ip = request.form['dns_daemon_bind_ip'].strip()
-    dns_daemon_bind_port = int(request.form['dns_daemon_bind_port'].strip())
+    dns_daemon_bind_port = request.form['dns_daemon_bind_port'].strip()
+    dns_daemon_bind_port = int(dns_daemon_bind_port) if dns_daemon_bind_port.isdigit() else 0
 
     # DNS Forwarding
     forward_dns_address = request.form['forward_dns_address'].strip()
