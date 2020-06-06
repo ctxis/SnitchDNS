@@ -1,4 +1,5 @@
 import ldap3
+from ldap3.core.exceptions import LDAPSocketSendError, LDAPSocketOpenError
 
 
 class LDAPManager:
@@ -82,6 +83,22 @@ class LDAPManager:
     def mapping_email(self, value):
         self.__mapping_email = value
 
+    @property
+    def error_message(self):
+        return self.__error_message
+
+    @error_message.setter
+    def error_message(self, value):
+        self.__error_message = value
+
+    @property
+    def error_details(self):
+        return self.__error_details
+
+    @error_details.setter
+    def error_details(self, value):
+        self.__error_details = value
+
     def __init__(self):
         self.__enabled = False
         self.__host = ''
@@ -94,11 +111,18 @@ class LDAPManager:
         self.__mapping_email = ''
         self.__ssl = False
 
-    def authenticate(self, username, password):
+        # Internal.
+        self.__error_message = ''
+        self.__error_details = ''
+
+    def authenticate(self, username, password, test_only=False):
+        self.error_message = ''
         connection = self.__connect(username, password)
         if connection:
             # Authentication worked - close connection.
             connection.unbind()
+            if test_only:
+                return True
 
             # Reconnect using the BindUser and return the user's data.
             return self.__load_user(username)
@@ -108,7 +132,19 @@ class LDAPManager:
         server = ldap3.Server(self.host, get_info=ldap3.ALL, use_ssl=self.ssl)
         ldap_user = "{0}\\{1}".format(self.domain, username)
         connection = ldap3.Connection(server, user=ldap_user, password=password, authentication=ldap3.NTLM)
-        result = connection.bind()
+        try:
+            result = connection.bind()
+        except (LDAPSocketOpenError, LDAPSocketSendError) as e:
+            # I kept these separately as these are when it can't connect to the server.
+            self.error_message = 'Internal Error: Could not connect to the LDAP Server.'
+            self.error_details = 'Internal Error: {0}'.format(str(e))
+
+            return False
+        except Exception as e:
+            self.error_message = 'Internal Error: Something is wrong with the LDAP Server.'
+            self.error_details = 'Internal Error: {0}'.format(str(e))
+
+            return False
         return connection if result else False
 
     def __load_user(self, username):

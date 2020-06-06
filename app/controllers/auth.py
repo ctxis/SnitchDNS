@@ -42,7 +42,10 @@ def login_process():
     elif ldap.enabled:
         ldap_user = ldap.authenticate(username, password)
         if not ldap_user:
-            flash('Invalid credentials', 'error')
+            if len(ldap.error_message) > 0:
+                flash(ldap.error_message, 'error')
+            else:
+                flash('Invalid credentials', 'error')
             return redirect(url_for('auth.login', next=next))
 
         # Now see if the user exists.
