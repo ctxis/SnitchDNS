@@ -204,14 +204,14 @@ def record_edit_save(dns_zone_id, dns_record_id):
     dns_classes = records.get_classes()
 
     ttl = int(request.form['ttl'].strip())
-    rclass = request.form['class'].strip()
+    cls = request.form['class'].strip()
     type = request.form['type'].strip()
     active = True if int(request.form.get('active', 0)) == 1 else False
 
     if ttl <= 0:
         flash('Invalid TTL value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
-    elif rclass not in dns_classes:
+    elif cls not in dns_classes:
         flash('Invalid class value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
     elif type not in dns_types:
@@ -232,7 +232,7 @@ def record_edit_save(dns_zone_id, dns_record_id):
     else:
         record = records.create()
 
-    if not records.save(record, zone.id, ttl, rclass, type, data, active):
+    if not records.save(record, zone.id, ttl, cls, type, data, active):
         flash('Could not save record', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 

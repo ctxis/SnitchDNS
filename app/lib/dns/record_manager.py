@@ -22,7 +22,7 @@ class DNSRecordManager:
         items.sort()
         return items
 
-    def __get(self, id=None, dns_zone_id=None, ttl=None, rclass=None, type=None, data=None, active=None, order_column=None, order_by=None):
+    def __get(self, id=None, dns_zone_id=None, ttl=None, cls=None, type=None, data=None, active=None, order_column=None, order_by=None):
         query = DNSRecordModel.query
 
         if id is not None:
@@ -34,8 +34,8 @@ class DNSRecordManager:
         if ttl is not None:
             query = query.filter(DNSRecordModel.ttl == ttl)
 
-        if rclass is not None:
-            query = query.filter(DNSRecordModel.rclass == rclass)
+        if cls is not None:
+            query = query.filter(DNSRecordModel.cls == cls)
 
         if type is not None:
             query = query.filter(DNSRecordModel.type == type)
@@ -73,10 +73,10 @@ class DNSRecordManager:
         item.save()
         return item
 
-    def save(self, record, dns_zone_id, ttl, rclass, type, data, active):
+    def save(self, record, dns_zone_id, ttl, cls, type, data, active):
         record.dns_zone_id = dns_zone_id
         record.ttl = ttl
-        record.rclass = rclass
+        record.cls = cls
         record.type = type
         record.data = json.dumps(data) if isinstance(data, dict) else data
         record.active = active
@@ -96,8 +96,8 @@ class DNSRecordManager:
         record = self.__get(id=dns_record_id, dns_zone_id=dns_zone_id)
         return len(record) > 0
 
-    def find(self, dns_zone_id, rclass, type, return_all=True):
-        results = self.__get(dns_zone_id=dns_zone_id, rclass=rclass, type=type)
+    def find(self, dns_zone_id, cls, type, return_all=True):
+        results = self.__get(dns_zone_id=dns_zone_id, cls=cls, type=type)
         if len(results) == 0:
             return False
 

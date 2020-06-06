@@ -36,8 +36,8 @@ class SearchManager:
             else:
                 query = query.filter(DNSQueryLogModel.source_ip == search_params.source_ip)
 
-        if len(search_params.rclass) > 0:
-            query = query.filter(DNSQueryLogModel.rclass == search_params.rclass)
+        if len(search_params.cls) > 0:
+            query = query.filter(DNSQueryLogModel.cls == search_params.cls)
 
         if len(search_params.type) > 0:
             query = query.filter(DNSQueryLogModel.type == search_params.type)
@@ -70,10 +70,10 @@ class SearchManager:
             'types': []
         }
 
-        sql = "SELECT rclass FROM dns_query_log GROUP BY rclass ORDER BY rclass"
+        sql = "SELECT cls FROM dns_query_log GROUP BY cls ORDER BY cls"
         results = db.session.execute(sql)
         for result in results:
-            filters['classes'].append(result.rclass)
+            filters['classes'].append(result.cls)
 
         sql = "SELECT type FROM dns_query_log GROUP BY type ORDER BY type"
         results = db.session.execute(sql)

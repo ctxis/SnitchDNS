@@ -60,7 +60,7 @@ class DNSZone(BaseInstance):
         zone_items = [
             str(domain),
             str(record.ttl),
-            str(record.rclass),
+            str(record.cls),
             str(record.type),
             str(record.data)
         ]

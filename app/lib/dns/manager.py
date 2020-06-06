@@ -41,6 +41,6 @@ class DNSManager:
 
         return zone
 
-    def find_all_records(self, zone, rclass, type):
-        records = self.record_manager.find(zone.id, rclass, type)
+    def find_all_records(self, zone, cls, type):
+        records = self.record_manager.find(zone.id, cls, type)
         return records if len(records) > 0 else []

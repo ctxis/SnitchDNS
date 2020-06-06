@@ -46,7 +46,7 @@ class ApiRecords(ApiBase):
         record.id = item.id
         record.zone_id = item.dns_zone_id
         record.active = int(item.active) > 0
-        record.cls = item.rclass
+        record.cls = item.cls
         record.type = item.type
         record.ttl = int(item.ttl)
         record.data = item.data
@@ -178,7 +178,7 @@ class ApiRecords(ApiBase):
             if data['class'] not in records.get_classes():
                 return self.send_error_response(5005, 'Invalid class', '')
         else:
-            data['class'] = record.rclass
+            data['class'] = record.cls
 
         if 'type' in data:
             if data['type'] not in records.get_types():

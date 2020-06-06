@@ -11,7 +11,7 @@ class DatabaseDNSLogging:
             item = self.__log_manager.create()
             item.source_ip = source_ip
             item.domain = domain
-            item.rclass = cls
+            item.cls = cls
             item.type = type
             item.save()
 

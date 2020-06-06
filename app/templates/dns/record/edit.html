@@ -17,7 +17,7 @@
                                 <select name="class" id="class" class="custom-select form-control" required>
                                     <option value=""></option>
                                     {% for dns_class in dns_classes %}
-                                    <option value="{{ dns_class }}" {{ 'selected' if (dns_record_id == 0 and dns_class == 'IN') or (dns_record_id > 0 and record.rclass == dns_class) }}>{{ dns_class }}</option>
+                                    <option value="{{ dns_class }}" {{ 'selected' if (dns_record_id == 0 and dns_class == 'IN') or (dns_record_id > 0 and record.cls == dns_class) }}>{{ dns_class }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

@@ -11,7 +11,7 @@ class SearchParams:
 
         self.__domain = None
         self.__source_ip = None
-        self.__rclass = None
+        self.__cls = None
         self.__type = None
         self.__matched = None
         self.__forwarded = None
@@ -27,7 +27,7 @@ class SearchParams:
     def __load(self):
         self.domain = self.__get_param('domain', '')
         self.source_ip = self.__get_param('source_ip', '')
-        self.rclass = self.__get_param('rclass', '')
+        self.cls = self.__get_param('cls', '')
         self.type = self.__get_param('type', '')
         self.matched = self.__get_param('matched', -1, type='int')
         self.forwarded = self.__get_param('forwarded', -1, type='int')
@@ -71,7 +71,7 @@ class SearchParams:
 
         params.append('domain=' + quote_plus(self.domain)) if len(self.domain) > 0 else False
         params.append('source_ip=' + quote_plus(self.source_ip)) if len(self.source_ip) > 0 else False
-        params.append('rclass=' + quote_plus(self.rclass)) if len(self.rclass) > 0 else False
+        params.append('cls=' + quote_plus(self.cls)) if len(self.cls) > 0 else False
         params.append('type=' + quote_plus(self.type)) if len(self.type) > 0 else False
         params.append('matched=' + quote_plus(str(self.matched))) if self.matched in [0, 1] else False
         params.append('forwarded=' + quote_plus(str(self.forwarded))) if self.forwarded in [0, 1] else False
@@ -100,12 +100,12 @@ class SearchParams:
         self.__source_ip = value
 
     @property
-    def rclass(self):
-        return self.__rclass
+    def cls(self):
+        return self.__cls
 
-    @rclass.setter
-    def rclass(self, value):
-        self.__rclass = value
+    @cls.setter
+    def cls(self, value):
+        self.__cls = value
 
     @property
     def type(self):

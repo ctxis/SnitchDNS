@@ -14,7 +14,7 @@ class DNSLogManager:
     def __load(self, item):
         return DNSQueryLog(item)
 
-    def __get(self, id=None, source_ip=None, domain=None, rclass=None, type=None, completed=None, order_by='asc'):
+    def __get(self, id=None, source_ip=None, domain=None, cls=None, type=None, completed=None, order_by='asc'):
         query = DNSQueryLogModel.query
 
         if id is not None:
@@ -26,8 +26,8 @@ class DNSLogManager:
         if domain is not None:
             query = query.filter(DNSQueryLogModel.domain == domain)
 
-        if rclass is not None:
-            query = query.filter(DNSQueryLogModel.rclass == rclass)
+        if cls is not None:
+            query = query.filter(DNSQueryLogModel.cls == cls)
 
         if type is not None:
             query = query.filter(DNSQueryLogModel.type == type)
@@ -40,8 +40,8 @@ class DNSLogManager:
 
         return query.all()
 
-    def find(self, domain, rclass, type, completed, source_ip):
-        results = self.__get(domain=domain, rclass=rclass, type=type, completed=completed, source_ip=source_ip)
+    def find(self, domain, cls, type, completed, source_ip):
+        results = self.__get(domain=domain, cls=cls, type=type, completed=completed, source_ip=source_ip)
         return self.__load(results[0]) if results else None
 
     def __prepare_path(self, save_as, overwrite, create_path):
@@ -93,7 +93,7 @@ class DNSLogManager:
                     row.id,
                     row.domain,
                     row.source_ip,
-                    row.rclass,
+                    row.cls,
                     row.type,
                     row.created_at,
                     '1' if row.forwarded else '0',

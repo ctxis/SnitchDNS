@@ -19,12 +19,12 @@ class DNSQueryLog(BaseInstance):
         self.item.domain = value
 
     @property
-    def rclass(self):
-        return self.item.rclass
+    def cls(self):
+        return self.item.cls
 
-    @rclass.setter
-    def rclass(self, value):
-        self.item.rclass = value
+    @cls.setter
+    def cls(self, value):
+        self.item.cls = value
 
     @property
     def type(self):
