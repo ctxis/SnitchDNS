@@ -61,7 +61,7 @@
                 <td class="text-center">{{ zone.record_count }}</td>
                 <td class="text-center" style="white-space: nowrap;">
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}" title="edit zone"><i class="fas fa-edit"></i></a>
-                    <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
+                    <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
                     <form action="{{ url_for('dns.zone_delete', dns_zone_id=zone.id) }}" method="post" class="d-inline ml-1" id="delete-zone-form-{{ zone.id }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <a href="#" class="confirm-delete text-danger" title="delete zone"><i class="fas fa-trash"></i></a>
