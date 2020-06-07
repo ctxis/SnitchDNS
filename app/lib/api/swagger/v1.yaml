@@ -20,7 +20,7 @@ security:
 paths:
   /zones:
     get:
-      summary: For administrators it will return global domains, and for low privileged users it will return only their subdomains.
+      summary: Return domains owned by current user.
       tags:
         - zone
       responses:
@@ -379,6 +379,10 @@ paths:
           in: query
           type: integer
         - name: per_page
+          required: false
+          in: query
+          type: integer
+        - name: user_id
           required: false
           in: query
           type: integer

@@ -97,7 +97,7 @@ class ApiZones(ApiBase):
         else:
             data['exact_match'] = zone.exact_match
 
-        zone = zones.save(zone, user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master)
+        zone = zones.save(zone, zone.user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master)
 
         return self.one(zone_id, user_id, is_admin)
 

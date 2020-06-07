@@ -8,7 +8,7 @@ class ApiSearch(ApiBase):
     def search(self, request, user_id, is_admin):
         data = {}
         filters = ['domain', 'source_ip', 'date_from', 'time_from', 'date_to', 'time_to', 'type', 'matched',
-                   'forwarded', 'page', 'per_page']
+                   'forwarded', 'page', 'per_page', 'user_id']
         for filter in filters:
             if filter in request.args:
                 data[filter] = request.args.get(filter)
