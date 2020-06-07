@@ -10,28 +10,21 @@
                 <form action="{{ url_for('dns.zone_edit_save', dns_zone_id=dns_zone_id) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                    {% if current_user.admin %}
                     <div class="form-group">
-                        <label for="domain">Domain</label>
-                        <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
-                    </div>
-                    {% else %}
-                        {% if dns_zone_id > 0 and zone.master == True %}
-                        <div class="form-group">
-                            <div class="alert alert-info">This is a master zone - you can only edit the below settings.</div>
-                        </div>
+                        {% if zone.master == True %}
+                        <div class="alert alert-info">This is a master zone - you can only edit the below settings.</div>
                         {% else %}
-                        <div class="form-group">
-                            <label for="domain">Domain</label>
-                            <div class="input-group">
-                                <input type="text" name="domain" id="domain" value="{{ zone.domain if dns_zone_id > 0 }}" class="form-control text-right" required autofocus>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">{{ user_domain }}</span>
-                                </div>
+                        <label for="domain">Domain</label>
+                        <div class="input-group">
+                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
+                            {% if zone.base_domain|length > 0 %}
+                            <div class="input-group-append">
+                                <span class="input-group-text">{{ user_domain }}</span>
                             </div>
+                            {% endif %}
                         </div>
                         {% endif %}
-                    {% endif %}
+                    </div>
 
                     <div class="form-group row py-0 my-0">
                         <div class="col">
