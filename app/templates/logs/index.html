@@ -51,7 +51,7 @@
                     </div>
                     <div class="col">
                         <div class="row">
-                            <div class="col">
+                            <div class="col pl-0 ml-0">
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Type</span></div>
                                     <select class="custom-select" name="type">
@@ -59,6 +59,20 @@
                                         {% for type in filters.types %}
                                         <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
                                         {% endfor %}
+                                    </select>
+
+                                    <div class="input-group-prepend"><span class="input-group-text">Matched</span></div>
+                                    <select class="custom-select" name="matched">
+                                        <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
+                                        <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
+                                        <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
+                                    </select>
+
+                                    <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
+                                    <select class="custom-select" name="forwarded">
+                                        <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
+                                        <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
+                                        <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
                                     </select>
                                 </div>
                             </div>
@@ -90,28 +104,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div class="row">
-                            <div class="col">
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Matched</span></div>
-                                    <select class="custom-select" name="matched">
-                                        <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
-                                        <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
-                                        <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
-                                    <select class="custom-select" name="forwarded">
-                                        <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
-                                        <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
-                                        <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
