@@ -8,15 +8,26 @@ bp = Blueprint('dns', __name__, url_prefix='/dns')
 
 
 @bp.route('/', methods=['GET'])
+@bp.route('/<string:type>', methods=['GET'])
 @login_required
 @must_have_base_domain
-def index():
+def index(type=''):
     provider = Provider()
     zones = provider.dns_zones()
 
+    user_id = current_user.id
+    if len(type) > 0:
+        if current_user.admin and (type == 'all'):
+            # This means all domains.
+            user_id = None
+        else:
+            # Return user to the previous page.
+            return redirect(url_for('dns.index'))
+
     return render_template(
         'dns/index.html',
-        zones=zones.get_user_zones(current_user.id)
+        zones=zones.get_user_zones(user_id),
+        type=type
     )
 
 

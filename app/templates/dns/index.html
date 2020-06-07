@@ -3,14 +3,25 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col"></div>
-    <div class="col-7">
-        <h2>Your DNS Zones</h2>
+    <div class="col-9">
+        <ul class="nav nav-tabs mb-2">
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if type == '' }}" href="{{ url_for('dns.index') }}">Your Zones</a>
+            </li>
+            {% if current_user.admin %}
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if type == 'all' }}" href="{{ url_for('dns.index', type='all') }}">All Zones</a>
+            </li>
+            {% endif %}
+        </ul>
 
-        <div class="clearfix mb-4">
+        {% if type == '' %}
+        <div class="clearfix mb-2">
             <div class="float-right">
-                <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
+                <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-sm btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
             </div>
         </div>
+        {% endif %}
 
         {% if zones|length == 0 %}
         <div class="alert alert-info text-center">No zones configured yet.</div>
@@ -20,6 +31,9 @@
             <tr>
                 <th>#</th>
                 <th style="width: 100%;">Domain</th>
+                {% if type == 'all' %}
+                <th>User</th>
+                {% endif %}
                 <th class="text-center">Active</th>
                 <th class="text-center" style="white-space: nowrap;">Exact Match</th>
                 <th class="text-center">Records</th>
@@ -31,6 +45,9 @@
             <tr>
                 <td>{{ zone.id }}</td>
                 <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
+                {% if type == 'all' %}
+                <td>{{ zone.username }}</td>
+                {% endif %}
                 <td class="text-center">
                     {% set class = 'success' if zone.active else 'danger' %}
                     {% set icon = 'check' if zone.active else 'times' %}

@@ -6,6 +6,7 @@ class DNSZone(BaseInstance):
         super().__init__(item)
 
         self.__record_count = 0
+        self.__username = ''
 
     @property
     def domain(self):
@@ -82,3 +83,11 @@ class DNSZone(BaseInstance):
     @record_count.setter
     def record_count(self, value):
         self.__record_count = value
+
+    @property
+    def username(self):
+        return self.__username
+
+    @username.setter
+    def username(self, value):
+        self.__username = value
