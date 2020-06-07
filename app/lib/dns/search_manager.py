@@ -2,27 +2,35 @@ from sqlalchemy import and_, func, desc
 from app.lib.dns.instances.search_params import SearchParams
 from app import db
 from app.lib.models.dns import DNSQueryLogModel, DNSZoneModel
+from flask_login import current_user
 import datetime
 
 
 class SearchManager:
-    def search_from_request(self, request, paginate=True, method='get', user_ids=None):
+    def search_from_request(self, request, paginate=True, method='get'):
         params = SearchParams(request=request, method=method)
         return {
-            'results': self.search(params, paginate=paginate, user_ids=user_ids),
+            'results': self.search(params, paginate=paginate),
             'params': params,
             'filters': self.get_filters()
         }
 
-    def search(self, search_params, paginate=False, user_ids=None):
+    def search(self, search_params, paginate=False):
         query = DNSQueryLogModel.query
-        if user_ids is not None:
-            if isinstance(user_ids, str) or isinstance(user_ids, int):
-                user_ids = [user_ids]
 
-            if isinstance(user_ids, list) and len(user_ids) > 0:
-                query = query.outerjoin(DNSZoneModel, DNSZoneModel.id == DNSQueryLogModel.dns_zone_id)
-                query = query.filter(DNSZoneModel.user_id.in_(user_ids))
+        # Default is that users can only search for themselves.
+        user_ids = [current_user.id]
+        if current_user.admin:
+            # Plot-twist! Unless they are an admin.
+            if search_params.user_id == 0:
+                # Search for everyone.
+                user_ids = []
+            elif search_params.user_id > 0:
+                user_ids = [search_params.user_id]
+
+        if len(user_ids) > 0:
+            query = query.outerjoin(DNSZoneModel, DNSZoneModel.id == DNSQueryLogModel.dns_zone_id)
+            query = query.filter(DNSZoneModel.user_id.in_(user_ids))
 
         if len(search_params.domain) > 0:
             if '%' in search_params.domain:
@@ -67,7 +75,8 @@ class SearchManager:
     def get_filters(self):
         filters = {
             'classes': [],
-            'types': []
+            'types': [],
+            'users': {}
         }
 
         sql = "SELECT cls FROM dns_query_log GROUP BY cls ORDER BY cls"
@@ -79,5 +88,10 @@ class SearchManager:
         results = db.session.execute(sql)
         for result in results:
             filters['types'].append(result.type)
+
+        sql = "SELECT id, username FROM users GROUP BY id, username ORDER BY username"
+        results = db.session.execute(sql)
+        for result in results:
+            filters['users'][result.id] = result.username
 
         return filters

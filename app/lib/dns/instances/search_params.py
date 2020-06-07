@@ -21,6 +21,7 @@ class SearchParams:
         self.__time_to = None
         self.__page = None
         self.__per_page = None
+        self.__user_id = None
 
         self.__load()
 
@@ -37,6 +38,7 @@ class SearchParams:
         self.time_to = self.__get_param('time_to', '')
         self.page = self.__get_param('page', 1, type='int')
         self.per_page = self.__get_param('per_page', 50, type='int')
+        self.user_id = self.__get_param('user_id', -1, 'int')
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
@@ -75,6 +77,7 @@ class SearchParams:
         params.append('type=' + quote_plus(self.type)) if len(self.type) > 0 else False
         params.append('matched=' + quote_plus(str(self.matched))) if self.matched in [0, 1] else False
         params.append('forwarded=' + quote_plus(str(self.forwarded))) if self.forwarded in [0, 1] else False
+        params.append('user_id=' + quote_plus(str(self.user_id))) if self.user_id >= 0 else False
         params.append('date_from=' + quote_plus(self.date_from)) if len(self.date_from) > 0 else False
         params.append('time_from=' + quote_plus(self.time_from)) if len(self.time_from) > 0 else False
         params.append('date_to=' + quote_plus(self.date_to)) if len(self.date_to) > 0 else False
@@ -196,6 +199,14 @@ class SearchParams:
     @per_page.setter
     def per_page(self, value):
         self.__per_page = value
+
+    @property
+    def user_id(self):
+        return self.__user_id
+
+    @user_id.setter
+    def user_id(self, value):
+        self.__user_id = value
 
     def get(self, name):
         return getattr(self, name) if self.__is_property(name) else None

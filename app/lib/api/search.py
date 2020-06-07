@@ -13,7 +13,7 @@ class ApiSearch(ApiBase):
             if filter in request.args:
                 data[filter] = request.args.get(filter)
 
-        results = Provider().search().search_from_request(data, method='dict', user_ids=user_id)
+        results = Provider().search().search_from_request(data, method='dict')
 
         search = Search()
         search.page = results['results'].page

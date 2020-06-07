@@ -104,7 +104,22 @@
                         </div>
                     </div>
                     <div class="col">
-
+                        {% if current_user.admin %}
+                        <div class="row">
+                            <div class="col pl-0 ml-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
+                                    <select class="custom-select" name="user_id">
+                                        <option value="-1"></option>
+                                        <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
+                                        {% for user_id, username in filters.users.items() %}
+                                        <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 

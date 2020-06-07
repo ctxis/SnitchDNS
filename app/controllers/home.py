@@ -22,7 +22,7 @@ def index():
         return redirect(url_for('auth.login'))
 
     search = provider.search()
-    results = search.search_from_request(request, user_ids=current_user.id)
+    results = search.search_from_request(request)
 
     return render_template(
         'home/index.html',
