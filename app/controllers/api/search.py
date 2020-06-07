@@ -8,4 +8,4 @@ from flask import request
 @bp.route('/search', methods=['GET'])
 @api_auth
 def search():
-    return ApiSearch().search(request, current_user.id, current_user.admin)
+    return ApiSearch().search(request, current_user.id)

@@ -89,10 +89,7 @@ class DNSRecordManager:
         results = self.__get(dns_zone_id=dns_zone_id, order_column=order_column, order_by=order_by)
         return self.__load_results(results)
 
-    def can_access(self, dns_zone_id, dns_record_id, is_admin=False):
-        if is_admin:
-            return True
-
+    def can_access(self, dns_zone_id, dns_record_id):
         record = self.__get(id=dns_record_id, dns_zone_id=dns_zone_id)
         return len(record) > 0
 

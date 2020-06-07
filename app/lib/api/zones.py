@@ -16,11 +16,11 @@ class ApiZones(ApiBase):
 
         return self.send_valid_response(data)
 
-    def one(self, zone_id, user_id, is_admin):
+    def one(self, zone_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -29,7 +29,7 @@ class ApiZones(ApiBase):
 
         return self.send_valid_response(self.__load_zone(zone))
 
-    def create(self, user_id, username, is_admin):
+    def create(self, user_id, username):
         required_fields = ['domain', 'active', 'exact_match', 'master']
         data = self.get_json(required_fields)
         if data is False:
@@ -48,9 +48,10 @@ class ApiZones(ApiBase):
 
         provider = Provider()
         zones = provider.dns_zones()
+        users = provider.users()
 
         # Check for duplicate.
-        base_domain = '' if is_admin else zones.get_user_base_domain(username)
+        base_domain = '' if users.is_admin(user_id) else zones.get_user_base_domain(username)
         if zones.has_duplicate(0, data['domain'], base_domain):
             return self.send_error_response(5003, 'Domain already exists', '')
 
@@ -59,24 +60,25 @@ class ApiZones(ApiBase):
         if not zone:
             return self.send_error_response(5002, 'Could not create domain.', '')
 
-        return self.one(zone.id, user_id, False)
+        return self.one(zone.id, user_id)
 
-    def update(self, zone_id, user_id, username, is_admin):
+    def update(self, zone_id, user_id, username):
         data = self.get_json([])
         if data is False:
             return self.send_error_response(5004, 'Invalid incoming data', '')
 
         provider = Provider()
         zones = provider.dns_zones()
+        users = provider.users()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
         if not zone:
             return self.send_access_denied_response()
 
-        base_domain = '' if is_admin else zones.get_user_base_domain(username)
+        base_domain = '' if users.is_admin(user_id) else zones.get_user_base_domain(username)
 
         if ('domain' in data) and zone.master:
             data['domain'] = zone.domain
@@ -99,13 +101,13 @@ class ApiZones(ApiBase):
 
         zone = zones.save(zone, zone.user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master)
 
-        return self.one(zone_id, user_id, is_admin)
+        return self.one(zone_id, user_id)
 
-    def delete(self, zone_id, user_id, is_admin):
+    def delete(self, zone_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)

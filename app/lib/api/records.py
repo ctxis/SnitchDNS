@@ -4,12 +4,12 @@ from app.lib.api.definitions.record import Record
 
 
 class ApiRecords(ApiBase):
-    def all(self, zone_id, user_id, is_admin):
+    def all(self, zone_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
         records = provider.dns_records()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -23,12 +23,12 @@ class ApiRecords(ApiBase):
 
         return self.send_valid_response(data)
 
-    def one(self, zone_id, record_id, user_id, is_admin):
+    def one(self, zone_id, record_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
         records = provider.dns_records()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -61,12 +61,12 @@ class ApiRecords(ApiBase):
         records = Provider().dns_records()
         return self.send_valid_response(records.get_types())
 
-    def delete(self, zone_id, record_id, user_id, is_admin):
+    def delete(self, zone_id, record_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
         records = provider.dns_records()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -80,12 +80,12 @@ class ApiRecords(ApiBase):
         record.delete()
         return self.send_success_response()
 
-    def create(self, zone_id, user_id, is_admin):
+    def create(self, zone_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
         records = provider.dns_records()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -154,14 +154,14 @@ class ApiRecords(ApiBase):
         record = records.create()
         record = records.save(record, zone.id, data['ttl'], data['class'], data['type'], type_data, data['active'])
 
-        return self.one(zone.id, record.id, user_id, is_admin)
+        return self.one(zone.id, record.id, user_id)
 
-    def update(self, zone_id, record_id, user_id, is_admin):
+    def update(self, zone_id, record_id, user_id):
         provider = Provider()
         zones = provider.dns_zones()
         records = provider.dns_records()
 
-        if not zones.can_access(zone_id, user_id, is_admin=is_admin):
+        if not zones.can_access(zone_id, user_id):
             return self.send_access_denied_response()
 
         zone = zones.get(zone_id)
@@ -237,4 +237,4 @@ class ApiRecords(ApiBase):
 
         record = records.save(record, zone.id, data['ttl'], data['class'], data['type'], type_data, data['active'])
 
-        return self.one(zone.id, record.id, user_id, is_admin)
+        return self.one(zone.id, record.id, user_id)

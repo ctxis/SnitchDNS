@@ -13,7 +13,7 @@ def zones():
 @bp.route('/zones', methods=['POST'])
 @api_auth
 def zones_create():
-    return ApiZones().create(current_user.id, current_user.username, current_user.admin)
+    return ApiZones().create(current_user.id, current_user.username)
 
 
 @bp.route('/zones/all', methods=['GET'])
@@ -27,16 +27,16 @@ def zones_all():
 @bp.route('/zones/<int:zone_id>', methods=['POST'])
 @api_auth
 def zones_update(zone_id):
-    return ApiZones().update(zone_id, current_user.id, current_user.username, current_user.admin)
+    return ApiZones().update(zone_id, current_user.id, current_user.username)
 
 
 @bp.route('/zones/<int:zone_id>', methods=['GET'])
 @api_auth
 def zones_by_id(zone_id):
-    return ApiZones().one(zone_id, current_user.id, current_user.admin)
+    return ApiZones().one(zone_id, current_user.id)
 
 
 @bp.route('/zones/<int:zone_id>', methods=['DELETE'])
 @api_auth
 def zone_delete(zone_id):
-    return ApiZones().delete(zone_id, current_user.id, current_user.admin)
+    return ApiZones().delete(zone_id, current_user.id)

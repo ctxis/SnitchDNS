@@ -5,7 +5,7 @@ from app.lib.api.definitions.search_result import SearchResult
 
 
 class ApiSearch(ApiBase):
-    def search(self, request, user_id, is_admin):
+    def search(self, request, user_id):
         data = {}
         filters = ['domain', 'source_ip', 'date_from', 'time_from', 'date_to', 'time_to', 'type', 'matched',
                    'forwarded', 'page', 'per_page', 'user_id']

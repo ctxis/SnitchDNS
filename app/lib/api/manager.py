@@ -5,6 +5,9 @@ from app.lib.api.instances.apikey import ApiKey
 
 
 class ApiManager:
+    def __init__(self, users):
+        self.users = users
+
     def create(self):
         item = ApiKey(ApiKeyModel())
         item.save()
@@ -51,9 +54,8 @@ class ApiManager:
 
         return keys
 
-    def can_access(self, key_id, user_id, is_admin=False):
-        if is_admin:
-            # SuperUser
+    def can_access(self, key_id, user_id):
+        if self.users.is_admin(user_id):
             return True
         return self.__get(id=key_id, user_id=user_id) is not None
 

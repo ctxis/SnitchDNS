@@ -52,7 +52,7 @@ def __delete_apikey(id):
     provider = Provider()
     api = provider.api()
 
-    if not api.can_access(id, current_user.id, is_admin=current_user.admin):
+    if not api.can_access(id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('config.api'))
 
@@ -68,7 +68,7 @@ def __toggle_apikey(id):
     provider = Provider()
     api = provider.api()
 
-    if not api.can_access(id, current_user.id, is_admin=current_user.admin):
+    if not api.can_access(id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('config.api'))
 

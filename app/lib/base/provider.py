@@ -110,7 +110,7 @@ class Provider:
         return manager
 
     def api(self):
-        return ApiManager()
+        return ApiManager(self.users())
 
     def cron(self):
         return CronManager()

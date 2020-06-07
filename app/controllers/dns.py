@@ -39,7 +39,7 @@ def zone_view(dns_zone_id):
     zones = provider.dns_zones()
     records = provider.dns_records()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
@@ -65,7 +65,7 @@ def zone_edit(dns_zone_id):
     zone = None
     dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
     if dns_zone_id > 0:
-        if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+        if not zones.can_access(dns_zone_id, current_user.id):
             flash('Access Denied', 'error')
             return redirect(url_for('home.index'))
 
@@ -99,7 +99,7 @@ def zone_delete(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
@@ -120,11 +120,11 @@ def record_edit(dns_zone_id, dns_record_id):
     zones = provider.dns_zones()
     records = provider.dns_records()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
     elif dns_record_id > 0:
-        if not records.can_access(dns_zone_id, dns_record_id, is_admin=current_user.admin):
+        if not records.can_access(dns_zone_id, dns_record_id):
             flash('Access Denied', 'error')
             return redirect(url_for('home.index'))
 
@@ -160,11 +160,11 @@ def record_edit_save(dns_zone_id, dns_record_id):
     zones = provider.dns_zones()
     records = provider.dns_records()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
     elif dns_record_id > 0:
-        if not records.can_access(dns_zone_id, dns_record_id, is_admin=current_user.admin):
+        if not records.can_access(dns_zone_id, dns_record_id):
             flash('Access Denied', 'error')
             return redirect(url_for('home.index'))
 
@@ -217,7 +217,7 @@ def record_delete(dns_zone_id, dns_record_id):
     zones = provider.dns_zones()
     records = provider.dns_records()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
@@ -303,7 +303,7 @@ def __zone_update(dns_zone_id):
     zones = provider.dns_zones()
     users = provider.users()
 
-    if not zones.can_access(dns_zone_id, current_user.id, is_admin=current_user.admin):
+    if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
