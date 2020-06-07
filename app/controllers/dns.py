@@ -88,9 +88,6 @@ def zone_edit(dns_zone_id):
 @login_required
 @must_have_base_domain
 def zone_edit_save(dns_zone_id):
-    provider = Provider()
-    zones = provider.dns_zones()
-
     dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
     return __zone_create() if dns_zone_id == 0 else __zone_update(dns_zone_id)
 
