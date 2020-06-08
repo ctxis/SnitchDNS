@@ -50,7 +50,7 @@ def login_process():
         user = users.find_user_login(username, True)
         if not user:
             # Doesn't exist yet, we'll have to create them now.
-            user = users.save(0, ldap_user['username'], password, ldap_user['fullname'], ldap_user['email'], False, True, True)
+            user = users.save(0, ldap_user['username'].lower(), password, ldap_user['fullname'], ldap_user['email'], False, True, True)
             if not user:
                 flash('Could not create LDAP user: {0}'.format(users.last_error), 'error')
                 return redirect(url_for('auth.login', next=next))

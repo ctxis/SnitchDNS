@@ -61,7 +61,7 @@ def user_edit_save(user_id):
             flash('Invalid User ID', 'error')
             return redirect(url_for('config.users'))
 
-    username = request.form['username'].strip()
+    username = request.form['username'].strip().lower()
     password = request.form['password'].strip()
     full_name = request.form['full_name'].strip()
     email = request.form['email'].strip()
