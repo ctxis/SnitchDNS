@@ -279,7 +279,7 @@ def __zone_create():
     zones = provider.dns_zones()
     dns_zone_id = 0
 
-    domain = request.form['domain'].strip()
+    domain = request.form['domain'].strip().lower()
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
 
@@ -325,7 +325,7 @@ def __zone_update(dns_zone_id):
         base_domain = zone.base_domain
         master = True
     else:
-        domain = request.form['domain'].strip()
+        domain = request.form['domain'].strip().lower()
         base_domain = '' if users.is_admin(zone.user_id) else zones.get_user_base_domain(zone.username)
         master = False
 
