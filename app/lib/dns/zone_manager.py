@@ -10,7 +10,8 @@ class DNSZoneManager:
         self.dns_records = dns_records
         self.users = users
 
-    def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None, exact_match=None, master=None):
+    def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
+              exact_match=None, master=None, order_by='id'):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -36,6 +37,11 @@ class DNSZoneManager:
 
         if master is not None:
             query = query.filter(DNSZoneModel.master == master)
+
+        if order_by == 'user_id':
+            query = query.order_by(DNSZoneModel.user_id)
+        else:
+            query = query.order_by(DNSZoneModel.id)
 
         return query.all()
 
@@ -94,8 +100,8 @@ class DNSZoneManager:
 
         return zones
 
-    def get_user_zones(self, user_id):
-        results = self.__get(user_id=user_id)
+    def get_user_zones(self, user_id, order_by='id'):
+        results = self.__get(user_id=user_id, order_by=order_by)
 
         zones = []
         for result in results:

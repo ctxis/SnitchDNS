@@ -43,7 +43,7 @@
             <tbody>
             {% for zone in zones %}
             <tr>
-                <td>{{ zone.id }}</td>
+                <td>{{ loop.index }}</td>
                 <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
                 {% if type == 'all' %}
                 <td>{{ zone.username }}</td>

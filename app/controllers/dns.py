@@ -26,7 +26,7 @@ def index(type=''):
 
     return render_template(
         'dns/index.html',
-        zones=zones.get_user_zones(user_id),
+        zones=zones.get_user_zones(user_id, order_by='user_id'),
         type=type
     )
 
