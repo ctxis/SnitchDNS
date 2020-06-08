@@ -17,7 +17,7 @@
                         <label for="domain">Domain</label>
                         <div class="input-group">
                             <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
-                            {% if zone.base_domain|length > 0 %}
+                            {% if (current_user.admin == False and dns_zone_id == 0) or (zone.base_domain|length > 0) %}
                             <div class="input-group-append">
                                 <span class="input-group-text">{{ user_domain }}</span>
                             </div>

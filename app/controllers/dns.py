@@ -103,13 +103,21 @@ def zone_delete(dns_zone_id):
         flash('Access Denied', 'error')
         return redirect(url_for('home.index'))
 
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Could not get zone', 'error')
+        return redirect(url_for('dns.index'))
+    elif zone.master:
+        flash('You cannot delete a master zone', 'error')
+        return redirect(url_for('dns.index'))
+
     # Not using the instance's .delete() attribute because we first need to delete all child records.
     if not zones.delete(dns_zone_id):
         flash('Could not delete zone', 'error')
-        return redirect(url_for('home.index'))
+        return redirect(url_for('dns.index'))
 
     flash('Zone deleted', 'success')
-    return redirect(url_for('home.index'))
+    return redirect(url_for('dns.index'))
 
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/edit', methods=['GET'])
