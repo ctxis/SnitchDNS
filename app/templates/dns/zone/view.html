@@ -18,6 +18,12 @@
             {% else %}
             <span class="badge badge-pill badge-primary">catch-all</span>
             {% endif %}
+
+            {% if zone.notifications.is_enabled() %}
+            <span class="badge badge-pill badge-success">notifications enabled</span>
+            {% else %}
+            <span class="badge badge-pill badge-warning">notifications disabled</span>
+            {% endif %}
         </div>
 
         <ul class="nav nav-tabs mt-4">

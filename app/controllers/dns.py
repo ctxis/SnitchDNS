@@ -398,7 +398,7 @@ def zone_notifications_save(dns_zone_id):
     emails = True if int(request.form.get('emails', 0)) == 1 else False
     webpush = True if int(request.form.get('webpush', 0)) == 1 else False
 
-    zones.save_notifications(zone, emails, webpush)
+    zones.save_notifications(zone, emails, webpush, None)
 
     flash('Notification preferences saved', 'success')
     return redirect(url_for('dns.zone_notifications', dns_zone_id=dns_zone_id))

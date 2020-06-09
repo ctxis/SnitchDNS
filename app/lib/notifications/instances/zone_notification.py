@@ -44,3 +44,6 @@ class DNSNotification(BaseInstance):
 
     def email_recipients(self):
         return json.loads(self.email_data) if (self.email_data is not None) and (len(self.email_data) > 0) else []
+
+    def is_enabled(self):
+        return self.email or self.webpush
