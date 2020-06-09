@@ -32,6 +32,8 @@ def create_app(config_class=None):
     # app.config['SQLALCHEMY_ECHO'] = True
     app.config['SECRET_KEY'] = 'SnitchesGetStitches_:)'
     app.config['SESSION_COOKIE_HTTPONLY'] = True
+    # This is to ensure only a single cron job runs at a time.
+    app.config['CRONTAB_LOCK_JOBS'] = True
 
     # And now we override any custom settings from config.py if it exists.
     app.config.from_pyfile('config.py', silent=True)

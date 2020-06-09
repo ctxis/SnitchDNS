@@ -1,0 +1,51 @@
+<div class="clearfix my-2">
+    <div class="float-right">
+        <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=0) }}" class="btn btn-sm btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new record</span></a>
+    </div>
+</div>
+
+{% if records|length == 0 %}
+<div class="alert alert-info text-center">No records configured yet.</div>
+{% else %}
+<table class="table table-sm table-striped">
+    <thead>
+    <tr>
+        <th class="text-center">#</th>
+        <th>Type</th>
+        <th style="width: 100%;">Data</th>
+        <th class="text-right">Class</th>
+        <th class="text-right">TTL</th>
+        <th class="text-center">Active</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for record in records %}
+    <tr>
+        <td class="text-center">{{ loop.index }}</td>
+        <td>{{ record.type }}</td>
+        <td>
+            {% for name,value in record.properties().items() %}
+            <div>{{ name }}: {{ value }}</div>
+            {% endfor %}
+        </td>
+        <td class="text-right">{{ record.cls }}</td>
+        <td class="text-right">{{ record.ttl }}</td>
+        <td class="text-center">
+            {% set class = 'success' if record.active else 'danger' %}
+            {% set icon = 'check' if record.active else 'times' %}
+            <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+        </td>
+        <td class="text-center" style="white-space: nowrap;">
+            <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
+            <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, type=record.type, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
+            <form action="{{ url_for('dns.record_delete', dns_zone_id=zone.id, dns_record_id=record.id) }}" method="post" class="d-inline ml-1" id="delete-record-form-{{ record.id }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}

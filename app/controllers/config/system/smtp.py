@@ -19,7 +19,7 @@ def smtp_save():
     provider = Provider()
     settings = provider.settings()
 
-    smtp_enable = True if int(request.form.get('smtp_enable', 0)) == 1 else False
+    smtp_enabled = True if int(request.form.get('smtp_enabled', 0)) == 1 else False
     smtp_host = request.form['smtp_host'].strip()
     smtp_port = int(request.form['smtp_port'].strip())
     smtp_tls = True if int(request.form.get('smtp_tls', 0)) == 1 else False
@@ -46,7 +46,7 @@ def smtp_save():
         flash('Please enter SMTP Sender E-mail', 'error')
         return redirect(url_for('config.smtp'))
 
-    settings.save('smtp_enable', smtp_enable)
+    settings.save('smtp_enabled', smtp_enabled)
     settings.save('smtp_host', smtp_host)
     settings.save('smtp_port', smtp_port)
     settings.save('smtp_tls', smtp_tls)

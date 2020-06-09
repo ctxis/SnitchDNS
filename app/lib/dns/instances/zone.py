@@ -7,6 +7,7 @@ class DNSZone(BaseInstance):
 
         self.__record_count = 0
         self.__username = ''
+        self.__notifications = None
 
     @property
     def domain(self):
@@ -91,3 +92,11 @@ class DNSZone(BaseInstance):
     @username.setter
     def username(self, value):
         self.__username = value
+
+    @property
+    def notifications(self):
+        return self.__notifications
+
+    @notifications.setter
+    def notifications(self, value):
+        self.__notifications = value

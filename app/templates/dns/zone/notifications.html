@@ -1,0 +1,38 @@
+<div class="row mt-4">
+    <div class="col">
+        {% if has_enabled_providers == False %}
+        <div class="alert alert-warning">The administrator has not enabled any notification providers.</div>
+        {% else %}
+
+        <div class="alert alert-info">To prevent notifications from flooding the recipient, the notifications are disabled after the first one is sent.</div>
+
+        <form action="{{ url_for('dns.zone_notifications_save', dns_zone_id=zone.id) }}" method="post">
+        {% for name, provider in providers.items() %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if provider.enabled %}
+            <div class="form-group row">
+                <div class="col">
+                    <label for="notifications_{{ name }}">{{ provider.title }}</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="{{ name }}" type="checkbox" class="custom-control-input" id="notifications_{{ name }}" value="1" {{ 'checked' if zone.notifications.has(name) }}>
+                        <label class="custom-control-label" for="notifications_{{ name }}"></label>
+                    </div>
+                </div>
+                <div class="col-1">
+                    {% if provider.has_settings %}
+                    <a href="{{ url_for('dns.zone_notifications_settings', dns_zone_id=zone.id, item=name) }}" title="settings"><i class="fas fa-cog"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">save</button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>

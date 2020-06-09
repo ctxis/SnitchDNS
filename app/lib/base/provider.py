@@ -13,6 +13,9 @@ from app.lib.daemon.manager import DaemonManager
 from app.lib.base.ldap import LDAPManager
 from app.lib.api.manager import ApiManager
 from app.lib.base.cron import CronManager
+from app.lib.notifications.manager import NotificationManager
+from app.lib.notifications.providers.email import EmailNotificationProvider
+from app.lib.notifications.providers.webpush import WebPushNotificationProvider
 from flask import current_app
 import os
 
@@ -36,7 +39,8 @@ class Provider:
         return DNSZoneManager(
             self.settings(),
             self.dns_records(),
-            self.users()
+            self.users(),
+            self.notifications()
         )
 
     def dns_records(self):
@@ -114,3 +118,21 @@ class Provider:
 
     def cron(self):
         return CronManager()
+
+    def notifications(self):
+        settings = self.settings()
+
+        # Load E-mail Provider.
+        email_provider = EmailNotificationProvider(self.emails())
+        email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
+
+        # Load Web Push Provider.
+        webpush_provider = WebPushNotificationProvider()
+        webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
+
+        # Create manager.
+        manager = NotificationManager()
+        manager.add_provider('emails', email_provider)
+        manager.add_provider('webpush', webpush_provider)
+
+        return manager

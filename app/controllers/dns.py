@@ -51,7 +51,8 @@ def zone_view(dns_zone_id):
     return render_template(
         'dns/zone/view.html',
         zone=zone,
-        records=records.get_zone_records(dns_zone_id, order_column='type')
+        records=records.get_zone_records(dns_zone_id, order_column='type'),
+        section='records'
     )
 
 
@@ -347,3 +348,85 @@ def __zone_update(dns_zone_id):
 
     flash('Zone saved', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=zone.id))
+
+
+@bp.route('/<int:dns_zone_id>/notifications', methods=['GET'])
+@login_required
+@must_have_base_domain
+def zone_notifications(dns_zone_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+    notifications = provider.notifications()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+
+    return render_template(
+        'dns/zone/view.html',
+        zone=zone,
+        section='notifications',
+        has_enabled_providers=notifications.has_enabled_providers(),
+        providers=notifications.providers
+    )
+
+
+@bp.route('/<int:dns_zone_id>/notifications/save', methods=['POST'])
+@login_required
+@must_have_base_domain
+def zone_notifications_save(dns_zone_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+
+    emails = True if int(request.form.get('emails', 0)) == 1 else False
+    webpush = True if int(request.form.get('webpush', 0)) == 1 else False
+
+    zones.save_notifications(zone, emails, webpush)
+
+    flash('Notification preferences saved', 'success')
+    return redirect(url_for('dns.zone_notifications', dns_zone_id=dns_zone_id))
+
+
+@bp.route('/<int:dns_zone_id>/notifications/<string:item>', methods=['GET'])
+@login_required
+@must_have_base_domain
+def zone_notifications_settings(dns_zone_id, item):
+    provider = Provider()
+    zones = provider.dns_zones()
+    notifications = provider.notifications()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('dns.index'))
+
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('dns.index'))
+
+    notification_provider = notifications.get_provider(item)
+    if not notification_provider:
+        flash('Invalid notification provider', 'error')
+        return redirect(url_for('dns.index'))
+    elif not notification_provider.enabled:
+        flash('Notification provider is not enabled', 'error')
+        return redirect(url_for('dns.index'))
+    elif not notification_provider.has_settings:
+        flash('Notification provider has no settings', 'error')
+        return redirect(url_for('dns.index'))
+
+    return 'yes'
