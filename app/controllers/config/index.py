@@ -9,4 +9,4 @@ def index():
     if current_user.admin:
         return redirect(url_for('config.system'))
     else:
-        return redirect(url_for('config.api'))
+        return redirect(url_for('config.profile'))

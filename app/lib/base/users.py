@@ -158,6 +158,21 @@ class UserManager:
 
         return user
 
+    def update_property(self, user_id, property, value):
+        user = self.get_user(user_id)
+        if not user:
+            return False
+
+        if property == 'email':
+            user.email = value
+        elif property == 'full_name':
+            user.full_name = value
+
+        db.session.commit()
+        db.session.refresh(user)
+
+        return user
+
     def get_user(self, user_id):
         users = self.__get(user_id=user_id)
         if len(users) == 0:
