@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
+from flask_crontab import Crontab
 
 
 db = SQLAlchemy()
@@ -12,6 +13,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 csrf = CSRFProtect()
+crontab = Crontab()
 
 
 def create_app(config_class=None):
@@ -46,6 +48,7 @@ def create_app(config_class=None):
     migrate.init_app(app, db)
     login.init_app(app)
     csrf.init_app(app)
+    crontab.init_app(app)
 
     from app.controllers.home import bp as home_bp
     app.register_blueprint(home_bp)
@@ -100,10 +103,18 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
-    from app.lib.cli import env, snitch_daemon, settings
+    # Setup command line.
+    from app.lib.cli import env, snitch_daemon, settings, cron
     app.cli.add_command(env.main)
     app.cli.add_command(snitch_daemon.main)
     app.cli.add_command(settings.main)
+    app.cli.add_command(cron.main)
+
+    # Setup cron job.
+    @crontab.job(minute="*/1")
+    def cron():
+        cron = Provider().cron()
+        return cron.run()
 
     return app
 
