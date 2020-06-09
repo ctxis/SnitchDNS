@@ -385,6 +385,7 @@ def zone_notifications(dns_zone_id):
 def zone_notifications_save(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
+    logs = provider.dns_logs()
 
     if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
@@ -395,10 +396,11 @@ def zone_notifications_save(dns_zone_id):
         flash('Zone not found', 'error')
         return redirect(url_for('home.index'))
 
-    emails = True if int(request.form.get('emails', 0)) == 1 else False
+    email = True if int(request.form.get('emails', 0)) == 1 else False
     webpush = True if int(request.form.get('webpush', 0)) == 1 else False
+    max_id = logs.get_last_log_id(zone.id)
 
-    zones.save_notifications(zone, emails, webpush, None)
+    zones.save_notifications(zone, email=email, webpush=webpush, last_query_log_id=max_id)
 
     flash('Notification preferences saved', 'success')
     return redirect(url_for('dns.zone_notifications', dns_zone_id=dns_zone_id))
@@ -479,8 +481,7 @@ def zone_notifications_settings_save(dns_zone_id, item):
             if len(recipient) > 0 and email_regex.match(recipient):
                 valid_recipients.append(recipient)
 
-        zones.save_notifications(zone, None, None, valid_recipients)
+        zones.save_notifications(zone, email_data=valid_recipients)
 
     flash('Notification settings saved.')
     return redirect(url_for('dns.zone_notifications_settings', dns_zone_id=dns_zone_id, item=item))
-

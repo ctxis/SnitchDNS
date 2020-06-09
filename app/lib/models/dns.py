@@ -55,6 +55,7 @@ class DNSZoneNotificationModel(db.Model):
     __tablename__ = 'dns_zone_notifications'
     id = db.Column(db.Integer, primary_key=True)
     dns_zone_id = db.Column(db.Integer, nullable=True, index=True, unique=True, default=0)
+    last_query_log_id = db.Column(db.Integer, nullable=True, index=True, default=0)
     email = db.Column(db.Boolean, default=False, index=True)
     email_data = db.Column(db.Text, nullable=True)
     webpush = db.Column(db.Boolean, default=False, index=True)

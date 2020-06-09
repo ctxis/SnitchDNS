@@ -93,7 +93,7 @@ class DNSZoneManager:
 
         return zone
 
-    def save_notifications(self, zone, email, webpush, email_data):
+    def save_notifications(self, zone, email=None, webpush=None, email_data=None, last_query_log_id=None):
         if email is not None:
             zone.notifications.email = email
 
@@ -102,6 +102,9 @@ class DNSZoneManager:
 
         if email_data is not None:
             zone.notifications.email_data = email_data if isinstance(email_data, str) else json.dumps(email_data)
+
+        if last_query_log_id is not None:
+            zone.notifications.last_query_log_id = last_query_log_id
 
         zone.save()
 

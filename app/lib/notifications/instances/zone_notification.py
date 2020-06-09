@@ -35,6 +35,14 @@ class DNSNotification(BaseInstance):
     def email_data(self, value):
         self.item.email_data = value
 
+    @property
+    def last_query_log_id(self):
+        return self.item.last_query_log_id
+
+    @last_query_log_id.setter
+    def last_query_log_id(self, value):
+        self.item.last_query_log_id = value
+
     def has(self, type):
         if type in ['email', 'emails']:
             return self.email

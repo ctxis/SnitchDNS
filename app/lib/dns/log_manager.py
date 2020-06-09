@@ -1,4 +1,5 @@
 from sqlalchemy import asc, desc
+from app import db
 from app.lib.models.dns import DNSQueryLogModel
 from app.lib.dns.instances.query_log import DNSQueryLog
 import os
@@ -102,3 +103,8 @@ class DNSLogManager:
                 writer.writerow(line)
 
         return os.path.isfile(save_as)
+
+    def get_last_log_id(self, dns_zone_id):
+        sql = "SELECT COALESCE(MAX(id), 0) AS max_id FROM dns_query_log WHERE dns_zone_id = :id"
+        result = db.session.execute(sql, {'id': dns_zone_id}).fetchone()
+        return int(result['max_id'])
