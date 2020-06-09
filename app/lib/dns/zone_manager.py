@@ -1,4 +1,5 @@
 import re
+import json
 from app.lib.models.dns import DNSZoneModel
 from app.lib.dns.instances.zone import DNSZone
 from sqlalchemy import func
@@ -92,9 +93,16 @@ class DNSZoneManager:
 
         return zone
 
-    def save_notifications(self, zone, email, webpush):
-        zone.notifications.email = email
-        zone.notifications.webpush = webpush
+    def save_notifications(self, zone, email, webpush, email_data):
+        if email is not None:
+            zone.notifications.email = email
+
+        if webpush is not None:
+            zone.notifications.webpush = webpush
+
+        if email_data is not None:
+            zone.notifications.email_data = email_data if isinstance(email_data, str) else json.dumps(email_data)
+
         zone.save()
 
         return zone

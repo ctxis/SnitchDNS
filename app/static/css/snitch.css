@@ -8,3 +8,8 @@
 .hide-spin-buttons {
   -moz-appearance:textfield !important;
 }
+
+/* For when d-none doesn't work */
+.hidden {
+    display: none !important;
+}

@@ -1,4 +1,5 @@
 from app.lib.base.instance.base_instance import BaseInstance
+import json
 
 
 class DNSNotification(BaseInstance):
@@ -26,9 +27,20 @@ class DNSNotification(BaseInstance):
     def webpush(self, value):
         self.item.webpush = value
 
+    @property
+    def email_data(self):
+        return self.item.email_data
+
+    @email_data.setter
+    def email_data(self, value):
+        self.item.email_data = value
+
     def has(self, type):
         if type in ['email', 'emails']:
             return self.email
         elif type == 'webpush':
             return self.webpush
         return False
+
+    def email_recipients(self):
+        return json.loads(self.email_data) if (self.email_data is not None) and (len(self.email_data) > 0) else []

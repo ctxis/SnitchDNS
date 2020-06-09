@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import must_have_base_domain
+import re
 
 bp = Blueprint('dns', __name__, url_prefix='/dns')
 
@@ -52,7 +53,8 @@ def zone_view(dns_zone_id):
         'dns/zone/view.html',
         zone=zone,
         records=records.get_zone_records(dns_zone_id, order_column='type'),
-        section='records'
+        section='records',
+        tab='records'
     )
 
 
@@ -371,6 +373,7 @@ def zone_notifications(dns_zone_id):
         'dns/zone/view.html',
         zone=zone,
         section='notifications',
+        tab='notifications',
         has_enabled_providers=notifications.has_enabled_providers(),
         providers=notifications.providers
     )
@@ -429,4 +432,55 @@ def zone_notifications_settings(dns_zone_id, item):
         flash('Notification provider has no settings', 'error')
         return redirect(url_for('dns.index'))
 
-    return 'yes'
+    return render_template(
+        'dns/zone/view.html',
+        zone=zone,
+        tab='notifications',
+        section='{0}_settings'.format(item),
+        has_enabled_providers=notifications.has_enabled_providers(),
+        providers=notifications.providers
+    )
+
+
+@bp.route('/<int:dns_zone_id>/notifications/<string:item>/save', methods=['POST'])
+@login_required
+@must_have_base_domain
+def zone_notifications_settings_save(dns_zone_id, item):
+    provider = Provider()
+    zones = provider.dns_zones()
+    notifications = provider.notifications()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('dns.index'))
+
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('dns.index'))
+
+    notification_provider = notifications.get_provider(item)
+    if not notification_provider:
+        flash('Invalid notification provider', 'error')
+        return redirect(url_for('dns.index'))
+    elif not notification_provider.enabled:
+        flash('Notification provider is not enabled', 'error')
+        return redirect(url_for('dns.index'))
+    elif not notification_provider.has_settings:
+        flash('Notification provider has no settings', 'error')
+        return redirect(url_for('dns.index'))
+
+    if item == 'emails':
+        recipients = request.form.getlist('recipients[]')
+        valid_recipients = []
+        email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+        for recipient in recipients:
+            recipient = recipient.strip().lower()
+            if len(recipient) > 0 and email_regex.match(recipient):
+                valid_recipients.append(recipient)
+
+        zones.save_notifications(zone, None, None, valid_recipients)
+
+    flash('Notification settings saved.')
+    return redirect(url_for('dns.zone_notifications_settings', dns_zone_id=dns_zone_id, item=item))
+

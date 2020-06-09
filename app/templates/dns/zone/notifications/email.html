@@ -1,0 +1,39 @@
+<div class="row mt-4">
+    <div class="col-9">
+        <h5>E-mail Notification Settings</h5>
+
+        <form action="{{ url_for('dns.zone_notifications_settings_save', dns_zone_id=zone.id, item='emails') }}" method="post" class="recipient-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" class="recipient-hidden-input" name="recipients[]" value="">
+
+            <h6>Recipients</h6>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" class="form-control" value="" id="recipient" placeholder="recipient@example.com" autofocus>
+                    <div class="input-group-append"><span class="input-group-text"><a href="#" id="add-recipient"><i class="fas fa-plus"></i></a></span></div>
+                </div>
+            </div>
+
+            <ul class="list-group recipient-list">
+                <li class="list-group-item d-flex justify-content-between align-items-center hidden recipient-template">
+                    <span class="recipient-email"></span>
+                    <a href="#" class="delete-recipient text-danger"><i class="fas fa-trash"></i></a>
+                </li>
+            </ul>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-block btn-primary d-none save-button">save changes</button>
+            </div>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/snitch/email_recipients.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        SnitchEmailRecipients.init({{ zone.notifications.email_data|safe }});
+    });
+</script>

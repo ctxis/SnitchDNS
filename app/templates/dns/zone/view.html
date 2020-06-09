@@ -22,17 +22,19 @@
 
         <ul class="nav nav-tabs mt-4">
             <li class="nav-item">
-                <a class="nav-link {{ 'active' if section == 'records' }}" href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}">Records</a>
+                <a class="nav-link {{ 'active' if tab == 'records' }}" href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}">Records</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ 'active' if section == 'notifications' }}" href="{{ url_for('dns.zone_notifications', dns_zone_id=zone.id) }}">Notifications</a>
+                <a class="nav-link {{ 'active' if tab == 'notifications' }}" href="{{ url_for('dns.zone_notifications', dns_zone_id=zone.id) }}">Notifications</a>
             </li>
         </ul>
 
         {% if section == 'records' %}
-        {% include 'dns/zone/records.html' %}
+            {% include 'dns/zone/records.html' %}
         {% elif section == 'notifications' %}
-        {% include 'dns/zone/notifications.html' %}
+            {% include 'dns/zone/notifications.html' %}
+        {% elif section == 'emails_settings' %}
+            {% include 'dns/zone/notifications/email.html' %}
         {% endif %}
     </div>
     <div class="col"></div>
