@@ -104,11 +104,12 @@ def create_app(config_class=None):
         return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
     # Setup command line.
-    from app.lib.cli import env, snitch_daemon, settings, cron
+    from app.lib.cli import env, snitch_daemon, settings, cron, snitchdb
     app.cli.add_command(env.main)
     app.cli.add_command(snitch_daemon.main)
     app.cli.add_command(settings.main)
     app.cli.add_command(cron.main)
+    app.cli.add_command(snitchdb.main)
 
     # Setup cron job.
     @crontab.job(minute="*/1")
@@ -118,4 +119,4 @@ def create_app(config_class=None):
 
     return app
 
-from app.lib.models import user, config, dns, api
+from app.lib.models import user, config, dns, api, notifications

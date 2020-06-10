@@ -1,8 +1,18 @@
 from app.lib.models.dns import DNSZoneNotificationModel
 from app.lib.notifications.instances.zone_notification import DNSNotification
+from app.lib.notifications.managers.type_manager import NotificationTypeManager
+from app.lib.notifications.managers.subscription_manager import NotificationSubscriptionManager
+from app.lib.notifications.managers.log_manager import NotificationLogManager
 
 
 class NotificationManager:
+    def __init__(self):
+        self.types = NotificationTypeManager()
+        self.subscriptions = NotificationSubscriptionManager()
+        self.logs = NotificationLogManager()
+
+
+class NotificationManager1:
     @property
     def providers(self):
         return self.__providers
