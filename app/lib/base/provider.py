@@ -117,7 +117,11 @@ class Provider:
         return ApiManager(self.users())
 
     def cron(self):
-        return CronManager()
+        return CronManager(
+            self.notifications(),
+            self.dns_zones(),
+            self.dns_logs()
+        )
 
     def notifications(self):
         settings = self.settings()

@@ -22,6 +22,13 @@ class NotificationManager:
     def get_provider(self, name):
         return self.__providers[name] if name in self.__providers else None
 
+    def get_enabled_providers(self):
+        providers = {}
+        for name, provider in self.__providers.items():
+            if provider.enabled:
+                providers[name] = provider
+        return providers
+
     def __get_dns_notification(self, id=None, dns_zone_id=None, email=None, webpush=None):
         query = DNSZoneNotificationModel.query
 
@@ -62,3 +69,11 @@ class NotificationManager:
             item.dns_zone_id = dns_zone_id
         item.save()
         return item
+
+    def get_subscribed(self, email=None, webpush=None):
+        results = self.__get_dns_notification(email=email, webpush=webpush)
+        items = []
+        for result in results:
+            items.append(self.__load_dns_notification(result))
+
+        return items
