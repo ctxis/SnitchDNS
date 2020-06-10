@@ -16,6 +16,7 @@ from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager
 from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
+from app.lib.base.webpush import WebPushManager
 from flask import current_app
 import os
 
@@ -140,3 +141,12 @@ class Provider:
         manager.add_provider('webpush', webpush_provider)
 
         return manager
+
+    def webpush(self):
+        admins = self.users().get_admins(active=True)
+        # Get the first admin's e-mail or fallback to a dummy e-mail.
+        email = admins[0].email if len(admins) > 0 else 'error@example.com'
+
+        vapid_private = self.settings().get('vapid_private', '')
+
+        return WebPushManager(vapid_private, email, '/static/images/favicon.png')

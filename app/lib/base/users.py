@@ -23,7 +23,7 @@ class UserManager:
     def last_error(self, value):
         self.__last_error = value
 
-    def __get(self, user_id=None, username=None, email=None, ldap=None, active=None):
+    def __get(self, user_id=None, username=None, email=None, ldap=None, active=None, admin=None):
         query = UserModel.query
 
         if user_id is not None:
@@ -40,6 +40,11 @@ class UserManager:
 
         if active is not None:
             query = query.filter(UserModel.active == active)
+
+        if admin is not None:
+            query = query.filter(UserModel.admin == admin)
+
+        query = query.order_by(UserModel.id)
 
         return query.all()
 
@@ -203,3 +208,6 @@ class UserManager:
             path = os.path.join(path, filename)
 
         return os.path.realpath(path)
+
+    def get_admins(self, active=None):
+        return self.__get(admin=True, active=active)
