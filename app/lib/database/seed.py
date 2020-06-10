@@ -9,7 +9,8 @@ class SeedDatabase:
     def __seed_notification_types(self):
         data = [
             {'name': 'email', 'description': 'E-mail'},
-            {'name': 'webpush', 'description': 'Web Push'}
+            {'name': 'webpush', 'description': 'Web Push'},
+            {'name': 'slack', 'description': 'Slack Webhooks'}
         ]
 
         type_manager = NotificationTypeManager()

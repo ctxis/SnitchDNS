@@ -16,6 +16,7 @@ from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager
 from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
+from app.lib.notifications.providers.slack import SlackWebhookNotificationProvider
 from flask import current_app
 import os
 
@@ -146,9 +147,14 @@ class Provider:
         webpush_provider.vapid_private = self.settings().get('vapid_private', '')
         webpush_provider.icon = '/static/images/favicon.png'
 
+        # Load Slack Webhook Provider.
+        slack_provider = SlackWebhookNotificationProvider()
+        slack_provider.enabled = (int(settings.get('slack_enabled', 0)) == 1)
+
         # Create manager.
         manager = NotificationManager()
         manager.providers.add('email', email_provider)
         manager.providers.add('webpush', webpush_provider)
+        manager.providers.add('slack', slack_provider)
 
         return manager

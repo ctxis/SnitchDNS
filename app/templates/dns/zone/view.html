@@ -41,6 +41,8 @@
             {% include 'dns/zone/notifications.html' %}
         {% elif section == 'email_settings' %}
             {% include 'dns/zone/notifications/email.html' %}
+        {% elif section == 'slack_settings' %}
+            {% include 'dns/zone/notifications/slack.html' %}
         {% endif %}
     </div>
     <div class="col"></div>

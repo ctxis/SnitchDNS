@@ -1,0 +1,19 @@
+<div class="row mt-4">
+    <div class="col-9">
+        <h5>Slack Webhook Settings</h5>
+
+        <form action="{{ url_for('dns.zone_notifications_settings_save', dns_zone_id=zone.id, item='slack') }}" method="post" class="recipient-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="slack_webhook_url">Webhook URL</label>
+                <input type="text" name="slack_webhook_url" id="slack_webhook_url" class="form-control" value="{{ subscription.data }}" placeholder="https://hooks.slack.com/services/">
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-block btn-primary">save settings</button>
+            </div>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>

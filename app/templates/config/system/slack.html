@@ -1,0 +1,33 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'slack' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-6">
+        <h4>Slack Webhooks</h4>
+        <form action="{{ url_for('config.slack_save') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="slack_enabled">Enable Slack Webhook Notifications</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="slack_enabled" type="checkbox" class="custom-control-input" id="slack_enabled" value="1" {{ 'checked' if setting_get('slack_enabled', '0') == '1' }}>
+                        <label class="custom-control-label" for="slack_enabled"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-block btn-primary">save</button>
+            </div>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
