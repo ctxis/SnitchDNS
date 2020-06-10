@@ -15,7 +15,8 @@ class DNSLogManager:
     def __load(self, item):
         return DNSQueryLog(item)
 
-    def __get(self, id=None, source_ip=None, domain=None, cls=None, type=None, completed=None, order_by='asc'):
+    def __get(self, id=None, source_ip=None, domain=None, cls=None, type=None, completed=None, found=None,
+              forwarded=None, dns_zone_id=None, dns_record_id=None, order_by='asc'):
         query = DNSQueryLogModel.query
 
         if id is not None:
@@ -35,6 +36,18 @@ class DNSLogManager:
 
         if completed is not None:
             query = query.filter(DNSQueryLogModel.completed == completed)
+
+        if found is not None:
+            query = query.filter(DNSQueryLogModel.found == found)
+
+        if forwarded is not None:
+            query = query.filter(DNSQueryLogModel.forwarded == forwarded)
+
+        if dns_zone_id is not None:
+            query = query.filter(DNSQueryLogModel.dns_zone_id == dns_zone_id)
+
+        if dns_record_id is not None:
+            query = query.filter(DNSQueryLogModel.dns_record_id == dns_record_id)
 
         order = asc(DNSQueryLogModel.id) if order_by == 'asc' else desc(DNSQueryLogModel.id)
         query = query.order_by(order)
@@ -108,3 +121,6 @@ class DNSLogManager:
         sql = "SELECT COALESCE(MAX(id), 0) AS max_id FROM dns_query_log WHERE dns_zone_id = :id"
         result = db.session.execute(sql, {'id': dns_zone_id}).fetchone()
         return int(result['max_id'])
+
+    def count(self, dns_zone_id=None, dns_record_id=None, type=None):
+        return len(self.__get(dns_zone_id=dns_zone_id, dns_record_id=dns_record_id, type=type))

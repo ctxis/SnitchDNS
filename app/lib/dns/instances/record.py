@@ -5,6 +5,8 @@ import json
 class DNSRecord(BaseInstance):
     def __init__(self, item):
         super().__init__(item)
+
+        self.__match_count = 0
         self.__load_properties()
 
     @property
@@ -55,6 +57,14 @@ class DNSRecord(BaseInstance):
     @active.setter
     def active(self, value):
         self.item.active = value
+
+    @property
+    def match_count(self):
+        return self.__match_count
+
+    @match_count.setter
+    def match_count(self, value):
+        self.__match_count = value
 
     def __load_properties(self):
         self.__data_properties = json.loads(self.data) if self.data is not None else {}

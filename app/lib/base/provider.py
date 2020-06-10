@@ -40,11 +40,14 @@ class Provider:
             self.settings(),
             self.dns_records(),
             self.users(),
-            self.notifications()
+            self.notifications(),
+            self.dns_logs()
         )
 
     def dns_records(self):
-        return DNSRecordManager()
+        return DNSRecordManager(
+            self.dns_logs()
+        )
 
     def dns_logs(self):
         return DNSLogManager()

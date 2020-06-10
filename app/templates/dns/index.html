@@ -37,6 +37,7 @@
                 <th class="text-center">Active</th>
                 <th class="text-center" style="white-space: nowrap;">Exact Match</th>
                 <th class="text-center">Records</th>
+                <th class="text-center">Matches</th>
                 <th></th>
             </tr>
             </thead>
@@ -59,6 +60,7 @@
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">{{ zone.record_count }}</td>
+                <td class="text-center">{{ zone.match_count }}</td>
                 <td class="text-right" style="white-space: nowrap;">
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}" title="edit zone"><i class="fas fa-edit"></i></a>
                     <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>

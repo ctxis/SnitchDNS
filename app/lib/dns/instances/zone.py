@@ -6,6 +6,7 @@ class DNSZone(BaseInstance):
         super().__init__(item)
 
         self.__record_count = 0
+        self.__match_count = 0
         self.__username = ''
         self.__notifications = None
 
@@ -100,3 +101,11 @@ class DNSZone(BaseInstance):
     @notifications.setter
     def notifications(self, value):
         self.__notifications = value
+
+    @property
+    def match_count(self):
+        return self.__match_count
+
+    @match_count.setter
+    def match_count(self, value):
+        self.__match_count = value

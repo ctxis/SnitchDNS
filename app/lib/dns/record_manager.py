@@ -6,6 +6,9 @@ from sqlalchemy import desc, asc
 
 
 class DNSRecordManager:
+    def __init__(self, dns_logs):
+        self.dns_logs = dns_logs
+
     def get_classes(self):
         items = list(QUERY_CLASSES.values())
         items.sort()
@@ -22,7 +25,8 @@ class DNSRecordManager:
         items.sort()
         return items
 
-    def __get(self, id=None, dns_zone_id=None, ttl=None, cls=None, type=None, data=None, active=None, order_column=None, order_by=None):
+    def __get(self, id=None, dns_zone_id=None, ttl=None, cls=None, type=None, data=None, active=None, order_column=None,
+              order_by=None):
         query = DNSRecordModel.query
 
         if id is not None:
@@ -66,7 +70,9 @@ class DNSRecordManager:
         return self.__load(results[0])
 
     def __load(self, item):
-        return DNSRecord(item)
+        item = DNSRecord(item)
+        item.match_count = self.dns_logs.count(dns_zone_id=item.dns_zone_id, dns_record_id=item.id)
+        return item
 
     def create(self):
         item = DNSRecord(DNSRecordModel())
@@ -100,7 +106,7 @@ class DNSRecordManager:
 
         return self.__load_results(results) if return_all else self.__load(results[0])
 
-    def count(self, dns_zone_id):
+    def count(self, dns_zone_id=None):
         return len(self.__get(dns_zone_id=dns_zone_id))
 
     def __load_results(self, results):

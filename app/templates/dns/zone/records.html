@@ -16,6 +16,7 @@
         <th class="text-right">Class</th>
         <th class="text-right">TTL</th>
         <th class="text-center">Active</th>
+        <th class="text-center">Matches</th>
         <th></th>
     </tr>
     </thead>
@@ -36,6 +37,7 @@
             {% set icon = 'check' if record.active else 'times' %}
             <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
         </td>
+        <td class="text-center">{{ record.match_count }}</td>
         <td class="text-center" style="white-space: nowrap;">
             <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
             <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, type=record.type, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
