@@ -35,3 +35,16 @@ class NotificationLogModel(db.Model):
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)
     updated_at = db.Column(db.DateTime, nullable=True)
+
+
+class WebPushSubscriptionModel(db.Model):
+    __tablename__ = 'webpush_subscriptions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, default=0, index=True, nullable=True)
+    endpoint = db.Column(db.String, default='', index=False, nullable=True)
+    key = db.Column(db.String, default='', index=False, nullable=True)
+    authsecret = db.Column(db.String, default='', index=False, nullable=True)
+
+    # Required in all models.
+    created_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)

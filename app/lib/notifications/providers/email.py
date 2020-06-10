@@ -19,7 +19,7 @@ class EmailNotificationProvider(BaseNotificationProvider):
 
         return self.__emails.send(recipients, subject, body)
 
-    def process_cron_notification(self, subscription, subject, body, verbose=False):
+    def process_cron_notification(self, subscription, subject, body, user_id, verbose=False):
         recipients = self.__get_recipients(subscription.data)
         if len(recipients) == 0:
             if verbose:

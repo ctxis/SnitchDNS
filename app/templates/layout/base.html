@@ -25,5 +25,9 @@
 
 {% include 'layout/footer.html' %}
 
+{% if current_user.is_authenticated and setting_get('webpush_enabled', '0')|int == 1 %}
+{% include 'layout/webpush.html' %}
+{% endif %}
+
 </body>
 </html>

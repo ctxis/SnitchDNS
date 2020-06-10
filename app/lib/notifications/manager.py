@@ -2,6 +2,7 @@ from app.lib.notifications.managers.type_manager import NotificationTypeManager
 from app.lib.notifications.managers.subscription_manager import NotificationSubscriptionManager
 from app.lib.notifications.managers.log_manager import NotificationLogManager
 from app.lib.notifications.managers.provider_manager import NotificationProviderManager
+from app.lib.notifications.managers.webpush_manager import WebPushManager
 from app.lib.notifications.instances.subscriptions import NotificationSubscriptionCollection
 
 
@@ -11,6 +12,7 @@ class NotificationManager:
         self.subscriptions = NotificationSubscriptionManager()
         self.logs = NotificationLogManager()
         self.providers = NotificationProviderManager()
+        self.webpush = WebPushManager()
 
     def save_zone_subscription(self, zone_id, type_name, enabled=None, data=None, last_query_log_id=None):
         type = self.types.get(name=type_name)

@@ -16,7 +16,6 @@ from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager
 from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
-from app.lib.base.webpush import WebPushManager
 from flask import current_app
 import os
 
@@ -132,8 +131,17 @@ class Provider:
         email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
 
         # Load Web Push Provider.
+
+        # Load data per supported notification type.
+        admins = self.users().get_admins(active=True)
+        # Get the first admin's e-mail or fallback to a dummy e-mail.
+        admin_email = admins[0].email if len(admins) > 0 else 'error@example.com'
+
         webpush_provider = WebPushNotificationProvider()
         webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
+        webpush_provider.admin_email = admin_email
+        webpush_provider.vapid_private = self.settings().get('vapid_private', '')
+        webpush_provider.icon = '/static/images/favicon.png'
 
         # Create manager.
         manager = NotificationManager()
@@ -141,12 +149,3 @@ class Provider:
         manager.providers.add('webpush', webpush_provider)
 
         return manager
-
-    def webpush(self):
-        admins = self.users().get_admins(active=True)
-        # Get the first admin's e-mail or fallback to a dummy e-mail.
-        email = admins[0].email if len(admins) > 0 else 'error@example.com'
-
-        vapid_private = self.settings().get('vapid_private', '')
-
-        return WebPushManager(vapid_private, email, '/static/images/favicon.png')

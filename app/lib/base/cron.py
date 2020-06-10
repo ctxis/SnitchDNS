@@ -41,7 +41,12 @@ class CronManager:
                     print("Could not get message body for zone {0}".format(subscribed_zone.zone_id))
                     continue
 
-                if provider.process_cron_notification(subscribed_zone, 'SnitchDNS Notification', body, verbose=True):
+                zone = self.__dns_zones.get(subscribed_zone.zone_id)
+                if not zone:
+                    print("Zone {0} does not exist".format(subscribed_zone.zone_id))
+                    continue
+
+                if provider.process_cron_notification(subscribed_zone, 'SnitchDNS Notification', body, zone.user_id, verbose=True):
                     # Create a log.
                     print("Logging notification")
                     self.__notifications.logs.log(subscribed_zone.id)

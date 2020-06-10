@@ -72,6 +72,9 @@ def create_app(config_class=None):
     app.register_blueprint(api_bp)
     csrf.exempt(api_bp)
 
+    from app.controllers.notifications import bp as notifications_bp
+    app.register_blueprint(notifications_bp)
+
     from app.lib.base.provider import Provider
 
     @app.before_request
