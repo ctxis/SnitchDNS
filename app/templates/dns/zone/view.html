@@ -4,7 +4,7 @@
 <div class="row mt-5">
     <div class="col"></div>
     <div class="col-7">
-        <h2 class="mb-0">{{ zone.full_domain }}</h2>
+        <h4 class="mb-0">{{ zone.full_domain }}</h4>
         <div>
             <a class="text-info" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit fa-sm"></i></a>
             {% if zone.active %}
