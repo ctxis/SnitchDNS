@@ -16,7 +16,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="{{ name }}" type="checkbox" class="custom-control-input" id="notifications_{{ name }}" value="1" {{ 'checked' if zone.notifications.has(name) }}>
+                        <input name="{{ name }}" type="checkbox" class="custom-control-input" id="notifications_{{ name }}" value="1" {{ 'checked' if zone.notifications.is_enabled(name) }}>
                         <label class="custom-control-label" for="notifications_{{ name }}"></label>
                     </div>
                 </div>

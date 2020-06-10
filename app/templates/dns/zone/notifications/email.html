@@ -2,7 +2,7 @@
     <div class="col-9">
         <h5>E-mail Notification Settings</h5>
 
-        <form action="{{ url_for('dns.zone_notifications_settings_save', dns_zone_id=zone.id, item='emails') }}" method="post" class="recipient-form">
+        <form action="{{ url_for('dns.zone_notifications_settings_save', dns_zone_id=zone.id, item='email') }}" method="post" class="recipient-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" class="recipient-hidden-input" name="recipients[]" value="">
 
@@ -34,6 +34,6 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        SnitchEmailRecipients.init({{ zone.notifications.email_data|safe }});
+        SnitchEmailRecipients.init({{ subscription.data|safe }});
     });
 </script>

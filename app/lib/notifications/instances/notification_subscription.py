@@ -1,4 +1,5 @@
 from app.lib.base.instance.base_instance import BaseInstance
+import json
 
 
 class NotificationSubscription(BaseInstance):
@@ -32,4 +33,13 @@ class NotificationSubscription(BaseInstance):
 
     @data.setter
     def data(self, value):
+        value = value if isinstance(value, str) else json.dumps(value)
         self.item.data = value
+
+    @property
+    def last_query_log_id(self):
+        return self.item.last_query_log_id
+
+    @last_query_log_id.setter
+    def last_query_log_id(self, value):
+        self.item.last_query_log_id = value

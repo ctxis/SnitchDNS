@@ -19,7 +19,7 @@
             <span class="badge badge-pill badge-primary">catch-all</span>
             {% endif %}
 
-            {% if zone.notifications.is_enabled() %}
+            {% if zone.notifications.has_enabled() %}
             <span class="badge badge-pill badge-success">notifications enabled</span>
             {% else %}
             <span class="badge badge-pill badge-warning">notifications disabled</span>
@@ -39,7 +39,7 @@
             {% include 'dns/zone/records.html' %}
         {% elif section == 'notifications' %}
             {% include 'dns/zone/notifications.html' %}
-        {% elif section == 'emails_settings' %}
+        {% elif section == 'email_settings' %}
             {% include 'dns/zone/notifications/email.html' %}
         {% endif %}
     </div>

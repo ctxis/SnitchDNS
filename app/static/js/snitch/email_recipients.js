@@ -1,5 +1,9 @@
 var SnitchEmailRecipients = {
     init: function(recipients) {
+        if (typeof recipients == 'undefined') {
+            recipients = [];
+        }
+
         this.bindAddRecipient();
         this.bindDeleteRecipient();
         this.bindSubmit();

@@ -1,8 +1,8 @@
-from app.lib.models.dns import DNSZoneNotificationModel
-from app.lib.notifications.instances.zone_notification import DNSNotification
 from app.lib.notifications.managers.type_manager import NotificationTypeManager
 from app.lib.notifications.managers.subscription_manager import NotificationSubscriptionManager
 from app.lib.notifications.managers.log_manager import NotificationLogManager
+from app.lib.notifications.managers.provider_manager import NotificationProviderManager
+from app.lib.notifications.instances.subscriptions import NotificationSubscriptionCollection
 
 
 class NotificationManager:
@@ -10,80 +10,58 @@ class NotificationManager:
         self.types = NotificationTypeManager()
         self.subscriptions = NotificationSubscriptionManager()
         self.logs = NotificationLogManager()
+        self.providers = NotificationProviderManager()
 
+    def save_zone_subscription(self, zone_id, type_name, enabled=None, data=None, last_query_log_id=None):
+        type = self.types.get(name=type_name)
+        if not type:
+            raise Exception("Coding Error: Invalid `type_name` parameter: {0}".format(type_name))
 
-class NotificationManager1:
-    @property
-    def providers(self):
-        return self.__providers
+        subscription = self.subscriptions.get(zone_id=zone_id, type_id=type.id)
+        if not subscription:
+            # Create one.
+            subscription = self.subscriptions.create(zone_id=zone_id, type_id=type.id)
 
-    def __init__(self):
-        self.__providers = {}
+        if enabled is not None:
+            subscription.enabled = True if enabled else False
 
-    def add_provider(self, name, provider):
-        self.__providers[name] = provider
+        if data is not None:
+            subscription.data = data
 
-    def has_enabled_providers(self):
-        for name, provider in self.__providers.items():
-            if provider.enabled:
-                return True
-        return False
+        if last_query_log_id is not None:
+            subscription.last_query_log_id = last_query_log_id
 
-    def get_provider(self, name):
-        return self.__providers[name] if name in self.__providers else None
+        subscription.save()
+        return subscription
 
-    def get_enabled_providers(self):
-        providers = {}
-        for name, provider in self.__providers.items():
-            if provider.enabled:
-                providers[name] = provider
-        return providers
+    def get_zone_subscriptions(self, zone_id):
+        collection = NotificationSubscriptionCollection()
 
-    def __get_dns_notification(self, id=None, dns_zone_id=None, email=None, webpush=None):
-        query = DNSZoneNotificationModel.query
+        subscriptions = self.subscriptions.all(zone_id=zone_id)
+        for subscription in subscriptions:
+            type_name = self.types.get_type_name(subscription.type_id)
+            if type_name is False:
+                continue
 
-        if id is not None:
-            query = query.filter(DNSZoneNotificationModel.id == id)
+            collection.add(type_name, subscription)
 
-        if dns_zone_id is not None:
-            query = query.filter(DNSZoneNotificationModel.dns_zone_id == dns_zone_id)
+        return collection
 
-        if email is not None:
-            query = query.filter(DNSZoneNotificationModel.email == email)
+    def create_missing_subscriptions(self, zone_id):
+        # Get all types.
+        types = self.types.all()
 
-        if webpush is not None:
-            query = query.filter(DNSZoneNotificationModel.webpush == webpush)
+        # Find types that don't exist.
+        for type in types:
+            subscription = self.subscriptions.get(zone_id=zone_id, type_id=type.id)
+            if subscription:
+                continue
 
-        return query.all()
+            # Create them.
+            subscription = self.subscriptions.create(zone_id=zone_id, type_id=type.id)
+            subscription.enabled = False
+            subscription.data = ''
+            subscription.last_query_log_id = 0
+            subscription.save()
 
-    def get_dns_notification(self, id):
-        results = self.__get_dns_notification(id=id)
-        if len(results) == 0:
-            return False
-
-        return self.__load_dns_notification(results[0])
-
-    def get_dns_zone_notifications(self, dns_zone_id):
-        results = self.__get_dns_notification(dns_zone_id=dns_zone_id)
-        if len(results) == 0:
-            return False
-
-        return self.__load_dns_notification(results[0])
-
-    def __load_dns_notification(self, item):
-        return DNSNotification(item)
-
-    def create_dns_zone_notification(self, dns_zone_id=None):
-        item = DNSNotification(DNSZoneNotificationModel())
-        if dns_zone_id is not None:
-            item.dns_zone_id = dns_zone_id
-        item.save()
-        return item
-
-    def get_subscribed(self, email=None, webpush=None):
-        results = self.__get_dns_notification(email=email, webpush=webpush)
-        items = []
-        for result in results:
-            items.append(self.__load_dns_notification(result))
-
-        return items
+        return True

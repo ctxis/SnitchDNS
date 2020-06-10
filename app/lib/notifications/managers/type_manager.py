@@ -39,3 +39,10 @@ class NotificationTypeManager:
         item = NotificationType(NotificationTypeModel())
         item.save()
         return item
+
+    def get_type_name(self, type_id):
+        type = self.get(id=type_id)
+        if not type:
+            return False
+
+        return type.name

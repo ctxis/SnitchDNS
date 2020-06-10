@@ -19,6 +19,7 @@ class NotificationSubscriptionModel(db.Model):
     type_id = db.Column(db.Integer, nullable=True, index=True, default=0)
     enabled = db.Column(db.Boolean, default=True, index=True)
     data = db.Column(db.Text, nullable=True)
+    last_query_log_id = db.Column(db.Integer, nullable=True, index=True, default=0)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)

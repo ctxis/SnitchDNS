@@ -125,20 +125,20 @@ class Provider:
         )
 
     def notifications(self):
-        # settings = self.settings()
-        #
-        # # Load E-mail Provider.
-        # email_provider = EmailNotificationProvider(self.emails())
-        # email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
-        #
-        # # Load Web Push Provider.
-        # webpush_provider = WebPushNotificationProvider()
-        # webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
-        #
+        settings = self.settings()
+
+        # Load E-mail Provider.
+        email_provider = EmailNotificationProvider(self.emails())
+        email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
+
+        # Load Web Push Provider.
+        webpush_provider = WebPushNotificationProvider()
+        webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
+
         # Create manager.
         manager = NotificationManager()
-        # manager.add_provider('emails', email_provider)
-        # manager.add_provider('webpush', webpush_provider)
+        manager.providers.add('email', email_provider)
+        manager.providers.add('webpush', webpush_provider)
 
         return manager
 

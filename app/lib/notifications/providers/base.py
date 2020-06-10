@@ -27,3 +27,6 @@ class BaseNotificationProvider:
         self.__enabled = False
         self.__has_settings = False
         self.__title = ''
+
+    def process_cron_notification(self, subscription, subject, body, verbose=False):
+        raise Exception("Coding Error: process_cron_notification() not implemented.")

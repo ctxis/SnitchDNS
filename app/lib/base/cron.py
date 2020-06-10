@@ -9,54 +9,42 @@ class CronManager:
         return True
 
     def send_notifications(self):
-        # First get enabled providers.
-        notification_providers = self.__notifications.get_enabled_providers()
+        # First get the enabled providers.
+        print("Getting enabled notification providers...")
+        notification_providers = self.__notifications.providers.get_enabled()
+        print("Found {0} providers: {1}".format(len(notification_providers), ", ".join(notification_providers.keys())))
 
-        # Then get zones with that provider enabled.
         for name, provider in notification_providers.items():
             print("Processing notifications for {0}".format(name))
-            if name == 'emails':
-                self.__send_email_notifications(provider)
-            elif name == 'webpush':
-                pass
-            else:
+
+            type = self.__notifications.types.get(name=name)
+            if not type:
+                print("Could not get type id for {0}".format(name))
                 continue
+            print("The type id for {0} is {1}".format(name, type.id))
 
-        return True
+            subscribed_zones = self.__notifications.subscriptions.all(type_id=type.id, enabled=True)
+            print("Found {0} subscribed zones for {1}".format(len(subscribed_zones), name))
 
-    def __send_email_notifications(self, provider):
-        zone_notifications = self.__notifications.get_subscribed(email=True)
+            for subscribed_zone in subscribed_zones:
+                print("Processing {0} notifications for zone {1}".format(name, subscribed_zone.zone_id))
+                # Check to see if there are new queries.
+                max_id = self.__dns_logs.get_last_log_id(subscribed_zone.zone_id)
+                if subscribed_zone.last_query_log_id >= max_id:
+                    # No new notifications.
+                    print("No new notifications for zone {0}".format(subscribed_zone.zone_id))
+                    continue
 
-        # Check to see if a notification needs to be sent.
-        print("Processing subscribed {0} zone(s)".format(len(zone_notifications)))
-        for zone_notification in zone_notifications:
-            recipients = zone_notification.email_recipients()
-            if len(recipients) == 0:
-                # This is an error, disable the provider.
-                print("Error: Zone {0} does not have any recipients.".format(zone_notification.dns_zone_id))
+                # Get the message to be sent.
+                body = self.__create_message(subscribed_zone.zone_id)
+                if body is False:
+                    print("Could not get message body for zone {0}".format(subscribed_zone.zone_id))
+                    continue
 
-                zone_notification.email = False
-                zone_notification.save()
-                continue
-
-            max_id = self.__dns_logs.get_last_log_id(zone_notification.dns_zone_id)
-            if zone_notification.last_query_log_id >= max_id:
-                # Nothing to do.
-                continue
-
-            message = self.__create_message(zone_notification.dns_zone_id)
-            if message is False:
-                print("Error: Could not load message for zone {0}".format(zone_notification.dns_zone_id))
-                continue
-
-            print("Trying to send notification for zone {0}".format(zone_notification.dns_zone_id))
-            if provider.send(recipients, 'SnitchDNS Notification', message) is True:
-                # Disable provider for that zone.
-                print("Notification sent - disabling provider")
-                zone_notification.email = False
-                zone_notification.save()
-            else:
-                print("Could not send e-mail notifications for zone {0}".format(zone_notification.dns_zone_id))
+                if provider.process_cron_notification(subscribed_zone, 'SnitchDNS Notification', body, verbose=True):
+                    # Create a log.
+                    print("Logging notification")
+                    self.__notifications.logs.log(subscribed_zone.id)
 
         return True
 
