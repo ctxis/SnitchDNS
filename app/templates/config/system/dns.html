@@ -6,7 +6,7 @@
         {% set active_nav = 'dns' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col-5">
+    <div class="col-6">
         <form action="{{ url_for('config.dns_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -42,6 +42,18 @@
                 </div>
                 <div class="col">
                     <input type="text" class="form-control text-right" name="dns_daemon_bind_port" id="dns_daemon_bind_port" value="{{ setting_get('dns_daemon_bind_port', '') }}" placeholder="between 1024 and 65535" required>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="dns_daemon_start_everyone">Allow all users to start the service</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="dns_daemon_start_everyone" type="checkbox" class="custom-control-input" id="dns_daemon_start_everyone" value="1" {{ 'checked' if setting_get('dns_daemon_start_everyone', '0') == '1' }}>
+                        <label class="custom-control-label" for="dns_daemon_start_everyone"></label>
+                    </div>
                 </div>
             </div>
 

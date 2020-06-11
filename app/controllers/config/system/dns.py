@@ -27,6 +27,7 @@ def dns_save():
     dns_daemon_bind_ip = request.form['dns_daemon_bind_ip'].strip()
     dns_daemon_bind_port = request.form['dns_daemon_bind_port'].strip()
     dns_daemon_bind_port = int(dns_daemon_bind_port) if dns_daemon_bind_port.isdigit() else 0
+    dns_daemon_start_everyone = True if int(request.form.get('dns_daemon_start_everyone', 0)) == 1 else False
 
     # DNS Forwarding
     forward_dns_address = request.form['forward_dns_address'].strip()
@@ -57,6 +58,7 @@ def dns_save():
     # Save Daemon
     settings.save('dns_daemon_bind_ip', dns_daemon_bind_ip)
     settings.save('dns_daemon_bind_port', dns_daemon_bind_port)
+    settings.save('dns_daemon_start_everyone', dns_daemon_start_everyone)
 
     # Save Forwarding
     settings.save_list('forward_dns_address', forwarders)

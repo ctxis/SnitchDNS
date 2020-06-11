@@ -1,6 +1,6 @@
 from .. import bp
 from flask import request, render_template, flash, redirect, url_for
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import admin_required
 
@@ -25,10 +25,18 @@ def system():
 
 @bp.route('/system/daemon', methods=['POST'])
 @login_required
-@admin_required
 def system_daemon():
     provider = Provider()
     daemon = provider.daemon()
+    settings = provider.settings()
+
+    # First check to see is everyoneis allowed to start the daemon.
+    dns_daemon_start_everyone = (int(settings.get('dns_daemon_start_everyone', 0)) == 1)
+    if not dns_daemon_start_everyone:
+        # If it's not an admin, return to homepage.
+        if not current_user.admin:
+            flash('Access Denied', 'error')
+            return redirect(url_for('home.index'))
 
     action = request.form['action'].strip()
 
@@ -44,10 +52,12 @@ def system_daemon():
             flash('DNS Daemon Started', 'success')
         else:
             flash('Could not start DNS Daemon', 'error')
-    elif action == 'stop':
+    elif action == 'stop' and current_user.admin:
+        # Only admins can stop the service.
         if daemon.stop():
             flash('DNS Daemon Stopped', 'success')
         else:
             flash('Could not stop DNS Daemon', 'error')
 
-    return redirect(url_for('config.system'))
+    redirect_to = 'config.system' if current_user.admin else 'home.index'
+    return redirect(url_for(redirect_to))

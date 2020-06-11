@@ -8,7 +8,18 @@
 {% if current_user.is_authenticated and is_daemon_running() == False %}
 <div class="container-flex">
     <div class="text-center">
-        <div class="alert alert-danger">DNS Daemon Not Running</div>
+        <div class="alert alert-danger">
+            DNS Daemon Not Running
+            {% if setting_get('dns_daemon_start_everyone', 0)|int == 1 %}
+            -
+            <form action="{{ url_for('config.system_daemon') }}" method="post" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="start">
+                <a href="#" class="submit-on-click">Click here to start it</a>
+            </form>
+
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endif %}
