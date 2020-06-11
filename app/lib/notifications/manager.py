@@ -37,6 +37,8 @@ class NotificationManager:
         return subscription
 
     def get_zone_subscriptions(self, zone_id):
+        self.create_missing_subscriptions(zone_id)
+
         collection = NotificationSubscriptionCollection()
 
         subscriptions = self.subscriptions.all(zone_id=zone_id)

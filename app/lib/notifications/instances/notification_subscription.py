@@ -1,5 +1,6 @@
 from app.lib.base.instance.base_instance import BaseInstance
 import json
+from json.decoder import JSONDecodeError
 
 
 class NotificationSubscription(BaseInstance):
@@ -43,3 +44,10 @@ class NotificationSubscription(BaseInstance):
     @last_query_log_id.setter
     def last_query_log_id(self, value):
         self.item.last_query_log_id = value
+
+    def get_data_object(self):
+        try:
+            data = json.loads(self.data)
+        except JSONDecodeError:
+            data = self.data
+        return data

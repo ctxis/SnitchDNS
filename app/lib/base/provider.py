@@ -130,9 +130,13 @@ class Provider:
     def notifications(self):
         settings = self.settings()
 
+        # Create manager.
+        manager = NotificationManager()
+
         # Load E-mail Provider.
         email_provider = EmailNotificationProvider(self.emails())
         email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
+        email_provider.type_id = manager.types.get(name='email').id
 
         # Load Web Push Provider.
 
@@ -143,6 +147,7 @@ class Provider:
 
         webpush_provider = WebPushNotificationProvider()
         webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
+        webpush_provider.type_id = manager.types.get(name='webpush').id
         webpush_provider.admin_email = admin_email
         webpush_provider.vapid_private = self.settings().get('vapid_private', '')
         webpush_provider.icon = '/static/images/favicon.png'
@@ -150,9 +155,8 @@ class Provider:
         # Load Slack Webhook Provider.
         slack_provider = SlackWebhookNotificationProvider()
         slack_provider.enabled = (int(settings.get('slack_enabled', 0)) == 1)
+        slack_provider.type_id = manager.types.get(name='slack').id
 
-        # Create manager.
-        manager = NotificationManager()
         manager.providers.add('email', email_provider)
         manager.providers.add('webpush', webpush_provider)
         manager.providers.add('slack', slack_provider)

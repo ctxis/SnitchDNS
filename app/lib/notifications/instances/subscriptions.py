@@ -22,3 +22,6 @@ class NotificationSubscriptionCollection:
 
     def count(self):
         return len(self.__subscriptions)
+
+    def all(self):
+        return self.__subscriptions

@@ -20,3 +20,6 @@ class NotificationProviderManager:
             if provider.enabled:
                 providers[name] = provider
         return providers
+
+    def all(self):
+        return self.__providers

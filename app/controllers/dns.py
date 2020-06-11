@@ -472,10 +472,6 @@ def zone_notifications_settings_save(dns_zone_id, item):
         flash('Notification provider has no settings', 'error')
         return redirect(url_for('dns.index'))
 
-    notifications.create_missing_subscriptions(zone.id)
-    # We need to reload the zone.
-    zone = zones.get(dns_zone_id)
-
     if item == 'email':
         recipients = request.form.getlist('recipients[]')
         valid_recipients = []
@@ -484,6 +480,9 @@ def zone_notifications_settings_save(dns_zone_id, item):
             recipient = recipient.strip().lower()
             if len(recipient) > 0 and email_regex.match(recipient):
                 valid_recipients.append(recipient)
+
+        # Remove duplicates.
+        valid_recipients = list(dict.fromkeys(valid_recipients))
 
         subscription = zone.notifications.get(item)
         if subscription:

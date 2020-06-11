@@ -334,6 +334,97 @@ paths:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
+  /notifications/providers:
+    get:
+      summary: Return all supported notification providers.
+      tags:
+        - notification
+      responses:
+        200:
+          description: All supported notification providers
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/NotificationType'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{zone}/notifications:
+    get:
+      summary: Return all subscriptions for the current zone.
+      tags:
+        - notification
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: All zone subscriptions.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/NotificationSubscription'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{zone}/notifications/{type}:
+    get:
+      summary: Return a single subscription
+      tags:
+        - notification
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: type
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          $ref: '#/definitions/NotificationSubscription'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Update a single subscription
+      tags:
+        - notification
+      parameters:
+        - name: zone
+          description: Zone Id
+          in: path
+          required: true
+          type: integer
+        - name: type
+          in: path
+          required: true
+          type: string
+        - name: subscription
+          description: Properties to update
+          in: body
+          schema:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+              data:
+                type: object
+      responses:
+        200:
+          $ref: '#/definitions/NotificationSubscription'
+        401:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
   /search:
     get:
       summary: Search logs
@@ -496,3 +587,33 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/SearchResult'
+  NotificationSubscription:
+    type: object
+    properties:
+      zone_id:
+        type: integer
+        description: Zone Id
+      type_id:
+        type: integer
+        description: Notification provider internal Id
+      type:
+        type: string
+        description: Notification provider internal name
+      enabled:
+        type: boolean
+        description: Current state of the subscription
+      data:
+        type: string
+        description: Data for the provider. This can be either a list/object/string.
+  NotificationType:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Notification Provider Id
+      name:
+        type: string
+        description: Notification Provider Name
+      enabled:
+        type: boolean
+        description: Current state of the provider

@@ -23,7 +23,16 @@ class BaseNotificationProvider:
     def has_settings(self, value):
         self.__has_settings = value
 
+    @property
+    def type_id(self):
+        return self.__type_id
+
+    @type_id.setter
+    def type_id(self, value):
+        self.__type_id = value
+
     def __init__(self):
+        self.__type_id = 0
         self.__enabled = False
         self.__has_settings = False
         self.__title = ''
