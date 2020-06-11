@@ -108,5 +108,17 @@ var SnitchEmailRecipients = {
                 this.addRecipient(recipients[i]);
             }
         }
+    },
+
+    setOwnEmail: function(email) {
+        email = email.trim().toLowerCase();
+        if (email.length == 0) {
+            return false;
+        } else if (!this.isEmailValid(email)) {
+            return false;
+        } else if (this.isDuplicate(email)) {
+            return false;
+        }
+        $('#recipient').val(email);
     }
 };
