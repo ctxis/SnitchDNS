@@ -9,6 +9,7 @@ WorkingDirectory={{ snitch.destination }}
 EnvironmentFile=/etc/environment
 Environment="PATH={{ snitch.destination }}/venv/bin:$PATH"
 ExecStart={{ snitch.destination }}/venv/bin/gunicorn --workers 3 --bind {{ web.bind_host }}:{{ web.bind_port }} -m 007 wsgi:app
+ExecStartPost={{ snitch.destination }}/venv/bin/python3 -m flask snitch_start
 
 [Install]
 WantedBy=multi-user.target

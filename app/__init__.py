@@ -110,6 +110,7 @@ def create_app(config_class=None):
     from app.lib.cli import env, snitch_daemon, settings, cron, snitchdb
     app.cli.add_command(env.main)
     app.cli.add_command(snitch_daemon.main)
+    app.cli.add_command(snitch_daemon.snitch_start)
     app.cli.add_command(settings.main)
     app.cli.add_command(cron.main)
     app.cli.add_command(snitchdb.main)

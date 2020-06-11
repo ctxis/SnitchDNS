@@ -15,3 +15,17 @@ def main(bind_ip, bind_port):
     from app.lib.daemon.cli import DNSDaemonCLI
     cli = DNSDaemonCLI()
     return cli.daemon(bind_ip, bind_port, forward_dns_enabled, forward_dns_address)
+
+
+@click.command('snitch_start', help='SnitchDNS Start Daemon')
+@with_appcontext
+def snitch_start():
+    provider = Provider()
+    daemon = provider.daemon()
+
+    if not daemon.is_configured():
+        print("SnitchDNS Daemon is not configured - aborting.")
+        return False
+
+    print("SnitchDNS - Starting daemon...")
+    return daemon.start()
