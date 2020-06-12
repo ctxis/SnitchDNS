@@ -85,13 +85,16 @@ class UserManager:
                 self.last_error = 'Password does not meet complexity requirements: ' + self.password_complexity.get_requirement_description()
                 return False
 
-        password = bcrypt.generate_password_hash(password)
+        password = self.__hash_password(password)
         user.password = password
 
         db.session.commit()
         db.session.refresh(user)
 
         return True
+
+    def __hash_password(self, password):
+        return bcrypt.generate_password_hash(password).decode('utf-8')
 
     def all(self):
         return UserModel.query.order_by(UserModel.id).all()
@@ -141,7 +144,7 @@ class UserManager:
                     return False
 
                 # If the password is empty, it means it wasn't changed.
-                password = bcrypt.generate_password_hash(password)
+                password = self.__hash_password(password)
 
         if (user_id == 0) or (ldap is False):
             user.username = username

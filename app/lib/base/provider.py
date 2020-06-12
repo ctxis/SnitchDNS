@@ -134,6 +134,12 @@ class Provider:
         # Create manager.
         manager = NotificationManager()
 
+        # Put some error handler in case the user forgets to run the seed function.
+        expected_providers = ['email', 'webpush', 'slack']
+        for name in expected_providers:
+            if manager.types.get(name=name) is False:
+                raise Exception("Notification provider {0} is missing. Make sure you run the SnitchDNS 'snitchdb' function".format(name))
+
         # Load E-mail Provider.
         email_provider = EmailNotificationProvider(self.emails())
         email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
@@ -166,3 +172,10 @@ class Provider:
 
     def logging(self):
         return LoggingManager(self.users())
+
+    def env(self, name, default=None, must_exist=False):
+        if not name in os.environ:
+            if must_exist:
+                raise Exception("Environment variable not found: {0}".format(name))
+            return default
+        return os.environ[name]

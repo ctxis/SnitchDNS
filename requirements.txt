@@ -12,3 +12,4 @@ Twisted
 ldap3
 Flask-Crontab
 pywebpush
+psycopg2

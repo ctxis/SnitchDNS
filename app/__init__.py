@@ -16,6 +16,9 @@ crontab = Crontab()
 
 
 def create_app(config_class=None):
+    from app.lib.base.provider import Provider
+    provider = Provider()
+
     # Make sure the instance path is within the ./data folder.
     data_instance_path = os.path.realpath(
         os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'instance'))
@@ -27,8 +30,25 @@ def create_app(config_class=None):
     except OSError:
         pass
 
+    dbms = provider.env('SNITCHDNS_DBMS', must_exist=True).lower()
+    dbms_uri = ''
+
     # First we load everything we need in order to end up with a working app.
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'snitchdns.sqlite3')
+    if dbms == 'sqlite':
+        dbms_uri = 'sqlite:///' + os.path.join(app.instance_path, 'snitchdns.sqlite3')
+    elif dbms == 'postgres':
+        dbms_uri = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(
+            user=provider.env('SNITCHDNS_POSTGRES_USER', must_exist=True),
+            pw=provider.env('SNITCHDNS_POSTGRES_PW', must_exist=True),
+            url=provider.env('SNITCHDNS_POSTGRES_URL', must_exist=True),
+            db=provider.env('SNITCHDNS_POSTGRES_DB', must_exist=True)
+        )
+    elif dbms == 'mysql':
+        pass
+    else:
+        raise Exception("Unknown DBMS: {0}".format(dbms))
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = dbms_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SQLALCHEMY_ECHO'] = True
     app.config['SECRET_KEY'] = 'SnitchesGetStitches_:)'
@@ -73,8 +93,6 @@ def create_app(config_class=None):
 
     from app.controllers.notifications import bp as notifications_bp
     app.register_blueprint(notifications_bp)
-
-    from app.lib.base.provider import Provider
 
     @app.before_request
     def before_request():
