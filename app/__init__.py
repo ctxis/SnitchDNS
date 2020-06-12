@@ -1,12 +1,11 @@
 import os
 import datetime
-from flask import Flask, session
+from flask import Flask, session, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from flask_crontab import Crontab
-
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -106,6 +105,20 @@ def create_app(config_class=None):
 
         return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
 
+    @app.errorhandler(404)
+    @login_required
+    def error_handler_404(error):
+        # Added the @login_required so that remote enumeration of endpoints won't work.
+        # Not that it makes any difference as this is open source. WHAT A TWIST OF THE PLOT.
+        return render_template('errors/404.html', error=error), 404
+
+    @app.errorhandler(Exception)
+    def error_handler_500(error):
+        import traceback
+        user_id = current_user.id if current_user.is_authenticated else 0
+        Provider().logging().log_error(user_id, str(error), str(traceback.format_exc()))
+        return render_template('errors/500.html', error=error, trace=traceback.format_exc()), 500
+
     # Setup command line.
     from app.lib.cli import env, snitch_daemon, settings, cron, snitchdb
     app.cli.add_command(env.main)
@@ -123,4 +136,4 @@ def create_app(config_class=None):
 
     return app
 
-from app.lib.models import user, config, dns, api, notifications
+from app.lib.models import user, config, dns, api, notifications, logging

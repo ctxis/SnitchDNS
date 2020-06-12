@@ -17,6 +17,7 @@ from app.lib.notifications.manager import NotificationManager
 from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
 from app.lib.notifications.providers.slack import SlackWebhookNotificationProvider
+from app.lib.log.manager import LoggingManager
 from flask import current_app
 import os
 
@@ -162,3 +163,6 @@ class Provider:
         manager.providers.add('slack', slack_provider)
 
         return manager
+
+    def logging(self):
+        return LoggingManager(self.users())

@@ -1,0 +1,23 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        <img src="{{ url_for('static', filename='images/freepik_rat2.png') }}">
+    </div>
+    <div class="col pl-5">
+        <h3>This clearly isn't working. We need a break.</h3>
+        <br>
+        <h5>Error Description</h5>
+        <div class="mt-4 text-monospace small">{{ error }}</div>
+        {% if current_user.is_authenticated and current_user.admin %}
+        <div class="mt-4 text-monospace small">{{ (trace|escape).replace("\n", "<br>"|safe) }}</div>
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <small><a href="http://www.freepik.com" class="text-primary">Designed by Freepik</a></small>
+    </div>
+</div>
+{% endblock %}

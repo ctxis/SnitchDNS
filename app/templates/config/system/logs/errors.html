@@ -1,0 +1,55 @@
+{% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import render_pagination with context %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'error_logs' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col">
+        <h4>Error Logs</h4>
+
+        {% if results.total == 0 %}
+        <div class="alert alert-info">Nothing to display.</div>
+        {% else %}
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>username</th>
+                <th>description</th>
+                <th class="text-right">date</th>
+                <th>details</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for result in results.items %}
+            <tr>
+                <td>{{ result.id }}</td>
+                <td>{{ result.username }}</td>
+                <td>{{ result.description }}</td>
+                <td class="text-right" style="white-space: nowrap;">{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td class="text-center"><a href="#" class="toggle-error-box" data-id="{{ result.id }}" title="click here for details"><i class="fas fa-info-circle"></i></a></td>
+            </tr>
+            <tr class="d-none error-box-{{ result.id }}">
+                <td colspan="2"></td>
+                <td colspan="3">
+                    <div class="text-monospace small">
+                    {{ (result.details|escape).replace("\n", "<br>"|safe) }}
+                    </div>
+                </td>
+            </tr>
+            <!-- Leave the row below to maintain striped table formatting -->
+            <tr class="d-none"></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if results.pages > 1 %}
+            {{ render_pagination(results, 'config.logs_errors', 'page=') }}
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

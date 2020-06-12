@@ -1,0 +1,19 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        <img src="{{ url_for('static', filename='images/freepik_rat.png') }}">
+    </div>
+    <div class="col">
+        <h3>I swear, I don't know where that page is.</h3>
+        <br>
+        <h5>But I could definitely come up with 404 excuses.</h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <small><a href="http://www.freepik.com" class="text-primary">Designed by Freepik</a></small>
+    </div>
+</div>
+{% endblock %}

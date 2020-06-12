@@ -24,4 +24,15 @@ $(document).ready(function() {
         $('#' + formToSubmit).submit();
         $('#delete-confirmation-box').modal('hide');
     });
+
+    $('.toggle-error-box').click(function() {
+        var boxId = $(this).attr('data-id');
+        var box = $('.error-box-' + boxId);
+        if ($(box).hasClass('d-none')) {
+            $(box).removeClass('d-none');
+        } else {
+            $(box).addClass('d-none');
+        }
+        return false;
+    });
 });
