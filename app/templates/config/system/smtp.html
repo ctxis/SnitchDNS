@@ -18,7 +18,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="smtp_enabled" type="checkbox" class="custom-control-input" id="smtp_enabled" value="1" {{ 'checked' if setting_get('smtp_enabled', '0') == '1' }}>
+                        <input name="smtp_enabled" type="checkbox" class="custom-control-input" id="smtp_enabled" value="1" {{ 'checked' if setting_get('smtp_enabled', False) }}>
                         <label class="custom-control-label" for="smtp_enabled"></label>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="smtp_tls" type="checkbox" class="custom-control-input" id="smtp_tls" value="1" {{ 'checked' if setting_get('smtp_tls', '0') == '1' }}>
+                        <input name="smtp_tls" type="checkbox" class="custom-control-input" id="smtp_tls" value="1" {{ 'checked' if setting_get('smtp_tls', False) }}>
                         <label class="custom-control-label" for="smtp_tls"></label>
                     </div>
                 </div>

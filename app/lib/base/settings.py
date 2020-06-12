@@ -9,6 +9,8 @@ class SettingsManager:
             setting = ConfigModel(name=name, value=value)
             db.session.add(setting)
         else:
+            if isinstance(value, bool):
+                value = 'true' if value else 'false'
             setting.value = value
 
         db.session.commit()
@@ -19,6 +21,8 @@ class SettingsManager:
         setting = ConfigModel.query.filter(ConfigModel.name == name).first()
         if setting is None:
             return default
+        if setting.value in ['true', 'false']:
+            return setting.value == 'true'
         return setting.value
 
     def get_list(self, name, sep=","):

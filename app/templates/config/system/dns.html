@@ -51,7 +51,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="dns_daemon_start_everyone" type="checkbox" class="custom-control-input" id="dns_daemon_start_everyone" value="1" {{ 'checked' if setting_get('dns_daemon_start_everyone', '0') == '1' }}>
+                        <input name="dns_daemon_start_everyone" type="checkbox" class="custom-control-input" id="dns_daemon_start_everyone" value="1" {{ 'checked' if setting_get('dns_daemon_start_everyone', False) }}>
                         <label class="custom-control-label" for="dns_daemon_start_everyone"></label>
                     </div>
                 </div>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="forward_dns_enabled" type="checkbox" class="custom-control-input" id="forward_dns_enabled" value="1" {{ 'checked' if setting_get('forward_dns_enabled', '0') == '1' }}>
+                        <input name="forward_dns_enabled" type="checkbox" class="custom-control-input" id="forward_dns_enabled" value="1" {{ 'checked' if setting_get('forward_dns_enabled', False) }}>
                         <label class="custom-control-label" for="forward_dns_enabled"></label>
                     </div>
                 </div>
