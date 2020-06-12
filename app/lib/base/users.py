@@ -191,7 +191,7 @@ class UserManager:
         user = self.get_user(user_id)
         if not user:
             return False
-        return int(user.admin) == 1
+        return user.admin
 
     def find_user_login(self, username, ldap):
         users = self.__get(username=username, ldap=ldap)

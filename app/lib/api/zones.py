@@ -121,9 +121,9 @@ class ApiZones(ApiBase):
         zone = Zone()
         zone.id = item.id
         zone.user_id = item.user_id
-        zone.active = int(item.active) > 0
-        zone.exact_match = int(item.exact_match) > 0
-        zone.master = int(item.master) > 0
+        zone.active = item.active
+        zone.exact_match = item.exact_match
+        zone.master = item.master
         zone.domain = item.full_domain
 
         return zone

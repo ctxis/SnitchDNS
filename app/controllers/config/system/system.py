@@ -31,7 +31,7 @@ def system_daemon():
     settings = provider.settings()
 
     # First check to see is everyoneis allowed to start the daemon.
-    dns_daemon_start_everyone = (int(settings.get('dns_daemon_start_everyone', 0)) == 1)
+    dns_daemon_start_everyone = settings.get('dns_daemon_start_everyone', False)
     if not dns_daemon_start_everyone:
         # If it's not an admin, return to homepage.
         if not current_user.admin:

@@ -45,7 +45,7 @@ class ApiRecords(ApiBase):
         record = Record()
         record.id = item.id
         record.zone_id = item.dns_zone_id
-        record.active = int(item.active) > 0
+        record.active = item.active
         record.cls = item.cls
         record.type = item.type
         record.ttl = int(item.ttl)

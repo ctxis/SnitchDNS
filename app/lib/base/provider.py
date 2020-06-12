@@ -105,8 +105,8 @@ class Provider:
         settings = self.settings()
         manager = LDAPManager()
 
-        manager.enabled = int(settings.get('ldap_enabled', 0)) > 0
-        manager.ssl = int(settings.get('ldap_ssl', 0)) > 0
+        manager.enabled = settings.get('ldap_enabled', False)
+        manager.ssl = settings.get('ldap_ssl', False)
         manager.host = settings.get('ldap_host', '')
         manager.base_dn = settings.get('ldap_base_dn', '')
         manager.domain = settings.get('ldap_domain', '')
@@ -142,7 +142,7 @@ class Provider:
 
         # Load E-mail Provider.
         email_provider = EmailNotificationProvider(self.emails())
-        email_provider.enabled = (int(settings.get('smtp_enabled', 0)) == 1)
+        email_provider.enabled = settings.get('smtp_enabled', False)
         email_provider.type_id = manager.types.get(name='email').id
 
         # Load Web Push Provider.
@@ -153,7 +153,7 @@ class Provider:
         admin_email = admins[0].email if len(admins) > 0 else 'error@example.com'
 
         webpush_provider = WebPushNotificationProvider()
-        webpush_provider.enabled = (int(settings.get('webpush_enabled', 0)) == 1)
+        webpush_provider.enabled = settings.get('webpush_enabled', False)
         webpush_provider.type_id = manager.types.get(name='webpush').id
         webpush_provider.admin_email = admin_email
         webpush_provider.vapid_private = self.settings().get('vapid_private', '')
@@ -161,7 +161,7 @@ class Provider:
 
         # Load Slack Webhook Provider.
         slack_provider = SlackWebhookNotificationProvider()
-        slack_provider.enabled = (int(settings.get('slack_enabled', 0)) == 1)
+        slack_provider.enabled = settings.get('slack_enabled', False)
         slack_provider.type_id = manager.types.get(name='slack').id
 
         manager.providers.add('email', email_provider)
