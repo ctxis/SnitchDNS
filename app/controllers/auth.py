@@ -65,7 +65,7 @@ def login_process():
         return redirect(url_for('auth.login', next=next))
 
     # Now it's time to validate the OTP.
-    if users.has_2fa(user.id):
+    if user.has_2fa():
         if not users.otp_verify_user(user, otp):
             flash('Invalid credentials', 'error')
             return redirect(url_for('auth.login', next=next))

@@ -20,6 +20,9 @@ class UserModel(db.Model, UserMixin):
     def get_id(self):
         return str(self.session_token)
 
+    def has_2fa(self):
+        return False if self.otp_secret is None else len(self.otp_secret) > 0
+
 
 @login.user_loader
 def load_user(session_token):

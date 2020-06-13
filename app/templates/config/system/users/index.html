@@ -25,6 +25,7 @@
                 <th class="text-center">Admin</th>
                 <th class="text-center">LDAP</th>
                 <th class="text-center">Active</th>
+                <th class="text-center">2FA</th>
                 <th></th>
             </tr>
             </thead>
@@ -48,6 +49,11 @@
                 <td class="text-center">
                     {% set class = 'success' if user.active else 'danger' %}
                     {% set icon = 'check' if user.active else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if user.has_2fa() else 'danger' %}
+                    {% set icon = 'check' if user.has_2fa() else 'times' %}
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-right">

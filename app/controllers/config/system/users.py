@@ -99,5 +99,11 @@ def user_edit_save(user_id):
             flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
             return redirect(url_for('config.users'))
 
+    # This is the last one, and has to do with 2fa.
+    # If the user does not have 2fa then the '2fa' field will not be sent at all.
+    # If the user HAS 2fa, if the '2fa' field is sent then it wasn't disabled, but if it's missing disable it.
+    if user.has_2fa() and '2fa' not in request.form:
+        users.twofa_disable(user.id)
+
     flash('User saved', 'success')
     return redirect(url_for('config.users'))

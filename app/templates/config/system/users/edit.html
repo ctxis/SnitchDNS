@@ -93,6 +93,20 @@
                 </div>
             </div>
 
+            {% if user.has_2fa() %}
+            <div class="form-group row">
+                <div class="col">
+                    <label for="2fa">Two Factor Authentication</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="2fa" type="checkbox" class="custom-control-input" id="2fa" value="1" checked>
+                        <label class="custom-control-label" for="2fa"></label>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="form-group">
                 <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>
