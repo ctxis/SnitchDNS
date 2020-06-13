@@ -51,10 +51,10 @@ class SearchManager:
             query = query.filter(DNSQueryLogModel.type == search_params.type)
 
         if search_params.matched in [0, 1]:
-            query = query.filter(DNSQueryLogModel.found == search_params.matched)
+            query = query.filter(DNSQueryLogModel.found == bool(search_params.matched))
 
         if search_params.forwarded in [0, 1]:
-            query = query.filter(DNSQueryLogModel.forwarded == search_params.forwarded)
+            query = query.filter(DNSQueryLogModel.forwarded == bool(search_params.forwarded))
 
         date_from = search_params.full_date_from
         date_to = search_params.full_date_to
