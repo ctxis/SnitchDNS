@@ -13,6 +13,8 @@ class UserModel(db.Model, UserMixin):
     admin = db.Column(db.Boolean, default=False, index=True)
     active = db.Column(db.Boolean, default=True, index=True)
     ldap = db.Column(db.Boolean, default=True, index=True)
+    otp_secret = db.Column(db.String(255), nullable=True, default='')
+    otp_last_used = db.Column(db.String(255), nullable=True, default='')
     created_at = db.Column(db.DateTime, nullable=True)
 
     def get_id(self):

@@ -1,0 +1,77 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3">
+        {% set active_nav = 'profile_2fa' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-6">
+        <h4>Two Factor Authentication</h4>
+
+        {% if twofa_enabled %}
+        <p>Two Factor Authentication is already enabled.</p>
+        <p>To disable it, type &quot;disable&quot; in the following input box and submit the form.</p>
+        <form action="{{ url_for('config.profile_2fa_save') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <input type="text" name="action" id="action" value="" class="form-control" placeholder="Type 'disable'" required autofocus>
+                </div>
+                <div class="col-3">
+                    <button type="submit" class="btn btn-block btn-primary" id="disable-button">disable</button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <p>To enable Two Factor Authentication scan the code and enter the generated OTP code below</p>
+
+        <div id="qr" class="text-center"></div>
+
+        <div class="text-center mb-3">
+            <span class="mr-1">{{ otp_secret[0:4] }}</span><span class="mr-1">{{ otp_secret[4:8] }}</span><span class="mr-1">{{ otp_secret[8:12] }}</span><span>{{ otp_secret[12:16] }}</span>
+        </div>
+
+        <form action="{{ url_for('config.profile_2fa_save') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <input type="text" name="otp" value="" class="form-control" placeholder="6-digit OTP" required autofocus>
+                </div>
+                <div class="col-3">
+                    <button type="submit" class="btn btn-block btn-primary">enable</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+    <div class="col"></div>
+</div>
+
+{% if twofa_enabled %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#disable-button').prop('disabled', true);
+        $('#action').keyup(function() {
+            $('#disable-button').prop(
+                'disabled',
+                $(this).val().toLowerCase() != 'disable'
+            );
+        });
+    });
+</script>
+{% else %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/lib/jquery-qrcode.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#qr').qrcode({
+            text: '{{ otp_uri }}'
+        });
+    });
+</script>
+{% endif %}
+
+{% endblock %}

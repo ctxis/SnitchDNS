@@ -1,5 +1,5 @@
 from .. import bp
-from flask import request, render_template, flash, redirect, url_for
+from flask import request, render_template, flash, redirect, url_for, session
 from flask_login import current_user, login_required
 from app.lib.base.provider import Provider
 import re
@@ -13,7 +13,7 @@ def profile():
     ldap = provider.ldap()
 
     return render_template(
-        'config/account/profile.html',
+        'config/account/profile/general.html',
         user=users.get_user(current_user.id),
         has_email_mapping=(len(ldap.mapping_email) > 0),
         password_complexity=users.password_complexity.get_requirement_description()
@@ -83,3 +83,68 @@ def profile_save():
 
     flash('Profile updated', 'success')
     return redirect(url_for('config.profile'))
+
+
+@bp.route('/profile/2fa', methods=['GET'])
+@login_required
+def profile_2fa():
+    provider = Provider()
+    users = provider.users()
+
+    twofa_enabled = False if current_user.otp_secret is None else len(current_user.otp_secret) > 0
+    otp = users.otp_new(current_user)
+
+    # Save the secret into the session to prevent users from setting their own during the request.
+    session['otp'] = otp['secret']
+
+    return render_template(
+        'config/account/profile/2fa.html',
+        twofa_enabled=twofa_enabled,
+        otp_secret=otp['secret'],
+        otp_uri=otp['uri']
+    )
+
+
+@bp.route('/profile/2fa/save', methods=['POST'])
+@login_required
+def profile_2fa_save():
+    provider = Provider()
+    users = provider.users()
+
+    if users.has_2fa(current_user.id):
+        # This will be treated as a "disable 2fa" request.
+        action = request.form['action'] if 'action' in request.form else ''
+        if action == 'disable':
+            users.twofa_disable(current_user.id)
+
+            users.logout_session(current_user.id)
+            flash('Two Factor Authentication has been disabled. Please login again.')
+            return redirect(url_for('auth.login'))
+    else:
+        # This will be treated as an "enable 2fa" request.
+        otp_code = request.form['otp'].strip()
+        otp_secret = ''
+        if 'otp' in session:
+            otp_secret = session['otp']
+            del session['otp']
+
+        if len(otp_secret) == 0:
+            flash('Could not load OTP secret from session.', 'error')
+            return redirect(url_for('config.profile_2fa'))
+        elif len(otp_code) == 0:
+            flash('OTP code is missing', 'error')
+            return redirect(url_for('config.profile_2fa'))
+
+        if not users.otp_verify(otp_secret, otp_code):
+            flash('Invalid OTP Code', 'error')
+            return redirect(url_for('config.profile_2fa'))
+
+        if not users.twofa_enable(current_user.id, otp_secret):
+            flash('Could not enable 2FA', 'error')
+            return redirect(url_for('config.profile_2fa'))
+
+        users.logout_session(current_user.id)
+        flash('Two Factor Authentication has been enabled. Please login again.')
+        return redirect(url_for('auth.login'))
+
+    return redirect(url_for('config.profile_2fa'))

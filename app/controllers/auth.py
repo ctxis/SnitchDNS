@@ -24,6 +24,7 @@ def login_process():
 
     username = request.form['username'].strip()
     password = request.form['password'].strip()
+    otp = request.form['otp'].strip()
 
     next = urllib.parse.unquote_plus(request.form['next'].strip())
     provider = Provider()
@@ -62,6 +63,12 @@ def login_process():
     else:
         flash('Invalid credentials', 'error')
         return redirect(url_for('auth.login', next=next))
+
+    # Now it's time to validate the OTP.
+    if users.has_2fa(user.id):
+        if not users.otp_verify_user(user, otp):
+            flash('Invalid credentials', 'error')
+            return redirect(url_for('auth.login', next=next))
 
     if not user.active:
         # This check has to be after the password validation.

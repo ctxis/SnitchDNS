@@ -8,6 +8,7 @@ import datetime
 import os
 from sqlalchemy import and_, func
 from flask_login import logout_user
+import pyotp
 
 
 class UserManager:
@@ -214,3 +215,60 @@ class UserManager:
 
     def get_admins(self, active=None):
         return self.__get(admin=True, active=active)
+
+    def otp_new(self, user):
+        otp_secret = pyotp.random_base32(16)
+        otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(user.username, issuer_name='SnitchDNS')
+        return {
+            'secret': otp_secret,
+            'uri': otp_uri
+        }
+
+    def otp_verify(self, otp_secret, code):
+        return pyotp.totp.TOTP(otp_secret).verify(code)
+
+    def twofa_enable(self, user_id, otp_secret):
+        user = self.get_user(user_id)
+        if not user:
+            return False
+
+        user.otp_secret = otp_secret
+        user.otp_last_used = ''
+        db.session.commit()
+        db.session.refresh(user)
+
+        return True
+
+    def twofa_disable(self, user_id):
+        user = self.get_user(user_id)
+        if not user:
+            return False
+
+        user.otp_secret = ''
+        user.otp_last_used = ''
+
+        db.session.commit()
+        db.session.refresh(user)
+
+        return True
+
+    def has_2fa(self, user_id):
+        user = self.get_user(user_id)
+        if not user:
+            return False
+        return False if user.otp_secret is None else len(user.otp_secret) > 0
+
+    def otp_verify_user(self, user, code):
+        if user.otp_last_used == code:
+            # Someone is trying to re-use the previous code.
+            return False
+        elif not self.otp_verify(user.otp_secret, code):
+            return False
+
+        # Save last valid otp.
+        user.otp_last_used = code
+
+        db.session.commit()
+        db.session.refresh(user)
+
+        return True

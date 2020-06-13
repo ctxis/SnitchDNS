@@ -20,5 +20,6 @@
 <h4>Account</h4>
 <nav class="nav nav-pills flex-column">
     <a class="nav-link {{ 'active' if active_nav == 'profile' }}" href="{{ url_for('config.profile') }}"><i class="fas fa-id-card fa-fw"></i> <span class="pl-2">Profile</span></a>
+    <a class="nav-link {{ 'active' if active_nav == 'profile_2fa' }}" href="{{ url_for('config.profile_2fa') }}"><i class="fas fa-user-lock fa-fw"></i> <span class="pl-2">2FA</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'api' }}" href="{{ url_for('config.api') }}"><i class="fas fa-key fa-fw"></i> <span class="pl-2">API Keys</span></a>
 </nav>
