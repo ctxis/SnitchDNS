@@ -40,13 +40,13 @@ class SettingsManager:
                 return (value.lower() == 'true') or (value.lower() == 'yes')
             else:
                 # I've no idea what to do, probably it's the wrong type.
-                pass
+                raise Exception("Config value type error. Value {0} is not a valid bool.".format(value))
         elif (type is int) or (isinstance(type, int) and type == 'int'):
             if value.isdigit():
                 return int(value)
             else:
                 # Probably an invalid value, return as is.
-                pass
+                raise Exception("Config value type error. Value {0} is not a valid int.".format(value))
 
         return value
 

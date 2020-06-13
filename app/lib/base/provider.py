@@ -60,18 +60,18 @@ class Provider:
     def password_complexity(self):
         settings = self.settings()
         return PasswordComplexityManager(
-            settings.get('pwd_min_length', 12),
-            settings.get('pwd_min_lower', 2),
-            settings.get('pwd_min_upper', 2),
-            settings.get('pwd_min_digits', 2),
-            settings.get('pwd_min_special', 2)
+            settings.get('pwd_min_length', 12, type=int),
+            settings.get('pwd_min_lower', 2, type=int),
+            settings.get('pwd_min_upper', 2, type=int),
+            settings.get('pwd_min_digits', 2, type=int),
+            settings.get('pwd_min_special', 2, type=int)
         )
 
     def emails(self):
         settings = self.settings()
         return EmailManager(
             settings.get('smtp_host', 'localhost'),
-            int(settings.get('smtp_port', 25)),
+            settings.get('smtp_port', 25, type=int),
             settings.get('smtp_user', ''),
             settings.get('smtp_pass', ''),
             settings.get('smtp_sender', ''),
@@ -96,7 +96,7 @@ class Provider:
         settings = self.settings()
         return DaemonManager(
             settings.get('dns_daemon_bind_ip', ''),
-            settings.get('dns_daemon_bind_port', 0),
+            settings.get('dns_daemon_bind_port', 0, type=int),
             self.system(),
             self.shell()
         )
@@ -105,8 +105,8 @@ class Provider:
         settings = self.settings()
         manager = LDAPManager()
 
-        manager.enabled = settings.get('ldap_enabled', False)
-        manager.ssl = settings.get('ldap_ssl', False)
+        manager.enabled = settings.get('ldap_enabled', False, type=bool)
+        manager.ssl = settings.get('ldap_ssl', False, type=bool)
         manager.host = settings.get('ldap_host', '')
         manager.base_dn = settings.get('ldap_base_dn', '')
         manager.domain = settings.get('ldap_domain', '')
@@ -142,7 +142,7 @@ class Provider:
 
         # Load E-mail Provider.
         email_provider = EmailNotificationProvider(self.emails())
-        email_provider.enabled = settings.get('smtp_enabled', False)
+        email_provider.enabled = settings.get('smtp_enabled', False, type=bool)
         email_provider.type_id = manager.types.get(name='email').id
 
         # Load Web Push Provider.
@@ -153,7 +153,7 @@ class Provider:
         admin_email = admins[0].email if len(admins) > 0 else 'error@example.com'
 
         webpush_provider = WebPushNotificationProvider()
-        webpush_provider.enabled = settings.get('webpush_enabled', False)
+        webpush_provider.enabled = settings.get('webpush_enabled', False, type=bool)
         webpush_provider.type_id = manager.types.get(name='webpush').id
         webpush_provider.admin_email = admin_email
         webpush_provider.vapid_private = self.settings().get('vapid_private', '')
@@ -161,7 +161,7 @@ class Provider:
 
         # Load Slack Webhook Provider.
         slack_provider = SlackWebhookNotificationProvider()
-        slack_provider.enabled = settings.get('slack_enabled', False)
+        slack_provider.enabled = settings.get('slack_enabled', False, type=bool)
         slack_provider.type_id = manager.types.get(name='slack').id
 
         manager.providers.add('email', email_provider)
