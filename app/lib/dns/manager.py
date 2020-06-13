@@ -10,11 +10,11 @@ class DNSManager:
 
     @property
     def forwarders(self):
-        return self.settings.get_list('forward_dns_address')
+        return self.settings.get('forward_dns_address', [], type=list)
 
     @property
     def is_forwarding_enabled(self):
-        return True if int(self.settings.get('forward_dns_enabled', 0)) == 1 else False
+        return self.settings.get('forward_dns_enabled', False, type=bool)
 
     def is_valid_ip_address(self, ip):
         try:

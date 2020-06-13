@@ -10,7 +10,7 @@ from app.lib.base.provider import Provider
 def main(bind_ip, bind_port):
     settings = Provider().settings()
     forward_dns_enabled = settings.get('forward_dns_enabled', False)
-    forward_dns_address = settings.get_list('forward_dns_address')
+    forward_dns_address = settings.get('forward_dns_address', [], type=list)
 
     from app.lib.daemon.cli import DNSDaemonCLI
     cli = DNSDaemonCLI()

@@ -75,7 +75,7 @@ class Provider:
             settings.get('smtp_user', ''),
             settings.get('smtp_pass', ''),
             settings.get('smtp_sender', ''),
-            True if int(settings.get('smtp_tls', '0')) == 1 else False
+            settings.get('smtp_tls', False, type=bool)
         )
 
     def shell(self):

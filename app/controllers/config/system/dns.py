@@ -61,7 +61,7 @@ def dns_save():
     settings.save('dns_daemon_start_everyone', dns_daemon_start_everyone)
 
     # Save Forwarding
-    settings.save_list('forward_dns_address', forwarders)
+    settings.save('forward_dns_address', forwarders)
     settings.save('forward_dns_enabled', forward_dns_enabled)
 
     flash('Settings saved - Please restart the DNS Daemon.', 'success')
