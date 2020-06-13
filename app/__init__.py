@@ -30,7 +30,7 @@ def create_app(config_class=None):
     except OSError:
         pass
 
-    dbms = provider.env('SNITCHDNS_DBMS', must_exist=True).lower()
+    dbms = provider.env('SNITCHDNS_DBMS', default='sqlite').lower()
     dbms_uri = ''
 
     # First we load everything we need in order to end up with a working app.
