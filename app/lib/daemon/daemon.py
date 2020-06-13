@@ -12,7 +12,7 @@ class SnitchDaemon:
     def __init__(self, host, port, forwarding_enabled, forwarders):
         self.__host = host
         self.__port = port
-        self.__forwarding_enabled = True if forwarding_enabled > 0 else False
+        self.__forwarding_enabled = forwarding_enabled
         self.__forwarders = forwarders
 
     def start(self):
