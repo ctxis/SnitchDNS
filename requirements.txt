@@ -13,3 +13,4 @@ ldap3
 Flask-Crontab
 pywebpush
 psycopg2
+PyMySQL

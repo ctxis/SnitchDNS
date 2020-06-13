@@ -39,7 +39,7 @@ class DNSQueryLogModel(db.Model):
     domain = db.Column(db.String(255), nullable=True, default='', index=True)
     cls = db.Column(db.String(32), nullable=True, default='')
     type = db.Column(db.String(32), nullable=True, default='')
-    data = db.Column(db.String(128), nullable=True, default='', index=True)
+    data = db.Column(db.String(255), nullable=True, default='', index=True)
     found = db.Column(db.Boolean, default=False, index=True)
     forwarded = db.Column(db.Boolean, default=False, index=True)
     completed = db.Column(db.Boolean, default=False, index=True)

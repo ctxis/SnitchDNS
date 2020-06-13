@@ -44,7 +44,12 @@ def create_app(config_class=None):
             db=provider.env('SNITCHDNS_POSTGRES_DB', must_exist=True)
         )
     elif dbms == 'mysql':
-        pass
+        dbms_uri = 'mysql+pymysql://{user}:{pw}@{url}/{db}'.format(
+            user=provider.env('SNITCHDNS_MYSQL_USER', must_exist=True),
+            pw=provider.env('SNITCHDNS_MYSQL_PW', must_exist=True),
+            url=provider.env('SNITCHDNS_MYSQL_URL', must_exist=True),
+            db=provider.env('SNITCHDNS_MYSQL_DB', must_exist=True)
+        )
     else:
         raise Exception("Unknown DBMS: {0}".format(dbms))
 
