@@ -4,7 +4,7 @@
     <a class="nav-link ml-n4"><i class="fas fa-chevron-circle-right fa-fw"></i> General</a>
     <a class="nav-link {{ 'active' if active_nav == 'system' }}" href="{{ url_for('config.system') }}"><i class="fas fa-stethoscope fa-fw"></i> <span class="pl-2">System</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'dns' }}" href="{{ url_for('config.dns') }}"><i class="fas fa-satellite fa-fw"></i> <span class="pl-2">DNS</span></a>
-    <a class="nav-link {{ 'active' if active_nav == 'error_logs' }}" href="{{ url_for('config.logs_errors') }}"><i class="fas fa-satellite fa-fw"></i> <span class="pl-2">Error Logs</span></a>
+    <a class="nav-link {{ 'active' if active_nav == 'error_logs' }}" href="{{ url_for('config.logs_errors') }}"><i class="fas fa-exclamation-triangle fa-fw"></i> <span class="pl-2">Error Logs</span></a>
     <a class="nav-link ml-n4"><i class="fas fa-chevron-circle-right fa-fw"></i> Notifications</a>
     <a class="nav-link {{ 'active' if active_nav == 'smtp' }}" href="{{ url_for('config.smtp') }}"><i class="fas fa-at fa-fw"></i> <span class="pl-2">E-mail</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'webpush' }}" href="{{ url_for('config.webpush') }}"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Web Push</span></a>
