@@ -60,7 +60,6 @@ class DatabaseDNSResolver:
         while len(parts) > 0:
             # Join all the current items to re-create the domain.
             path = ".".join(parts)
-            print(path)
             db_zone = self.__dns_manager.find_zone(path, domain)
             if db_zone:
                 # Save log item.
