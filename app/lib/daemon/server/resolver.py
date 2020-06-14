@@ -60,6 +60,7 @@ class DatabaseDNSResolver:
         while len(parts) > 0:
             # Join all the current items to re-create the domain.
             path = ".".join(parts)
+            print(path)
             db_zone = self.__dns_manager.find_zone(path, domain)
             if db_zone:
                 # Save log item.
@@ -93,6 +94,9 @@ class DatabaseDNSResolver:
                             log.save()
 
                         answers.append(answer)
+
+                # If the zone was matched but it has no records, there's no reason to keep going.
+                break
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
