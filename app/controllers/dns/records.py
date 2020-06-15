@@ -36,12 +36,14 @@ def record_edit(dns_zone_id, dns_record_id):
     dns_classes = records.get_classes()
 
     return render_template(
-        'dns/records/edit.html',
+        'dns/zones/view.html',
         dns_record_id=dns_record_id,
         dns_types=dns_types,
         dns_classes=dns_classes,
         zone=zone,
-        record=record
+        record=record,
+        section='records_edit',
+        tab='records'
     )
 
 

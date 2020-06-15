@@ -46,6 +46,8 @@
 
         {% if section == 'records' %}
             {% include 'dns/records/view.html' %}
+        {% elif section == 'records_edit' %}
+            {% include 'dns/records/edit.html' %}
         {% elif section == 'notifications' %}
             {% include 'dns/notifications/view.html' %}
         {% elif section == 'email_settings' %}
