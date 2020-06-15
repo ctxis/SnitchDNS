@@ -222,10 +222,11 @@ class DatabaseDNSResolver:
         else:
             pass
 
-        return dns.RRHeader(
-            name=query.name.name,
-            type=query.type,
-            cls=query.cls,
-            ttl=db_record.ttl,
-            payload=record
-        ) if record else None
+        if not record:
+            return None
+
+        answer = dns.RRHeader(name=query.name.name, type=query.type, cls=query.cls, ttl=db_record.ttl, payload=record)
+        # Custom property for checking against IP restrictions.
+        answer.zone_id = db_zone.id
+
+        return answer

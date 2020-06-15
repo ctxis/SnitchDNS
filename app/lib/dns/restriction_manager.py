@@ -36,10 +36,10 @@ class RestrictionManager:
     def __load(self, item):
         return DNSZoneRestriction(item)
 
-    def get_zone_restrictions(self, zone_id):
+    def get_zone_restrictions(self, zone_id, enabled=None):
         zone_restrictions = RestrictionCollection()
 
-        restrictions = self.__get(zone_id=zone_id, order_by='type', sort_order='asc')
+        restrictions = self.__get(zone_id=zone_id, enabled=enabled, order_by='type', sort_order='asc')
         for restriction in restrictions:
             zone_restrictions.add(self.__load(restriction))
 
@@ -81,3 +81,47 @@ class RestrictionManager:
             return False
 
         return True
+
+    def allow(self, zone_id, ip):
+        # If there are no rules, allow.
+        restrictions = self.get_zone_restrictions(zone_id, enabled=True)
+        if restrictions.count() == 0:
+            return True
+
+        # This means that we have rules to process - default is 'block'.
+        allow = False
+
+        allow_rules = restrictions.gather(1)
+        block_rules = restrictions.gather(2)
+
+        if len(allow_rules) > 0:
+            for rule in allow_rules:
+                if self.ip_in_range(ip, rule.ip_range):
+                    allow = True
+                    break
+
+            # As 'allow' rules exist, at this point the IP wasn't found in the allowed list, therefore it's already
+            # blocked. This means that we don't even have to look in the blocked rules.
+            if not allow:
+                return False
+        else:
+            # If there are no 'allow' rules, it means that everything is allowed _except_ the blocked list.
+            allow = True
+
+        # If we reached this point, the 'allow' variable is set to True.
+        if len(block_rules) > 0:
+            for rule in block_rules:
+                if self.ip_in_range(ip, rule.ip_range):
+                    allow = False
+                    break
+        else:
+            allow = True
+
+        return allow
+
+    def ip_in_range(self, ip, ip_range):
+        if '/' in ip_range:
+            return ipaddress.ip_address(ip) in ipaddress.ip_network(ip_range)
+        else:
+            return str(ip) == str(ip_range)
+

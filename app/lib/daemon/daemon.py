@@ -28,6 +28,7 @@ class SnitchDaemon:
         factory = DatabaseDNSFactory(clients=clients, verbose=2)
         factory.app = app_for_context
         factory.logging = dns_logging
+        factory.restrictions = Provider().dns_restrictions()
 
         observer = log.PythonLoggingObserver()
         observer.start()

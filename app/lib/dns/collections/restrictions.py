@@ -16,3 +16,11 @@ class RestrictionCollection:
             if restriction.id == id:
                 return restriction
         return None
+
+    def gather(self, type):
+        data = []
+        for restriction in self.__restrictions:
+            if restriction.type == type:
+                data.append(restriction)
+
+        return data
