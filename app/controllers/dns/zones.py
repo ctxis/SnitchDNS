@@ -23,7 +23,7 @@ def index(type=''):
             return redirect(url_for('dns.index'))
 
     return render_template(
-        'dns/index.html',
+        'dns/zones/index.html',
         zones=zones.get_user_zones(user_id, order_by='user_id'),
         type=type
     )
@@ -47,7 +47,7 @@ def zone_view(dns_zone_id):
         return redirect(url_for('home.index'))
 
     return render_template(
-        'dns/zone/view.html',
+        'dns/zones/view.html',
         zone=zone,
         records=records.get_zone_records(dns_zone_id, order_column='type'),
         section='records',
@@ -77,7 +77,7 @@ def zone_edit(dns_zone_id):
     username = current_user.username if zone is None else zone.username
 
     return render_template(
-        'dns/zone/edit.html',
+        'dns/zones/edit.html',
         dns_zone_id=dns_zone_id,
         user_domain=zones.get_user_base_domain(username),
         zone=zone

@@ -42,13 +42,13 @@
         </ul>
 
         {% if section == 'records' %}
-            {% include 'dns/zone/records.html' %}
+            {% include 'dns/records/view.html' %}
         {% elif section == 'notifications' %}
-            {% include 'dns/zone/notifications.html' %}
+            {% include 'dns/notifications/view.html' %}
         {% elif section == 'email_settings' %}
-            {% include 'dns/zone/notifications/email.html' %}
+            {% include 'dns/notifications/settings/email.html' %}
         {% elif section == 'slack_settings' %}
-            {% include 'dns/zone/notifications/slack.html' %}
+            {% include 'dns/notifications/settings/slack.html' %}
         {% endif %}
     </div>
     <div class="col"></div>

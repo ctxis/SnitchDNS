@@ -24,7 +24,7 @@ def zone_notifications(dns_zone_id):
         return redirect(url_for('home.index'))
 
     return render_template(
-        'dns/zone/view.html',
+        'dns/zones/view.html',
         zone=zone,
         section='notifications',
         tab='notifications',
@@ -89,7 +89,7 @@ def zone_notifications_settings(dns_zone_id, item):
         return redirect(url_for('dns.index'))
 
     return render_template(
-        'dns/zone/view.html',
+        'dns/zones/view.html',
         zone=zone,
         tab='notifications',
         section='{0}_settings'.format(item),
