@@ -18,6 +18,7 @@ from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
 from app.lib.notifications.providers.slack import SlackWebhookNotificationProvider
 from app.lib.log.manager import LoggingManager
+from app.lib.dns.restriction_manager import RestrictionManager
 from flask import current_app
 import os
 
@@ -43,7 +44,8 @@ class Provider:
             self.dns_records(),
             self.users(),
             self.notifications(),
-            self.dns_logs()
+            self.dns_logs(),
+            self.dns_restrictions()
         )
 
     def dns_records(self):
@@ -53,6 +55,9 @@ class Provider:
 
     def dns_logs(self):
         return DNSLogManager()
+
+    def dns_restrictions(self):
+        return RestrictionManager()
 
     def search(self):
         return SearchManager()

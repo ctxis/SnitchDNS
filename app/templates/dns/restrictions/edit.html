@@ -1,0 +1,46 @@
+<div class="row mt-4">
+    <div class="col">
+        <h5>{{ 'Edit' if restriction_id > 0 else 'Create' }} Restriction Rule</h5>
+
+        <form action="{{ url_for('dns.zone_restrictions_edit_save', dns_zone_id=zone.id, restriction_id=restriction_id) }}" method="post" class="mt-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="ip_range">IP/Range</label>
+                </div>
+                <div class="col">
+                    <input type="text" value="{{ restriction.ip_range if restriction_id > 0 }}" name="ip_range" id="ip_range" class="form-control" required autofocus placeholder="11.12.13.14 or 11.12.13.0/16">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="type">Type</label>
+                </div>
+                <div class="col">
+                    <select class="custom-select" name="type" id="type" required>
+                        <option value="1" {{ 'selected' if restriction_id > 0 and restriction.type == 1 }}>Allow</option>
+                        <option value="2" {{ 'selected' if restriction_id > 0 and restriction.type == 2 }}>Block</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="enabled">Enabled</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="enabled" type="checkbox" class="custom-control-input" id="enabled" value="1" {{ 'checked' if restriction_id == 0 or (restriction_id > 0 and restriction.enabled == True) }}>
+                        <label class="custom-control-label" for="enabled"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">save</button>
+            </div>
+        </form>
+    </div>
+</div>

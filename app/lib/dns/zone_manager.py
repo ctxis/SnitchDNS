@@ -5,12 +5,13 @@ from sqlalchemy import func
 
 
 class DNSZoneManager:
-    def __init__(self, settings, dns_records, users, notifications, dns_logs):
+    def __init__(self, settings, dns_records, users, notifications, dns_logs, dns_restrictions):
         self.settings = settings
         self.dns_records = dns_records
         self.users = users
         self.notifications = notifications
         self.dns_logs = dns_logs
+        self.dns_restrictions = dns_restrictions
 
     def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
               exact_match=None, master=None, order_by='id'):
@@ -73,6 +74,7 @@ class DNSZoneManager:
         zone.username = self.users.get_user(zone.user_id).username
         zone.notifications = self.notifications.get_zone_subscriptions(zone.id)
         zone.match_count = self.dns_logs.count(dns_zone_id=zone.id)
+        zone.restrictions = self.dns_restrictions.get_zone_restrictions(zone.id)
         return zone
 
     def create(self):

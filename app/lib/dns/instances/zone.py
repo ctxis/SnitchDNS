@@ -9,6 +9,7 @@ class DNSZone(BaseInstance):
         self.__match_count = 0
         self.__username = ''
         self.__notifications = None
+        self.__restrictions = None
 
     @property
     def domain(self):
@@ -58,18 +59,6 @@ class DNSZone(BaseInstance):
     def master(self, value):
         self.item.master = value
 
-    def build_zone(self, record, domain=None):
-        domain = self.domain if domain is None else domain
-        zone_items = [
-            str(domain),
-            str(record.ttl),
-            str(record.cls),
-            str(record.type),
-            str(record.data)
-        ]
-
-        return "\t".join(zone_items)
-
     @property
     def full_domain(self):
         return self.item.full_domain
@@ -117,3 +106,11 @@ class DNSZone(BaseInstance):
     @forwarding.setter
     def forwarding(self, value):
         self.item.forwarding = value
+
+    @property
+    def restrictions(self):
+        return self.__restrictions
+
+    @restrictions.setter
+    def restrictions(self, value):
+        self.__restrictions = value

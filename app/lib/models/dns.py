@@ -51,3 +51,16 @@ class DNSQueryLogModel(db.Model):
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)
     updated_at = db.Column(db.DateTime, nullable=True)
+
+
+class DNSZoneRestrictionModel(db.Model):
+    __tablename__ = 'dns_zone_restrictions'
+    id = db.Column(db.Integer, primary_key=True)
+    zone_id = db.Column(db.Integer, nullable=True, default=0, index=True)
+    ip_range = db.Column(db.String(255), nullable=True, default='')
+    type = db.Column(db.Integer, nullable=True, default=0, index=True)
+    enabled = db.Column(db.Boolean, default=False, index=True)
+
+    # Required in all models.
+    created_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)

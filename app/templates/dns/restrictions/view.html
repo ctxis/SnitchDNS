@@ -1,0 +1,44 @@
+<div class="clearfix my-2">
+    <div class="float-right">
+        <a href="{{ url_for('dns.zone_restrictions_edit', dns_zone_id=zone.id, restriction_id=0) }}" class="btn btn-sm btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new rule</span></a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+        {% if zone.restrictions.count() > 0 %}
+        <table class="table table-sm table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>IP/Range</th>
+                <th>Type</th>
+                <th>Enabled</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for restriction in zone.restrictions.all() %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td style="width: 100%;">{{ restriction.ip_range }}</td>
+                <td>{{ 'Allow' if restriction.type == 1 else 'Block' }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if restriction.enabled else 'danger' %}
+                    {% set icon = 'check' if restriction.enabled else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center" style="white-space: nowrap;">
+                    <a href="{{ url_for('dns.zone_restrictions_edit', dns_zone_id=zone.id, restriction_id=restriction.id) }}"><i class="fas fa-edit"></i></a>
+                    <form action="{{ url_for('dns.zone_restrictions_delete', dns_zone_id=zone.id, restriction_id=restriction.id) }}" method="post" class="d-inline ml-1" id="delete-record-form-{{ restriction.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>

@@ -39,6 +39,9 @@
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if tab == 'notifications' }}" href="{{ url_for('dns.zone_notifications', dns_zone_id=zone.id) }}">Notifications</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if tab == 'restrictions' }}" href="{{ url_for('dns.zone_restrictions', dns_zone_id=zone.id) }}">IP Restrictions</a>
+            </li>
         </ul>
 
         {% if section == 'records' %}
@@ -49,6 +52,10 @@
             {% include 'dns/notifications/settings/email.html' %}
         {% elif section == 'slack_settings' %}
             {% include 'dns/notifications/settings/slack.html' %}
+        {% elif section == 'restrictions' %}
+            {% include 'dns/restrictions/view.html' %}
+        {% elif section == 'restrictions_edit' %}
+            {% include 'dns/restrictions/edit.html' %}
         {% endif %}
     </div>
     <div class="col"></div>
