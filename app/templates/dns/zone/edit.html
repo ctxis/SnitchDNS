@@ -53,6 +53,21 @@
                         </div>
                     </div>
 
+                    <div class="form-group row py-0 my-0">
+                        <div class="col">
+                            <label for="forwarding">
+                                Unmatched Record Forwarding
+                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="Example: If Record A is matched but Record AAAA isn't, determine whether to forward the AAAA request to an external DNS Server (if DNS Forwarding is enabled)" data-original-title="Exact Match"><i class="fas fa-question-circle ml-1"></i></a>
+                            </label>
+                        </div>
+                        <div class="col text-right">
+                            <div class="custom-control custom-switch">
+                                <input name="forwarding" type="checkbox" class="custom-control-input" id="forwarding" value="1" {{ 'checked' if (dns_zone_id == 0) or (dns_zone_id > 0 and zone.forwarding) }}>
+                                <label class="custom-control-label" for="forwarding"></label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block">save</button>
                     </div>

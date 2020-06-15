@@ -285,6 +285,7 @@ def __zone_create():
     domain = request.form['domain'].strip().lower()
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
+    forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
 
     if len(domain) == 0:
         flash('Invalid domain', 'error')
@@ -300,7 +301,7 @@ def __zone_create():
         flash('Could not get zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    zone = zones.save(zone, current_user.id, domain, base_domain, active, exact_match, False)
+    zone = zones.save(zone, current_user.id, domain, base_domain, active, exact_match, False, forwarding)
     if not zone:
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
@@ -334,6 +335,7 @@ def __zone_update(dns_zone_id):
 
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
+    forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
 
     if len(domain) == 0:
         flash('Invalid domain', 'error')
@@ -343,7 +345,7 @@ def __zone_update(dns_zone_id):
         flash('This domain already exists.', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    zone = zones.save(zone, zone.user_id, domain, base_domain, active, exact_match, master)
+    zone = zones.save(zone, zone.user_id, domain, base_domain, active, exact_match, master, forwarding)
     if not zone:
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))

@@ -109,3 +109,11 @@ class DNSZone(BaseInstance):
     @match_count.setter
     def match_count(self, value):
         self.__match_count = value
+
+    @property
+    def forwarding(self):
+        return self.item.forwarding
+
+    @forwarding.setter
+    def forwarding(self, value):
+        self.item.forwarding = value

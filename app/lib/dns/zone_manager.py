@@ -80,7 +80,7 @@ class DNSZoneManager:
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, base_domain, active, exact_match, master):
+    def save(self, zone, user_id, domain, base_domain, active, exact_match, master, forwarding):
         zone.user_id = user_id
         zone.domain = self.__fix_domain(domain)
         zone.base_domain = self.__fix_domain(base_domain)
@@ -88,6 +88,7 @@ class DNSZoneManager:
         zone.active = active
         zone.exact_match = exact_match
         zone.master = master
+        zone.forwarding = forwarding
         zone.save()
 
         return zone

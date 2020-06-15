@@ -30,7 +30,7 @@ class ApiZones(ApiBase):
         return self.send_valid_response(self.__load_zone(zone))
 
     def create(self, user_id, username):
-        required_fields = ['domain', 'active', 'exact_match', 'master']
+        required_fields = ['domain', 'active', 'exact_match', 'master', 'forwarding']
         data = self.get_json(required_fields)
         if data is False:
             return self.send_error_response(
@@ -45,6 +45,7 @@ class ApiZones(ApiBase):
         data['active'] = True if data['active'] else False
         data['exact_match'] = True if data['exact_match'] else False
         data['master'] = True if data['master'] else False
+        data['forwarding'] = True if data['forwarding'] else False
 
         provider = Provider()
         zones = provider.dns_zones()
@@ -56,7 +57,7 @@ class ApiZones(ApiBase):
             return self.send_error_response(5003, 'Domain already exists', '')
 
         zone = zones.create()
-        zone = zones.save(zone, user_id, data['domain'], base_domain, data['active'], data['exact_match'], data['master'])
+        zone = zones.save(zone, user_id, data['domain'], base_domain, data['active'], data['exact_match'], data['master'], data['forwarding'])
         if not zone:
             return self.send_error_response(5002, 'Could not create domain.', '')
 
@@ -90,16 +91,21 @@ class ApiZones(ApiBase):
             return self.send_error_response(5003, 'Domain already exists', '')
 
         if 'active' in data:
-            zone.active = True if data['active'] else False
+            data['active'] = True if data['active'] else False
         else:
             data['active'] = zone.active
 
         if 'exact_match' in data:
-            zone.exact_match = True if data['exact_match'] else False
+            data['exact_match'] = True if data['exact_match'] else False
         else:
             data['exact_match'] = zone.exact_match
 
-        zone = zones.save(zone, zone.user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master)
+        if 'forwarding' in data:
+            data['forwarding'] = True if data['forwarding'] else False
+        else:
+            data['forwarding'] = zone.forwarding
+
+        zone = zones.save(zone, zone.user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master, data['forwarding'])
 
         return self.one(zone_id, user_id)
 

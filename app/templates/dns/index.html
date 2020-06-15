@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col"></div>
-    <div class="col-9">
+    <div class="col-10">
         <ul class="nav nav-tabs mb-2">
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if type == '' }}" href="{{ url_for('dns.index') }}">Your Zones</a>
@@ -38,6 +38,7 @@
                 <th class="text-center" style="white-space: nowrap;">Exact Match</th>
                 <th class="text-center">Records</th>
                 <th class="text-center">Matches</th>
+                <th class="text-center">Forwarding</th>
                 <th></th>
             </tr>
             </thead>
@@ -61,6 +62,11 @@
                 </td>
                 <td class="text-center">{{ zone.record_count }}</td>
                 <td class="text-center">{{ zone.match_count }}</td>
+                <td class="text-center">
+                    {% set class = 'success' if zone.forwarding else 'danger' %}
+                    {% set icon = 'check' if zone.forwarding else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
                 <td class="text-right" style="white-space: nowrap;">
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}" title="edit zone"><i class="fas fa-edit"></i></a>
                     <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
