@@ -24,6 +24,12 @@
             {% else %}
             <span class="badge badge-pill badge-warning">notifications disabled</span>
             {% endif %}
+
+            {% if zone.forwarding %}
+            <span class="badge badge-pill badge-success">forwarding enabled</span>
+            {% else %}
+            <span class="badge badge-pill badge-primary">forwarding disabled</span>
+            {% endif %}
         </div>
 
         <ul class="nav nav-tabs mt-4">
