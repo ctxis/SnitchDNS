@@ -28,7 +28,7 @@ class DatabaseDNSResolver:
                 if len(lookup['answers']) > 0:
                     data['found'] = True
                     data['answers'] = lookup['answers']
-            elif lookup['result'] == 'block':
+            elif lookup['result'] == 'stop':
                 # Don't do anything, return an empty response.
                 data['found'] = True
 
@@ -103,9 +103,7 @@ class DatabaseDNSResolver:
                     # This means that the domain was matched but the record wasn't. Determine whether to forward the
                     # record request or not.
                     if not db_zone.forwarding:
-                        lookup_result = 'block'
-                        log.blocked = True
-                        log.save()
+                        lookup_result = 'stop'
 
                 # If the zone was matched but it has no records, there's no reason to keep going.
                 break
