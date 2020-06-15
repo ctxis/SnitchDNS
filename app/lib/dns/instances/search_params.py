@@ -22,6 +22,7 @@ class SearchParams:
         self.__page = None
         self.__per_page = None
         self.__user_id = None
+        self.__blocked = None
 
         self.__load()
 
@@ -32,6 +33,7 @@ class SearchParams:
         self.type = self.__get_param('type', '')
         self.matched = self.__get_param('matched', -1, type='int')
         self.forwarded = self.__get_param('forwarded', -1, type='int')
+        self.blocked = self.__get_param('blocked', -1, type='int')
         self.date_from = self.__get_param('date_from', '')
         self.date_to = self.__get_param('date_to', '')
         self.time_from = self.__get_param('time_from', '')
@@ -77,6 +79,7 @@ class SearchParams:
         params.append('type=' + quote_plus(self.type)) if len(self.type) > 0 else False
         params.append('matched=' + quote_plus(str(self.matched))) if self.matched in [0, 1] else False
         params.append('forwarded=' + quote_plus(str(self.forwarded))) if self.forwarded in [0, 1] else False
+        params.append('blocked=' + quote_plus(str(self.blocked))) if self.blocked in [0, 1] else False
         params.append('user_id=' + quote_plus(str(self.user_id))) if self.user_id >= 0 else False
         params.append('date_from=' + quote_plus(self.date_from)) if len(self.date_from) > 0 else False
         params.append('time_from=' + quote_plus(self.time_from)) if len(self.time_from) > 0 else False
@@ -207,6 +210,14 @@ class SearchParams:
     @user_id.setter
     def user_id(self, value):
         self.__user_id = value
+
+    @property
+    def blocked(self):
+        return self.__blocked
+
+    @blocked.setter
+    def blocked(self, value):
+        self.__blocked = value
 
     def get(self, name):
         return getattr(self, name) if self.__is_property(name) else None

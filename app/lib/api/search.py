@@ -8,7 +8,7 @@ class ApiSearch(ApiBase):
     def search(self, request, user_id):
         data = {}
         filters = ['domain', 'source_ip', 'date_from', 'time_from', 'date_to', 'time_to', 'type', 'matched',
-                   'forwarded', 'page', 'per_page', 'user_id']
+                   'forwarded', 'page', 'per_page', 'user_id', 'blocked']
         for filter in filters:
             if filter in request.args:
                 data[filter] = request.args.get(filter)
@@ -28,6 +28,7 @@ class ApiSearch(ApiBase):
             search_result.type = result.type
             search_result.matched = result.found
             search_result.forwarded = result.forwarded
+            search_result.blocked = result.blocked
             search_result.date = result.created_at.strftime('%Y-%m-%d %H:%M:%S')
 
             search.results.append(search_result)

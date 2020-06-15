@@ -96,7 +96,8 @@ class DNSLogManager:
             'type',
             'date',
             'forwarded',
-            'matched'
+            'matched',
+            'blocked'
         ]
         with open(save_as, 'w') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_ALL)
@@ -111,7 +112,8 @@ class DNSLogManager:
                     row.type,
                     row.created_at,
                     '1' if row.forwarded else '0',
-                    '1' if row.found else '0'
+                    '1' if row.found else '0',
+                    '1' if row.blocked else '0'
                 ]
                 writer.writerow(line)
 

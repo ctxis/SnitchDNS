@@ -56,6 +56,9 @@ class SearchManager:
         if search_params.forwarded in [0, 1]:
             query = query.filter(DNSQueryLogModel.forwarded == bool(search_params.forwarded))
 
+        if search_params.blocked in [0, 1]:
+            query = query.filter(DNSQueryLogModel.blocked == bool(search_params.blocked))
+
         date_from = search_params.full_date_from
         date_to = search_params.full_date_to
         if isinstance(date_from, datetime.datetime):

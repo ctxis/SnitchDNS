@@ -81,3 +81,11 @@ class DNSQueryLog(BaseInstance):
     @dns_record_id.setter
     def dns_record_id(self, value):
         self.item.dns_record_id = value
+
+    @property
+    def blocked(self):
+        return self.item.blocked
+
+    @blocked.setter
+    def blocked(self, value):
+        self.item.blocked = value

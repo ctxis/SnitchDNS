@@ -23,15 +23,20 @@ class DatabaseDNSResolver:
         }
 
         with self.__app.app_context():
-            answers = self.__find(query)
-            if len(answers) > 0:
+            lookup = self.__find(query)
+            if lookup['result'] == 'continue':
+                if len(lookup['answers']) > 0:
+                    data['found'] = True
+                    data['answers'] = lookup['answers']
+            elif lookup['result'] == 'block':
+                # Don't do anything, return an empty response.
                 data['found'] = True
-                data['answers'] = answers
 
         return data
 
     def __find(self, query):
         answers = []
+        lookup_result = ''
 
         domain = str(query.name.name.decode('utf-8'))
         type = str(dns.QUERY_TYPES.get(query.type, None))
@@ -94,13 +99,24 @@ class DatabaseDNSResolver:
 
                         answers.append(answer)
 
+                if len(answers) == 0:
+                    # This means that the domain was matched but the record wasn't. Determine whether to forward the
+                    # record request or not.
+                    if not db_zone.forwarding:
+                        lookup_result = 'block'
+                        log.blocked = True
+                        log.save()
+
                 # If the zone was matched but it has no records, there's no reason to keep going.
                 break
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
 
-        return answers
+        return {
+            'result': lookup_result if len(lookup_result) > 0 else 'continue',
+            'answers': answers
+        }
 
     def __build_answer(self, query, db_zone, db_record):
         record = None

@@ -104,9 +104,19 @@
                         </div>
                     </div>
                     <div class="col">
-                        {% if current_user.admin %}
                         <div class="row">
                             <div class="col pl-0 ml-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Blocked</span></div>
+                                    <select class="custom-select" name="blocked">
+                                        <option value="-1" {{ 'selected' if params.blocked == -1 }}></option>
+                                        <option value="0" {{ 'selected' if params.blocked == 0 }}>No</option>
+                                        <option value="1" {{ 'selected' if params.blocked == 1 }}>Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col pl-0 ml-0">
+                            {% if current_user.admin %}
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
                                     <select class="custom-select" name="user_id">
@@ -117,9 +127,9 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                            {% endif %}
                             </div>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
 

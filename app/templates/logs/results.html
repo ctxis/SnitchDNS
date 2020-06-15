@@ -32,6 +32,7 @@
                 <th class="text-right">Type</th>
                 <th class="text-center">Forwarded</th>
                 <th class="text-center">Matched</th>
+                <th class="text-center">Blocked</th>
                 <th class="text-right">Date</th>
             </tr>
             </thead>
@@ -50,6 +51,11 @@
                 <td class="text-center">
                     {% set class = 'success' if result.found else 'danger' %}
                     {% set icon = 'check' if result.found else 'times' %}
+                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                </td>
+                <td class="text-center">
+                    {% set class = 'success' if result.blocked else 'danger' %}
+                    {% set icon = 'check' if result.blocked else 'times' %}
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-right">{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
