@@ -126,7 +126,10 @@ def create_app(config_class=None):
         def is_daemon_running():
             return Provider().daemon().is_running()
 
-        return dict(setting_get=setting_get, is_daemon_running=is_daemon_running)
+        def zone_exists(id=None, full_domain=None):
+            return Provider().dns_zones().exists(dns_zone_id=id, full_domain=full_domain)
+
+        return dict(setting_get=setting_get, is_daemon_running=is_daemon_running, zone_exists=zone_exists)
 
     @app.errorhandler(404)
     @login_required

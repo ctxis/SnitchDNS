@@ -116,8 +116,8 @@ class DNSZoneManager:
 
         return zones
 
-    def find(self, full_domain):
-        results = self.__get(full_domain=full_domain)
+    def find(self, full_domain, user_id=None):
+        results = self.__get(full_domain=full_domain, user_id=user_id)
         if len(results) == 0:
             return False
 
@@ -132,6 +132,9 @@ class DNSZoneManager:
         # Keep only letters, digits, underscore.
         username = self.__clean_username(username)
         return '.' + username + '.' + dns_base_domain
+
+    def get_base_domain(self, is_admin, username):
+        return '' if is_admin else self.get_user_base_domain(username)
 
     def __clean_username(self, username):
         return re.sub(r'\W+', '', username)
@@ -157,3 +160,35 @@ class DNSZoneManager:
 
     def count(self, user_id=None):
         return len(self.__get(user_id=user_id))
+
+    def exists(self, dns_zone_id=None, full_domain=None):
+        return len(self.__get(id=dns_zone_id, full_domain=full_domain)) > 0
+
+    def new(self, domain, active, exact_match, forwarding, user_id):
+        errors = []
+
+        if len(domain) == 0:
+            errors.append('Invalid domain')
+            return errors
+
+        user = self.users.get_user(user_id)
+        if not user:
+            errors.append('Could not load user')
+            return errors
+
+        base_domain = self.get_base_domain(user.admin, user.username)
+        if self.has_duplicate(0, domain, base_domain):
+            errors.append('This domain already exists.')
+            return errors
+
+        zone = self.create()
+        if not zone:
+            errors.append('Could not get zone')
+            return errors
+
+        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, False, forwarding)
+        if not zone:
+            errors.append('Could not save zone')
+            return errors
+
+        return zone

@@ -121,3 +121,59 @@ def zone_restrictions_delete(dns_zone_id, restriction_id):
 
     flash('Restriction deleted', 'success')
     return redirect(url_for('dns.zone_restrictions', dns_zone_id=zone.id))
+
+
+@bp.route('/block/log/<int:query_log_id>', methods=['POST'])
+@login_required
+@must_have_base_domain
+def zone_restriction_create_from_log(query_log_id):
+    provider = Provider()
+    logging = provider.dns_logs()
+    zones = provider.dns_zones()
+    restrictions = provider.dns_restrictions()
+
+    log = logging.get(query_log_id)
+    if not log:
+        flash('Could not retrieve log record', 'error')
+        return redirect(url_for('home.index'))
+
+    if log.dns_zone_id > 0:
+        # This means that the zone exists.
+        if not zones.can_access(log.dns_zone_id, current_user.id):
+            # This error is misleading on purpose to prevent zone enumeration. Not that it's important by meh.
+            flash('Could not retrieve log record', 'error')
+            return redirect(url_for('home.index'))
+
+        zone = zones.get(log.dns_zone_id)
+        if not zone:
+            flash('Could not load zone', 'error')
+            return redirect(url_for('home.index'))
+    else:
+        # There's a chance that the dns_zone_id equals to zero but the domain exists. This can happen if the zone was
+        # created from the log files, as the IDs aren't updated after a domain is created (after it's been logged).
+        zone = zones.find(log.domain, user_id=current_user.id)
+        if not zone:
+            # If we still can't find it, create it.
+            zone = zones.new(log.domain, True, True, False, current_user.id)
+            if isinstance(zone, list):
+                for error in zone:
+                    flash(error, 'error')
+                return redirect(url_for('home.index'))
+
+    # One last check as it may have been loaded by domain.
+    if not zones.can_access(zone.id, current_user.id):
+        # This error is misleading on purpose to prevent zone enumeration. Not that it's important by meh.
+        flash('Could not retrieve log record', 'error')
+        return redirect(url_for('home.index'))
+
+    # At this point we should have a valid zone object. First check if the restriction exists.
+    restriction = restrictions.find(zone_id=zone.id, ip_range=log.source_ip, type=2)
+    if not restriction:
+        # Doesn't exist - create it.
+        restriction = restrictions.create(zone_id=zone.id)
+
+    # Now update and save.
+    restriction = restrictions.save(restriction, zone.id, log.source_ip, 2, True)
+
+    flash('Restriction rule created', 'success')
+    return redirect(url_for('dns.zone_restrictions', dns_zone_id=zone.id))

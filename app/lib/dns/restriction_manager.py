@@ -6,7 +6,7 @@ from app.lib.dns.collections.restrictions import RestrictionCollection
 
 
 class RestrictionManager:
-    def __get(self, id=None, zone_id=None, type=None, enabled=None, order_by=None, sort_order=None):
+    def __get(self, id=None, zone_id=None, ip_range=None, type=None, enabled=None, order_by=None, sort_order=None):
         query = DNSZoneRestrictionModel.query
 
         if id is not None:
@@ -14,6 +14,9 @@ class RestrictionManager:
 
         if zone_id is not None:
             query = query.filter(DNSZoneRestrictionModel.zone_id == zone_id)
+
+        if ip_range is not None:
+            query = query.filter(DNSZoneRestrictionModel.ip_range == ip_range)
 
         if type is not None:
             query = query.filter(DNSZoneRestrictionModel.type == type)
@@ -127,3 +130,8 @@ class RestrictionManager:
         else:
             return str(ip) == str(ip_range)
 
+    def find(self, zone_id=None, ip_range=None, type=None, enabled=None):
+        results = self.__get(zone_id=zone_id, ip_range=ip_range, type=type, enabled=enabled)
+        if len(results) == 0:
+            return False
+        return self.__load(results[0])
