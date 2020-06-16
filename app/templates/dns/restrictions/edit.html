@@ -11,6 +11,7 @@
                 </div>
                 <div class="col">
                     <input type="text" value="{{ restriction.ip_range if restriction_id > 0 }}" name="ip_range" id="ip_range" class="form-control" required autofocus placeholder="11.12.13.14 or 11.12.13.0/16">
+                    <div class="text-right"><small>To match all addresses use 0.0.0.0</small></div>
                 </div>
             </div>
 

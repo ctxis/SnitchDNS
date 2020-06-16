@@ -120,7 +120,9 @@ class RestrictionManager:
         return allow
 
     def ip_in_range(self, ip, ip_range):
-        if '/' in ip_range:
+        if ip_range == '0.0.0.0':
+            return True
+        elif '/' in ip_range:
             return ipaddress.ip_address(ip) in ipaddress.ip_network(ip_range)
         else:
             return str(ip) == str(ip_range)
