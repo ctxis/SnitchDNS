@@ -54,8 +54,14 @@ class DNSLogManager:
 
         return query.all()
 
-    def find(self, domain, cls, type, completed, source_ip):
-        results = self.__get(domain=domain, cls=cls, type=type, completed=completed, source_ip=source_ip)
+    def get(self, id):
+        results = self.__get(id=id)
+        if len(results) == 0:
+            return None
+        return self.__load(results[0])
+
+    def find(self, domain, cls, type, completed):
+        results = self.__get(domain=domain, cls=cls, type=type, completed=completed)
         return self.__load(results[0]) if results else None
 
     def __prepare_path(self, save_as, overwrite, create_path):

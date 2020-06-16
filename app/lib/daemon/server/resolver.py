@@ -1,5 +1,6 @@
 from twisted.names import dns, error
 from twisted.internet import defer
+from app.lib.dns.records.record_snitch import Record_SNITCH
 
 
 class DatabaseDNSResolver:
@@ -10,13 +11,14 @@ class DatabaseDNSResolver:
 
     def query(self, query, timeout=None):
         data = self.__lookup(query)
-        if data['found']:
+        if data['found'] or data['stop']:
             return defer.succeed((data['answers'], data['authority'], data['additional']))
         return defer.fail(error.DomainError())
 
     def __lookup(self, query):
         data = {
             'found': False,
+            'stop': False,
             'answers': [],
             'authority': [],
             'additional': []
@@ -24,14 +26,21 @@ class DatabaseDNSResolver:
 
         with self.__app.app_context():
             lookup = self.__find(query)
-            if lookup['result'] == 'continue':
-                if len(lookup['answers']) > 0:
-                    data['found'] = True
-                    data['answers'] = lookup['answers']
-            elif lookup['result'] == 'stop':
-                # Don't do anything, return an empty response.
-                data['found'] = True
+            data['answers'] = lookup['answers']
+            data['found'] = (len(data['answers']) > 0)
+            data['stop'] = (lookup['result'] == 'stop')
 
+            log = lookup['log']
+            log.found = data['found']
+
+            log.forwarded = self.__dns_manager.is_forwarding_enabled
+            if data['found'] or data['stop']:
+                log.forwarded = False
+            log.save()
+
+            # At this point, add a dict as an answer that will hold the track of the database record log.
+            # I don't like this and this isn't my proudest moment. But I can't access the Source IP from here.
+            data['answers'].append(Record_SNITCH(name='SNITCH', ttl=log.id))
         return data
 
     def __find(self, query):
@@ -42,11 +51,8 @@ class DatabaseDNSResolver:
         type = str(dns.QUERY_TYPES.get(query.type, None))
         cls = str(dns.QUERY_CLASSES.get(query.cls, None))
 
-        # Try to find the logging record.
-        log = self.__logging.find(None, domain, cls, type, False)
-        if not log:
-            # TODO / Log error, as this record won't be reliable.
-            pass
+        # Create a new logging record.
+        log = self.__logging.create(domain=domain, type=type, cls=cls)
 
         # Split the query into an array.
         # 'something.snitch.contextis.com' will become:
@@ -65,55 +71,48 @@ class DatabaseDNSResolver:
         while len(parts) > 0:
             # Join all the current items to re-create the domain.
             path = ".".join(parts)
-            db_zone = self.__dns_manager.find_zone(path, domain)
-            if db_zone:
-                # Save log item.
-                if log:
-                    log.dns_zone_id = db_zone.id
-                    log.save()
-
-                # Look for more than one records (nameservers, mx records etc may have more than one).
-                db_records = self.__dns_manager.find_all_records(db_zone, cls, type)
-                if len(db_records) > 0:
-                    log_updated = False
-                    for db_record in db_records:
-                        if not db_record.active:
-                            continue
-
-                        # It's a match! Don't let them wait, message first!
-                        answer = self.__build_answer(query, db_zone, db_record)
-                        if not answer:
-                            # Something went terribly wrong. If it dies, it dies.
-                            # This can be caused if the UI allows more record types to be created than the
-                            # __build_answer() method supports. Probably I should add some logging here, but NOT TODAY!
-                            continue
-
-                        if not log_updated:
-                            log_updated = True
-
-                            log.dns_record_id = db_record.id
-                            log.found = True
-                            log.completed = True
-                            log.data = str(answer)
-                            log.save()
-
-                        answers.append(answer)
-
-                if len(answers) == 0:
-                    # This means that the domain was matched but the record wasn't. Determine whether to forward the
-                    # record request or not.
-                    if not db_zone.forwarding:
-                        lookup_result = 'stop'
-
-                # If the zone was matched but it has no records, there's no reason to keep going.
-                break
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
 
+            db_zone = self.__dns_manager.find_zone(path, domain)
+            if not db_zone:
+                # Look for the next domain.
+                continue
+
+            # Log the identified zone id.
+            log.dns_zone_id = db_zone.id
+
+            # Look for more than one records (nameservers, mx records etc may have more than one).
+            db_records = self.__dns_manager.find_all_records(db_zone, cls, type, active=True)
+            if len(db_records) == 0:
+                # No active matching records found.
+                # Determine whether we can forward this record or not.
+                lookup_result = 'continue' if db_zone.forwarding else 'stop'
+                break
+
+            for db_record in db_records:
+                # This will hold the last db_record but we don't really care about that.
+                log.dns_record_id = db_record.id
+
+                answer = self.__build_answer(query, db_zone, db_record)
+                if not answer:
+                    # Something went terribly wrong. If it dies, it dies.
+                    # This can be caused if the UI allows more record types to be created than the
+                    # __build_answer() method supports. Probably I should add some logging here, but NOT TODAY!
+                    continue
+
+                answers.append(answer)
+
+            # If we reached this point it means that we've already matched at least one db_zone, therefore there's not
+            # need to keep looking.
+            break
+
+        log.save()
         return {
             'result': lookup_result if len(lookup_result) > 0 else 'continue',
-            'answers': answers
+            'answers': answers,
+            'log': log
         }
 
     def __build_answer(self, query, db_zone, db_record):
@@ -224,7 +223,4 @@ class DatabaseDNSResolver:
             return None
 
         answer = dns.RRHeader(name=query.name.name, type=query.type, cls=query.cls, ttl=db_record.ttl, payload=record)
-        # Custom property for checking against IP restrictions.
-        answer.zone_id = db_zone.id
-
         return answer

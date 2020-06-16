@@ -99,8 +99,8 @@ class DNSRecordManager:
         record = self.__get(id=dns_record_id, dns_zone_id=dns_zone_id)
         return len(record) > 0
 
-    def find(self, dns_zone_id, cls, type, return_all=True):
-        results = self.__get(dns_zone_id=dns_zone_id, cls=cls, type=type)
+    def find(self, dns_zone_id, cls, type, return_all=True, active=None):
+        results = self.__get(dns_zone_id=dns_zone_id, cls=cls, type=type, active=active)
         if len(results) == 0:
             return False
 
