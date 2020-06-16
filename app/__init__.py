@@ -38,17 +38,17 @@ def create_app(config_class=None):
         dbms_uri = 'sqlite:///' + os.path.join(app.instance_path, 'snitchdns.sqlite3')
     elif dbms == 'postgres':
         dbms_uri = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(
-            user=provider.env('SNITCHDNS_POSTGRES_USER', must_exist=True),
-            pw=provider.env('SNITCHDNS_POSTGRES_PW', must_exist=True),
-            url=provider.env('SNITCHDNS_POSTGRES_URL', must_exist=True),
-            db=provider.env('SNITCHDNS_POSTGRES_DB', must_exist=True)
+            user=provider.env('SNITCHDNS_DB_USER', must_exist=True),
+            pw=provider.env('SNITCHDNS_DB_PW', must_exist=True),
+            url=provider.env('SNITCHDNS_DB_URL', must_exist=True),
+            db=provider.env('SNITCHDNS_DB_DB', must_exist=True)
         )
     elif dbms == 'mysql':
         dbms_uri = 'mysql+pymysql://{user}:{pw}@{url}/{db}'.format(
-            user=provider.env('SNITCHDNS_MYSQL_USER', must_exist=True),
-            pw=provider.env('SNITCHDNS_MYSQL_PW', must_exist=True),
-            url=provider.env('SNITCHDNS_MYSQL_URL', must_exist=True),
-            db=provider.env('SNITCHDNS_MYSQL_DB', must_exist=True)
+            user=provider.env('SNITCHDNS_DB_USER', must_exist=True),
+            pw=provider.env('SNITCHDNS_DB_PW', must_exist=True),
+            url=provider.env('SNITCHDNS_DB_URL', must_exist=True),
+            db=provider.env('SNITCHDNS_DB_DB', must_exist=True)
         )
     else:
         raise Exception("Unknown DBMS: {0}".format(dbms))
