@@ -24,3 +24,11 @@ class RestrictionCollection:
                 data.append(restriction)
 
         return data
+
+    def get_enabled(self):
+        restrictions = []
+        for restriction in self.__restrictions:
+            if restriction.enabled:
+                restrictions.append(restriction)
+
+        return restrictions
