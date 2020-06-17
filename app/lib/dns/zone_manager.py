@@ -64,6 +64,10 @@ class DNSZoneManager:
         for record in records:
             record.delete()
 
+        restrictions = self.dns_restrictions.get_zone_restrictions(zone.id).all()
+        for restriction in restrictions:
+            restriction.delete()
+
         zone.delete()
 
         return True
