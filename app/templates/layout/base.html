@@ -10,7 +10,7 @@
     <div class="text-center">
         <div class="alert alert-danger">
             DNS Daemon Not Running
-            {% if setting_get('dns_daemon_start_everyone', False) %}
+            {% if setting_get('dns_daemon_start_everyone', False) == True %}
             -
             <form action="{{ url_for('config.system_daemon') }}" method="post" class="d-inline">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -36,7 +36,7 @@
 
 {% include 'layout/footer.html' %}
 
-{% if current_user.is_authenticated and setting_get('webpush_enabled', False) %}
+{% if current_user.is_authenticated and setting_get('webpush_enabled', False) == True %}
 {% include 'layout/webpush.html' %}
 {% endif %}
 
