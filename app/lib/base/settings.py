@@ -32,6 +32,8 @@ class SettingsManager:
         elif isinstance(type, str) and value.lower() in ['true', 'false']:
             # This is a generic fix for boolean values across DBMSs.
             return value.lower() == 'true'
+        elif str(value) in ['true', 'false']:
+            return str(value).lower() == 'true'
         elif (type is bool) or (isinstance(type, str) and type == 'bool'):
             # If it's all digits, convert to int and cast to bool.
             if value.isdigit():
