@@ -109,7 +109,7 @@ class UserManager:
             return user
         return True if user else False
 
-    def save(self, user_id, username, password, full_name, email, admin, ldap, active, check_complexity=True):
+    def save(self, user_id, username, password, full_name, email, admin, ldap, active, check_complexity=True, hash_password=True):
         if user_id > 0:
             # Editing an existing user.
             user = self.get_user(user_id)
@@ -145,7 +145,9 @@ class UserManager:
                     return False
 
                 # If the password is empty, it means it wasn't changed.
-                password = self.__hash_password(password)
+                # Via the CLI a user can pass the hash directly, that's why this variable exists.
+                if hash_password:
+                    password = self.__hash_password(password)
 
         if (user_id == 0) or (ldap is False):
             user.username = username

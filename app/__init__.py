@@ -146,7 +146,7 @@ def create_app(config_class=None):
         return render_template('errors/500.html', error=error, trace=traceback.format_exc()), 500
 
     # Setup command line.
-    from app.lib.cli import env, snitch_daemon, settings, cron, snitchdb, zones
+    from app.lib.cli import env, snitch_daemon, settings, cron, snitchdb, zones, users
     app.cli.add_command(env.main)
     app.cli.add_command(snitch_daemon.main)
     app.cli.add_command(snitch_daemon.snitch_start)
@@ -154,6 +154,7 @@ def create_app(config_class=None):
     app.cli.add_command(cron.main)
     app.cli.add_command(snitchdb.main)
     app.cli.add_command(zones.main)
+    app.cli.add_command(users.main)
 
     # Setup cron job.
     @crontab.job(minute="*/1")

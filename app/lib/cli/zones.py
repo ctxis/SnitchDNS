@@ -88,13 +88,13 @@ def cli_zones_update(domain, active, exact_match, forwarding):
         return False
 
     if active is not None:
-        zone.active = (active == 'yes' or active == 'true')
+        zone.active = (active in ['yes', 'true'])
 
     if exact_match is not None:
-        zone.exact_match = (exact_match == 'yes' or exact_match == 'true')
+        zone.exact_match = (exact_match in ['yes', 'true'])
 
     if forwarding is not None:
-        zone.forwarding = (forwarding == 'yes' or forwarding == 'true')
+        zone.forwarding = (forwarding in ['yes', 'true'])
 
     zone.save()
 
