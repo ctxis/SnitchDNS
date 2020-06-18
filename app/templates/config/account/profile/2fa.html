@@ -27,7 +27,7 @@
         {% else %}
         <p>To enable Two Factor Authentication scan the code and enter the generated OTP code below</p>
 
-        <div id="qr" class="text-center"></div>
+        <div id="qr" class="text-center qr-box"></div>
 
         <div class="text-center mb-3">
             <span class="mr-1">{{ otp_secret[0:4] }}</span><span class="mr-1">{{ otp_secret[4:8] }}</span><span class="mr-1">{{ otp_secret[8:12] }}</span><span>{{ otp_secret[12:16] }}</span>

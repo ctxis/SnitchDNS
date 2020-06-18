@@ -13,3 +13,8 @@
 .hidden {
     display: none !important;
 }
+
+/* The border for the QR code as */
+.qr-box canvas {
+    border: 32px solid white;
+}
