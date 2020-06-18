@@ -1,4 +1,5 @@
 from twisted.names import dns, error
+from twisted.names.dns import REV_TYPES
 from twisted.internet import defer
 from app.lib.dns.records.record_snitch import Record_SNITCH
 
@@ -86,8 +87,12 @@ class DatabaseDNSResolver:
             # Look for more than one records (nameservers, mx records etc may have more than one).
             db_records = self.__dns_manager.find_all_records(db_zone, cls, type, active=True)
             if len(db_records) == 0:
-                # No active matching records found.
-                # Determine whether we can forward this record or not.
+                # If it's a query to A/AAAA check for CNAME records as well.
+                if type in ['A', 'AAAA']:
+                    db_records = self.__dns_manager.find_all_records(db_zone, cls, 'CNAME', active=True)
+
+            if len(db_records) == 0:
+                # If we still haven't found anything (no matches), determine whether we can forward this record or not.
                 lookup_result = 'continue' if db_zone.forwarding else 'stop'
                 break
 
@@ -117,42 +122,44 @@ class DatabaseDNSResolver:
 
     def __build_answer(self, query, db_zone, db_record):
         record = None
-        if query.type == dns.A:
+        # Calculate the query type (in case it's a request for A but a CNAME is returned).
+        query_type = REV_TYPES[db_record.type]
+        if query_type == dns.A:
             record = dns.Record_A(
                 address=db_record.property('address'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.AAAA:
+        elif query_type == dns.AAAA:
             record = dns.Record_AAAA(
                 address=db_record.property('address'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.AFSDB:
+        elif query_type == dns.AFSDB:
             record = dns.Record_AFSDB(
                 subtype=int(db_record.property('subtype')),
                 hostname=db_record.property('hostname')
             )
-        elif query.type == dns.CNAME:
+        elif query_type == dns.CNAME:
             record = dns.Record_CNAME(
                 name=db_record.property('name'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.DNAME:
+        elif query_type == dns.DNAME:
             record = dns.Record_DNAME(
                 name=db_record.property('name'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.HINFO:
+        elif query_type == dns.HINFO:
             record = dns.Record_HINFO(
                 cpu=db_record.property('cpu').encode(),
                 os=db_record.property('os').encode()
             )
-        elif query.type == dns.MX:
+        elif query_type == dns.MX:
             record = dns.Record_MX(
                 preference=int(db_record.property('preference')),
                 name=db_record.property('name')
             )
-        elif query.type == dns.NAPTR:
+        elif query_type == dns.NAPTR:
             record = dns.Record_NAPTR(
                 order=int(db_record.property('order')),
                 preference=int(db_record.property('preference')),
@@ -161,22 +168,22 @@ class DatabaseDNSResolver:
                 regexp=db_record.property('regexp').encode(),
                 replacement=db_record.property('replacement')
             )
-        elif query.type == dns.NS:
+        elif query_type == dns.NS:
             record = dns.Record_NS(
                 name=db_record.property('name'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.PTR:
+        elif query_type == dns.PTR:
             record = dns.Record_PTR(
                 name=db_record.property('name'),
                 ttl=db_record.ttl
             )
-        elif query.type == dns.RP:
+        elif query_type == dns.RP:
             record = dns.Record_RP(
                 mbox=db_record.property('mbox'),
                 txt=db_record.property('txt')
             )
-        elif query.type == dns.SOA:
+        elif query_type == dns.SOA:
             record = dns.Record_SOA(
                 mname=db_record.property('mname'),
                 rname=db_record.property('rname'),
@@ -186,24 +193,24 @@ class DatabaseDNSResolver:
                 expire=int(db_record.property('expire')),
                 minimum=int(db_record.property('minimum'))
             )
-        elif query.type == dns.SPF:
+        elif query_type == dns.SPF:
             record = dns.Record_SPF(
                 db_record.property('data').encode()
             )
-        elif query.type == dns.SRV:
+        elif query_type == dns.SRV:
             record = dns.Record_SRV(
                 priority=int(db_record.property('priority')),
                 port=int(db_record.property('port')),
                 weight=int(db_record.property('weight')),
                 target=db_record.property('target')
             )
-        elif query.type == dns.SSHFP:
+        elif query_type == dns.SSHFP:
             record = dns.Record_SSHFP(
                 algorithm=int(db_record.property('algorithm')),
                 fingerprintType=int(db_record.property('fingerprint_type')),
                 fingerprint=db_record.property('fingerprint').encode()
             )
-        elif query.type == dns.TSIG:
+        elif query_type == dns.TSIG:
             record = dns.Record_TSIG(
                 algorithm=db_record.property('algorithm').encode(),
                 timeSigned=int(db_record.property('timesigned')),
@@ -212,7 +219,7 @@ class DatabaseDNSResolver:
                 MAC=db_record.property('mac').encode(),
                 otherData=db_record.property('other_data').encode()
             )
-        elif query.type == dns.TXT:
+        elif query_type == dns.TXT:
             record = dns.Record_TXT(
                 db_record.property('data').encode()
             )
@@ -222,5 +229,5 @@ class DatabaseDNSResolver:
         if not record:
             return None
 
-        answer = dns.RRHeader(name=query.name.name, type=query.type, cls=query.cls, ttl=db_record.ttl, payload=record)
+        answer = dns.RRHeader(name=query.name.name, type=query_type, cls=query.cls, ttl=db_record.ttl, payload=record)
         return answer
