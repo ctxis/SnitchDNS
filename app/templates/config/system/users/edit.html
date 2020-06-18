@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            {% if user.has_2fa() %}
+            {% if user_id > 0 and user.has_2fa() %}
             <div class="form-group row">
                 <div class="col">
                     <label for="2fa">Two Factor Authentication</label>
