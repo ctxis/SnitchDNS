@@ -107,6 +107,20 @@
             </div>
             {% endif %}
 
+            {% if user_id == 0 %}
+            <div class="form-group row">
+                <div class="col">
+                    <label for="create_master_zone">Create Master Zone</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="create_master_zone" type="checkbox" class="custom-control-input" id="create_master_zone" value="1" checked>
+                        <label class="custom-control-label" for="create_master_zone"></label>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="form-group">
                 <button type="submit" class="btn btn-block btn-primary">save</button>
             </div>

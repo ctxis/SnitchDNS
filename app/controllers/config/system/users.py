@@ -94,7 +94,8 @@ def user_edit_save(user_id):
         return redirect(url_for('config.user_edit', user_id=user_id))
 
     # Now create the base domain zone for that user, only if it's a new user.
-    if user_id == 0:
+    create_master_zone = True if int(request.form.get('create_master_zone', 0)) == 1 else False
+    if user_id == 0 and create_master_zone:
         if not zones.create_user_base_zone(user):
             flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
             return redirect(url_for('config.users'))
