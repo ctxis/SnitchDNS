@@ -62,11 +62,18 @@ class DNSZoneManager:
 
         records = self.dns_records.get_zone_records(zone.id)
         for record in records:
-            record.delete()
+            self.dns_records.delete(record)
 
         restrictions = self.dns_restrictions.get_zone_restrictions(zone.id).all()
         for restriction in restrictions:
             restriction.delete()
+
+        subscriptions = zone.notifications.all()
+        for name, subscription in subscriptions.items():
+            self.notifications.logs.delete(subscription_id=subscription.id)
+            subscription.delete()
+
+        self.dns_logs.delete(dns_zone_id=zone.id)
 
         zone.delete()
 

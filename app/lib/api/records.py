@@ -77,7 +77,7 @@ class ApiRecords(ApiBase):
         if not record:
             return self.send_access_denied_response()
 
-        record.delete()
+        records.delete(record)
         return self.send_success_response()
 
     def create(self, zone_id, user_id):

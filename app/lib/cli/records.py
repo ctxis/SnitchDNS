@@ -66,11 +66,11 @@ def cli_records_list(domain, type, id):
         if type is not None:
             if record.type == type.upper():
                 record_deleted = True
-                record.delete()
+                records.delete(record)
         elif id is not None:
             if record.id == id:
                 record_deleted = True
-                record.delete()
+                records.delete(record)
 
     message = "Record deleted" if record_deleted else "Record not found"
     print(message)

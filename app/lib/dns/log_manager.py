@@ -132,3 +132,18 @@ class DNSLogManager:
 
     def count(self, dns_zone_id=None, dns_record_id=None, type=None):
         return len(self.__get(dns_zone_id=dns_zone_id, dns_record_id=dns_record_id, type=type))
+
+    def delete(self, id=None, dns_zone_id=None, dns_record_id=None):
+        query = DNSQueryLogModel.query
+
+        if id is not None:
+            query = query.filter(DNSQueryLogModel.id == id)
+
+        if dns_zone_id is not None:
+            query = query.filter(DNSQueryLogModel.dns_zone_id == dns_zone_id)
+
+        if dns_record_id is not None:
+            query = query.filter(DNSQueryLogModel.dns_record_id == dns_record_id)
+
+        query.delete()
+        return True

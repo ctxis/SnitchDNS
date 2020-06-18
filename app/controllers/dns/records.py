@@ -125,7 +125,7 @@ def record_delete(dns_zone_id, dns_record_id):
         flash('Record not found', 'error')
         return redirect(url_for('home.index'))
 
-    record.delete()
+    records.delete(record)
     flash('Record deleted', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
 

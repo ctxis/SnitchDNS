@@ -198,3 +198,16 @@ class DNSRecordManager:
                     properties[name.rstrip('2')] = properties.pop(name)
 
         return properties
+
+    def delete(self, dns_record):
+        record = dns_record if isinstance(dns_record, DNSRecord) else self.get(dns_record)
+        if not record:
+            return False
+
+        # Delete all records.
+        self.dns_logs.delete(dns_record_id=record.id)
+
+        # Delete the record itself.
+        record.delete()
+
+        return True

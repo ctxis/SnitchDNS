@@ -40,3 +40,15 @@ class NotificationLogManager:
         item.sent_at = datetime.datetime.now()
         item.save()
         return item
+
+    def delete(self, id=None, subscription_id=None):
+        query = NotificationLogModel.query
+
+        if id is not None:
+            query = query.filter(NotificationLogModel.id == id)
+
+        if subscription_id is not None:
+            query = query.filter(NotificationLogModel.subscription_id == subscription_id)
+
+        query.delete()
+        return True
