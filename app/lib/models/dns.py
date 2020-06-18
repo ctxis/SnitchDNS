@@ -39,7 +39,7 @@ class DNSQueryLogModel(db.Model):
     source_ip = db.Column(db.String(128), nullable=True, default='', index=True)
     domain = db.Column(db.String(255), nullable=True, default='', index=True)
     cls = db.Column(db.String(32), nullable=True, default='')
-    type = db.Column(db.String(32), nullable=True, default='')
+    type = db.Column(db.String(32), nullable=True, default='', index=True)
     data = db.Column(db.String(255), nullable=True, default='', index=True)
     found = db.Column(db.Boolean, default=False, index=True)
     forwarded = db.Column(db.Boolean, default=False, index=True)
@@ -57,7 +57,7 @@ class DNSZoneRestrictionModel(db.Model):
     __tablename__ = 'dns_zone_restrictions'
     id = db.Column(db.Integer, primary_key=True)
     zone_id = db.Column(db.Integer, nullable=True, default=0, index=True)
-    ip_range = db.Column(db.String(255), nullable=True, default='')
+    ip_range = db.Column(db.String(255), nullable=True, default='', index=True)
     type = db.Column(db.Integer, nullable=True, default=0, index=True)
     enabled = db.Column(db.Boolean, default=False, index=True)
 
