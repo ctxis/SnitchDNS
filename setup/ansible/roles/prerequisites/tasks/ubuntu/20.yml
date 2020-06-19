@@ -1,0 +1,14 @@
+- name: "Install packages"
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - git
+      - python3-pip
+      - python3-venv
+      - acl
+
+- name: "Upgrade pip to latest and greatest version"
+  pip:
+    name: pip
+    extra_args: --upgrade

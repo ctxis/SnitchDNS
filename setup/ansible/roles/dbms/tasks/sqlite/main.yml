@@ -1,0 +1,6 @@
+- name: "Install SQLite Prerequisites"
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - sqlite3

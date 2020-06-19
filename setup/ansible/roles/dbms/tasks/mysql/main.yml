@@ -1,0 +1,26 @@
+- name: "Install MySQL Prerequisites"
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - mysql-server
+
+- name: "Install MySQL pip Prerequisites"
+  pip:
+    name: PyMySQL
+
+- name: "Creating '{{ database.database }}' database"
+  mysql_db:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: "{{ database.database }}"
+    encoding: 'utf8'
+    state: present
+
+- name: "Creating '{{ database.username }}' user"
+  mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: '{{ database.username }}'
+    password: '{{ database.password }}'
+    host: '{{ database.hostname }}'
+    priv: '{{ database.database }}.*:ALL'
+    state: present

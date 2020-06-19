@@ -1,11 +1,19 @@
 ---
-- name: "Install common packages"
+- name: "Install prerequisites"
   hosts: all
   become: yes
   vars_files:
     - vars.yml
   roles:
-    - common
+    - prerequisites
+
+- name: "Install DBMS"
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - dbms
 
 - name: "Install SnitchDNS"
   hosts: all
@@ -31,10 +39,10 @@
   roles:
     - webserver
 
-- name: "Install and Configure DNS Server"
+- name: "Configure iptables"
   hosts: all
   become: yes
   vars_files:
     - vars.yml
   roles:
-    - dns
+    - iptables

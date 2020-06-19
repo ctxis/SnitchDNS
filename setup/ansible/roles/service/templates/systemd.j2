@@ -1,8 +1,12 @@
 [Unit]
 Description=SnitchDNS Gunicorn
 After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=30
 
 [Service]
+Restart=always
+RestartSec=30
 User={{ web.user }}
 Group={{ web.group }}
 WorkingDirectory={{ snitch.destination }}

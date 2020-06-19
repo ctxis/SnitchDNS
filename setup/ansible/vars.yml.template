@@ -1,27 +1,60 @@
 ---
-system:
+# Do not change anything in the 'requirements' section.
+requirements:
   minimum_python_version: '3.6'
-  # If you are running an old distro where the path to python >= 3.6 isn't named as 'python3', set the absolute path
-  # here. Otherwise (ie Ubuntu 18), leave as is.
-  python: 'python3'
-  # Change this to your destination's local user (user should have sudo privileges).
-  user: snitch
-  group: snitch
+
+system:
+  # Set the path to the python executable that meets the 'minimum_python_version' requirement. On Ubuntu 18/20 leaving
+  # it as 'python3' will do the trick, but for other distributions you might need to adjust it, ie 'python3.6'.
+  python_executable: 'python3'
+
 snitch:
+  # Where to clone SnitchDNS from.
   repo: 'https://github.com/ctxis/SnitchDNS.git'
-  destination: /opt/web/snitch
+  # Destination where SnitchDNS will be installed to (on the remote host).
+  destination: /opt/snitch
+  # This is the host/port the SnitchDNS daemon will be listening on. Although this is a DNS Server, it should not be
+  # listening directly on port 53 as that is a privileged port, which means to restart the service the web server will
+  # need sudo privileges (even just for restarting the server). The workaround is to use iptables to forward all traffic
+  # from port 53 to 2024 (default for SnitchDNS). You could also use another DNS Server such as Bind9 (named) and
+  # have it work as a forwarder. However, even with caching disabled Bind9 still cached responses, therefore iptables
+  # is preferred.
+  listen_port: 2024
+
 web:
+  # Define the web server that will be installed. This can be one of:
+  #   apache
+  #   nginx
   server: apache
+  # The user under which the web server runs. If your destination is a Ubuntu distribution, leave both as 'www-data'.
+  # On CentOS this can be 'apache' or 'nginx', depending on the version/server.
   user: www-data
   group: www-data
+  # The web application will be started as a service and the web server will proxy all requests to it. The application
+  # will listen to the address below, and is recommended to leave as it (listening on localhost). If you decide to use
+  # any other address, make sure you know what you're doing as the application will be directly accessible remotely.
   bind_host: 127.0.0.1
   bind_port: 8888
-  # Leave empty to auto-generate certificates, or specify a location on the machine you're running ansible from.
+  # If you already have generated SSL certificates, put their absolute paths in the following variables.
+  # 'ssl_cert_file' must contain the path to the .crt file, and 'ssl_cert_keyfile' to the .pem private key file.
+  # All these paths are on the system you are running ansible from (local), and not the remote destination host.
+  # Leaving these variables empty will generate self-signed certificates.
   ssl_cert_file: ''
   ssl_cert_keyfile: ''
-  # Set your server name.
+  # The domain which the web server will listen for requests. If you need aliases you'll have to manually edit the
+  # configuration file post installation.
   domain: 'www.snitch.lan'
-dns:
-  server: bind9
-  forward_host: 127.0.0.1
-  forward_port: 2024
+
+database:
+  # The type of DBMS that the application will use. This can be one of:
+  #   sqlite
+  #   postgres
+  #   mysql
+  dbms: 'mysql'
+  # The following are only required for MySQL and Postgres. Feel free to use {{ lookup('env', 'VARNAME') }} if you need
+  # to read the values from environment variables. Actually, that's preferred as well so you don't have to enter the
+  # password here.
+  hostname: 'localhost'
+  username: 'snitch'
+  password: 'snitch'
+  database: 'snitch'

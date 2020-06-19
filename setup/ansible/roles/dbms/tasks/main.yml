@@ -1,0 +1,11 @@
+- name: "Install SQLite"
+  import_tasks: sqlite/main.yml
+  when: database.dbms == 'sqlite'
+
+- name: "Install MySQL"
+  import_tasks: mysql/main.yml
+  when: database.dbms == 'mysql'
+
+- name: "Install Postgres"
+  import_tasks: postgres/main.yml
+  when: database.dbms == 'postgres'

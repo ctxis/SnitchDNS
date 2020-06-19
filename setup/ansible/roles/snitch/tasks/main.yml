@@ -1,16 +1,16 @@
-- name: "Check for installation directory"
+- name: "Check for '{{ snitch.destination }}' installation directory"
   stat:
     path: "{{ snitch.destination }}"
   register: parent_path
 
-- name: "Creating directory"
+- name: "Creating directory: '{{ snitch.destination }}'"
   when: parent_path.stat.exists == False
   file:
     path: "{{ snitch.destination }}"
     state: directory
     recurse: yes
-    owner: "{{ system.user }}"
-    group: "{{ system.group }}"
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
 
 - name: "Check if repo is already cloned"
   git:
@@ -20,40 +20,11 @@
     update: no
   register: git_info
 
-# I'm using this technique because git won't allow you to clone into an existing directory.
-# And if our user doesn't have permission to create the destination folder, ansible will throw a clone error.
-- name: "Clone repo"
+- name: "Clone repo {{ snitch.repo }}"
   when: git_info.before == None
-  become: yes
-  become_user: "{{ system.user }}"
-  shell:
-    chdir: "{{ snitch.destination }}"
-    cmd: "git init &&
-          git remote add origin {{ snitch.repo }} &&
-          git fetch -p &&
-          git checkout master"
-
-- name: "Checking for virtual environment"
-  stat:
-    path: "{{ snitch.destination }}/venv"
-  register: venv
-
-- name: "Setting up virtual environment"
-  when: venv.stat.exists == False
-  become: yes
-  become_user: "{{ system.user }}"
-  shell:
-    chdir: "{{ snitch.destination }}"
-    cmd: |
-      {{ system.python }} -m venv venv
-      . venv/bin/activate
-      pip install -r requirements.txt
-      flask db init
-      flask db migrate
-      flask db upgrade
-      deactivate
-  args:
-    chdir: "{{ snitch.destination }}"
+  git:
+    repo: "{{ snitch.repo }}"
+    dest: "{{ snitch.destination }}"
 
 - name: "Set {{ web.user }} as the owner for {{ snitch.destination }}"
   file:
@@ -62,3 +33,58 @@
     recurse: yes
     owner: "{{ web.user }}"
     group: "{{ web.group }}"
+
+- name: "Checking for virtual environment"
+  stat:
+    path: "{{ snitch.destination }}/venv"
+  register: venv
+
+- name: "Creating env data directory"
+  file:
+    path: "{{ snitch.destination }}/data/config/env"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
+- name: "Creating env file"
+  template:
+    src: env.conf.j2
+    dest: "{{ snitch.destination }}/data/config/env/snitch.conf"
+
+- name: "Setting up virtual environment"
+  when: venv.stat.exists == False
+  become: yes
+  become_user: "{{ web.user }}"
+  shell:
+    chdir: "{{ snitch.destination }}"
+    cmd: |
+      {{ system.python_executable }} -m venv venv
+      . venv/bin/activate
+      pip --no-cache-dir install -r requirements.txt
+      deactivate
+  args:
+    chdir: "{{ snitch.destination }}"
+
+- name: "Setting up database"
+  become: yes
+  become_user: "{{ web.user }}"
+  shell:
+    chdir: "{{ snitch.destination }}"
+    cmd: |
+      ./venv.sh flask db init
+      ./venv.sh flask db migrate
+      ./venv.sh flask db upgrade
+      ./venv.sh flask snitchdb
+  args:
+    chdir: "{{ snitch.destination }}"
+
+- name: "Setting up crontab"
+  become: yes
+  become_user: "{{ web.user }}"
+  shell:
+    chdir: "{{ snitch.destination }}"
+    cmd: |
+      ./venv.sh flask crontab add
+  args:
+    chdir: "{{ snitch.destination }}"

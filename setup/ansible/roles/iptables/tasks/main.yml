@@ -1,0 +1,25 @@
+- name: "Install iptables requirements"
+  apt:
+    name: "iptables-persistent"
+
+- name: "Forward TCP port 53 to {{ snitch.listen_port }}"
+  iptables:
+    action: insert
+    table: nat
+    chain: PREROUTING
+    jump: REDIRECT
+    destination_port: 53
+    protocol: tcp
+    to_ports: "{{ snitch.listen_port }}"
+    comment: "SnitchDNS - Forward TCP port 53 to {{ snitch.listen_port }}"
+
+- name: "Forward UDP port 53 to {{ snitch.listen_port }}"
+  iptables:
+    action: insert
+    table: nat
+    chain: PREROUTING
+    jump: REDIRECT
+    destination_port: 53
+    protocol: udp
+    to_ports: "{{ snitch.listen_port }}"
+    comment: "SnitchDNS - Forward UDP port 53 to {{ snitch.listen_port }}"

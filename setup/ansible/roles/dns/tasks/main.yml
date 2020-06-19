@@ -1,3 +1,0 @@
-- name: Install Bind9
-  import_tasks: server/bind9.yml
-  when: dns.server == 'bind9'

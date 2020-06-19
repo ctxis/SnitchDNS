@@ -1,0 +1,31 @@
+- name: "Creating config directory"
+  file:
+    path: "{{ snitch.destination }}/data/config/service"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
+- name: "Creating service file"
+  template:
+    src: systemd.j2
+    dest: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+
+- name: "Checking for installed service"
+  stat:
+    path: "/etc/systemd/system/snitchdns.service"
+  register: existing_service
+
+- name: "Creating link to service"
+  when: existing_service.stat.exists == False
+  file:
+    src: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+    dest: "/etc/systemd/system/snitchdns.service"
+    state: link
+
+- name: "Enabling and starting service"
+  systemd:
+    name: snitchdns
+    daemon_reload: yes
+    enabled: true
+    state: started

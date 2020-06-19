@@ -1,5 +1,4 @@
-- name: "Install apache"
-  when: web.server == 'apache'
+- name: "Installing apache"
   apt:
     name: "apache2"
 
@@ -41,7 +40,7 @@
 - name: "Creating config"
   when: http_config.stat.exists == False
   template:
-    src: ubuntu/apache/vhost.conf.j2
+    src: apache/ubuntu.vhost.conf.j2
     dest: "{{ snitch.destination }}/data/config/http/vhost.conf"
 
 - name: "Creating available vhost"

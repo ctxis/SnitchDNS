@@ -1,0 +1,29 @@
+- name: "Install Postgres Prerequisites"
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - postgresql
+      - postgresql-contrib
+      - libpq-dev
+
+- name: "Install Postgres pip Prerequisites"
+  pip:
+    name:
+      - psycopg2
+
+- name: "Creating '{{ database.database }}' database"
+  become: yes
+  become_user: postgres
+  postgresql_db:
+    name: "{{ database.database }}"
+    state: present
+
+- name: "Creating '{{ database.username }}' user"
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    db: "{{ database.database }}"
+    name: '{{ database.username }}'
+    password: '{{ database.password }}'
+    priv: ALL

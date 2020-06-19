@@ -1,3 +1,11 @@
+- name: "Creating http config directory"
+  file:
+    path: "{{ snitch.destination }}/data/config/http"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
 - name: "Check for private key"
   stat:
     path: "{{ snitch.destination }}/data/config/http/ssl.pem"
@@ -12,12 +20,6 @@
   stat:
     path: "{{ snitch.destination }}/data/config/http/ssl.crt"
   register: ssl_crt
-
-- name: "Creating http config directory"
-  file:
-    path: "{{ snitch.destination }}/data/config/http"
-    state: directory
-    recurse: yes
 
 - name: "Check if custom SSL certificate exists"
   when: web.ssl_cert_file != ''
@@ -38,6 +40,7 @@
   openssl_privatekey:
     path: "{{ snitch.destination }}/data/config/http/ssl.pem"
     size: 2048
+    mode: "0600"
 
 - name: "Generating csr key"
   when: ssl_csr.stat.exists == False and web.ssl_cert_file == ''
@@ -53,3 +56,4 @@
     privatekey_path: "{{ snitch.destination }}/data/config/http/ssl.pem"
     csr_path: "{{ snitch.destination }}/data/config/http/ssl.csr"
     provider: selfsigned
+    mode: "0644"
