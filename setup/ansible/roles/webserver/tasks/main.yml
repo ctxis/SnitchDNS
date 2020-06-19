@@ -4,3 +4,7 @@
 - name: "Configuring Apache"
   import_tasks: apache/server.yml
   when: web.server == 'apache'
+
+- name: "Configuring nginx"
+  import_tasks: nginx/server.yml
+  when: web.server == 'nginx'

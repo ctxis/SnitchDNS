@@ -60,6 +60,8 @@ def create_app(config_class=None):
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     # This is to ensure only a single cron job runs at a time.
     app.config['CRONTAB_LOCK_JOBS'] = True
+    # The referrer is disabled further down in the response headers.
+    app.config['WTF_CSRF_SSL_STRICT'] = False
 
     # And now we override any custom settings from config.py if it exists.
     app.config.from_pyfile('config.py', silent=True)
