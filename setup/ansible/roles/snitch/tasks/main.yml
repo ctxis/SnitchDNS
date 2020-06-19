@@ -76,6 +76,9 @@
       ./venv.sh flask db migrate
       ./venv.sh flask db upgrade
       ./venv.sh flask snitchdb
+      ./venv.sh flask settings set --name dns_daemon_bind_ip --value 0.0.0.0
+      ./venv.sh flask settings set --name dns_daemon_bind_port --value "{{ snitch.listen_port }}"
+      ./venv.sh flask settings set --name dns_base_domain --value "{{ web.base_domain }}"
   args:
     chdir: "{{ snitch.destination }}"
 

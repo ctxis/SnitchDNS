@@ -44,7 +44,7 @@ def create_app(config_class=None):
             db=provider.env('SNITCHDNS_DB_DB', must_exist=True)
         )
     elif dbms == 'mysql':
-        dbms_uri = 'mysql+pymysql://{user}:{pw}@{url}/{db}'.format(
+        dbms_uri = 'mysql+pymysql://{user}:{pw}@{url}/{db}?charset=utf8mb4'.format(
             user=provider.env('SNITCHDNS_DB_USER', must_exist=True),
             pw=provider.env('SNITCHDNS_DB_PW', must_exist=True),
             url=provider.env('SNITCHDNS_DB_URL', must_exist=True),

@@ -13,7 +13,8 @@
   mysql_db:
     login_unix_socket: /var/run/mysqld/mysqld.sock
     name: "{{ database.database }}"
-    encoding: 'utf8'
+    encoding: 'utf8mb4'
+    collation: 'utf8mb4_unicode_ci'
     state: present
 
 - name: "Creating '{{ database.username }}' user"

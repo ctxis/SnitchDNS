@@ -41,9 +41,15 @@ web:
   # Leaving these variables empty will generate self-signed certificates.
   ssl_cert_file: ''
   ssl_cert_keyfile: ''
-  # The domain which the web server will listen for requests. If you need aliases you'll have to manually edit the
-  # configuration file post installation.
+  # The domain where the gui will accessible from. If you need aliases you'll have to manually edit the configuration
+  # file post installation.
   domain: 'www.snitch.lan'
+  # This is the 'base domain' which low privileged users will be restricted in with domains such as:
+  # USERNAME.snitch.lan
+  # This means that they will only to be able to create subdomains under *.USERNAME.snitch.lan.
+  # If you do not plan to have low-privileged users in your system, this value can be anything - ie "example.com" but
+  # it cannot be empty.
+  base_domain: 'snitch.lan'
 
 database:
   # The type of DBMS that the application will use. This can be one of:
