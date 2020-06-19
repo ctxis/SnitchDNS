@@ -6,7 +6,7 @@ export FLASK_APP=app
 export FLASK_ENV=development
 
 # Load the SnitchDNS config environment variables.
-. data/config/env/snitch.conf
+export $(grep -v '^#' data/config/env/snitch.conf)
 
 # And now execute whatever was passed through the command line.
 "$@"
