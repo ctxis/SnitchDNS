@@ -1,3 +1,4 @@
+from sqlalchemy import asc
 from app.lib.models.config import ConfigModel
 from app import db
 
@@ -58,3 +59,10 @@ class SettingsManager:
         elif isinstance(value, list):
             value = list_separator.join(value)
         return str(value)
+
+    def all(self):
+        results = ConfigModel.query.order_by(asc(ConfigModel.name)).all()
+        settings = {}
+        for result in results:
+            settings[result.name] = self.__process_return_value(result.value, None, ',')
+        return settings
