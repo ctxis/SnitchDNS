@@ -6,11 +6,7 @@
       - postgresql
       - postgresql-contrib
       - libpq-dev
-
-- name: "Install Postgres pip Prerequisites"
-  pip:
-    name:
-      - psycopg2
+      - python3-psycopg2
 
 - name: "Creating '{{ database.database }}' database"
   become: yes
