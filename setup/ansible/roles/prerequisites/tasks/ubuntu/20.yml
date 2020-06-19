@@ -7,6 +7,7 @@
       - python3-pip
       - python3-venv
       - acl
+      - libpq-dev
 
 - name: "Upgrade pip to latest and greatest version"
   pip:
