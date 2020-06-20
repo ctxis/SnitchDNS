@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# When SnitchDNS is running via gunicorn, it's not loading the virtual environment - so we have to use this script as
-# a proxy.
+# Use this script as a proxy to run flask commands either via CLI or the service.
+
+# Get current script's path - https://stackoverflow.com/a/4774063
+VENV_SCRIPT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+cd "$VENV_SCRIPT"
+
 . venv/bin/activate
 export FLASK_APP=app
 export FLASK_ENV=development
