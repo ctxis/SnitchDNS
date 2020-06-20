@@ -4,8 +4,8 @@
 
 - name: "Install MySQL"
   import_tasks: mysql/main.yml
-  when: database.dbms == 'mysql'
+  when: database.dbms == 'mysql' and database.install == 'yes'
 
 - name: "Install Postgres"
   import_tasks: postgres/main.yml
-  when: database.dbms == 'postgres'
+  when: database.dbms == 'postgres' and database.install == 'yes'

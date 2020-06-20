@@ -52,6 +52,9 @@ web:
   base_domain: 'snitch.lan'
 
 database:
+  # Only applies for 'postgres' and 'mysql'. If you want to connect to a DB hosted elsewhere, set this to 'no' but
+  # ensure that the username/password/database below already exist.
+  install: 'yes'
   # The type of DBMS that the application will use. This can be one of:
   #   sqlite
   #   postgres
