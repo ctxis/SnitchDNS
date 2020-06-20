@@ -7,6 +7,7 @@ class SeedDatabase:
         return True
 
     def __seed_notification_types(self):
+        print("Adding notification types...")
         data = [
             {'name': 'email', 'description': 'E-mail'},
             {'name': 'webpush', 'description': 'Web Push'},
@@ -18,8 +19,10 @@ class SeedDatabase:
             type = type_manager.get(name=item['name'])
             if type:
                 # Found, skip.
+                print("Type {0} already exists - skipping".format(item['name']))
                 continue
 
+            print("Creating type {0}".format(item['name']))
             type = type_manager.create()
             type.name = item['name']
             type.description = item['description']
