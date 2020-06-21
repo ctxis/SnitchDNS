@@ -62,7 +62,7 @@
                         </div>
                         <div class="col text-right">
                             <div class="custom-control custom-switch">
-                                <input name="forwarding" type="checkbox" class="custom-control-input" id="forwarding" value="1" {{ 'checked' if (dns_zone_id == 0) or (dns_zone_id > 0 and zone.forwarding) }}>
+                                <input name="forwarding" type="checkbox" class="custom-control-input" id="forwarding" value="1" {{ 'checked' if (dns_zone_id > 0 and zone.forwarding) }}>
                                 <label class="custom-control-label" for="forwarding"></label>
                             </div>
                         </div>
