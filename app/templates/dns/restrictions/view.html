@@ -1,4 +1,7 @@
 <div class="clearfix my-2">
+    <div class="float-left">
+        <a href="#" data-toggle="modal" data-target="#ip-restrictions-info"> How are IP restrictions prioritised?</a>
+    </div>
     <div class="float-right">
         <a href="{{ url_for('dns.zone_restrictions_edit', dns_zone_id=zone.id, restriction_id=0) }}" class="btn btn-sm btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new rule</span></a>
     </div>
@@ -41,4 +44,41 @@
         </table>
         {% endif %}
     </div>
+</div>
+
+<div class="modal fade" id="ip-restrictions-info" tabindex="-1" role="dialog" aria-labelledby="ip-restrictions-info-Label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ip-restrictions-info-Label">IP Restrictions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul>
+            <li>No restrictions exist</li>
+            <ul>
+                <li>Allow all traffic</li>
+            </ul>
+            <li>Only Allow rules exist</li>
+            <ul>
+                <li>Source IP must be <i>within</i> the allowed range in order to be allowed</li>
+            </ul>
+            <li>Only Block rules exist</li>
+            <ul>
+                <li>All traffic is allowed <i>except</i> IPs within the block range</li>
+            </ul>
+            <li>Both Allow and Block rules exist</li>
+            <ul>
+                <li>If Source IP is within the Block rules, query is blocked (Block takes precedence over Allow)</li>
+                <li>If Source IP is not within the Block rules, it must be within the Allow rules in order to be allowed</li>
+            </ul>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
