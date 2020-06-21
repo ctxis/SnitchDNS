@@ -19,6 +19,12 @@
             <div class="float-right"><span class="badge badge-pill badge-info">{{ zone.restrictions.get_enabled()|length }}</span></div>
         </div>
     </a>
+    <a class="nav-link px-3" href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, user_id=zone.user_id) }}">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-clipboard-list fa-fw"></i> <span class="pl-2">View Logs</span></div>
+            <div class="float-right"></div>
+        </div>
+    </a>
     <a class="nav-link px-3 mt-5">
         <div class="clearfix">
             <div class="float-left"><i class="fas fa-toggle-on fa-fw"></i> <span class="pl-2">Status</span></div>
@@ -47,7 +53,7 @@
             </div>
         </div>
     </a>
-    <a class="nav-link {{ 'active' if tab == 'edit_zone' }} px-3" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}">
+    <a class="nav-link px-3" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}">
         <div class="clearfix">
             <div class="float-left"><i class="fas fa-edit fa-fw"></i> <span class="pl-2">Edit Zone</span></div>
             <div class="float-right"></div>
