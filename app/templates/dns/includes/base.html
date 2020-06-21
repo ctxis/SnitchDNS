@@ -1,0 +1,33 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3"></div>
+    <div class="col">
+        <h3 class="mb-0">{{ zone.full_domain }}</h3>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-3">
+        {% include 'dns/includes/sidebar.html' %}
+    </div>
+    <div class="col">
+        {% if section == 'records' %}
+            {% include 'dns/records/view.html' %}
+        {% elif section == 'records_edit' %}
+            {% include 'dns/records/edit.html' %}
+        {% elif section == 'notifications' %}
+            {% include 'dns/notifications/view.html' %}
+        {% elif section == 'email_settings' %}
+            {% include 'dns/notifications/settings/email.html' %}
+        {% elif section == 'slack_settings' %}
+            {% include 'dns/notifications/settings/slack.html' %}
+        {% elif section == 'restrictions' %}
+            {% include 'dns/restrictions/view.html' %}
+        {% elif section == 'restrictions_edit' %}
+            {% include 'dns/restrictions/edit.html' %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

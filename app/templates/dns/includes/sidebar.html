@@ -1,0 +1,56 @@
+<nav class="nav nav-pills flex-column pb-3">
+    <a class="nav-link {{ 'active' if tab == 'records' }} px-3" href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-prescription fa-fw"></i> <span class="pl-2">Records</span></div>
+            <div class="float-right"><span class="badge badge-pill badge-info">{{ zone.record_count }}</span></div>
+        </div>
+    </a>
+    <a class="nav-link {{ 'active' if tab == 'notifications' }} px-3" href="{{ url_for('dns.zone_notifications', dns_zone_id=zone.id) }}">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Notifications</span></div>
+            <div class="float-right">
+                <span class="badge badge-pill badge-info">{{ 'enabled' if zone.notifications.has_enabled() else 'disabled' }}</span>
+            </div>
+        </div>
+    </a>
+    <a class="nav-link {{ 'active' if tab == 'restrictions' }} px-3" href="{{ url_for('dns.zone_restrictions', dns_zone_id=zone.id) }}">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-map-signs fa-fw"></i> <span class="pl-2">Restrictions</span></div>
+            <div class="float-right"><span class="badge badge-pill badge-info">{{ zone.restrictions.get_enabled()|length }}</span></div>
+        </div>
+    </a>
+    <a class="nav-link px-3 mt-5">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-toggle-on fa-fw"></i> <span class="pl-2">Status</span></div>
+            <div class="float-right">
+                {% set class = 'success' if zone.active else 'warning' %}
+                {% set text = 'enabled' if zone.active else 'disabled' %}
+                <span class="badge badge-pill badge-{{ class }}">{{ text }}</span>
+            </div>
+        </div>
+    </a>
+    <a class="nav-link px-3">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-not-equal fa-fw"></i> <span class="pl-2">Matching</span></div>
+            <div class="float-right">
+                {% set text = 'exact' if zone.exact_match else 'catch-all' %}
+                <span class="badge badge-pill badge-primary">{{ text }}</span>
+            </div>
+        </div>
+    </a>
+    <a class="nav-link px-3">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-forward fa-fw"></i> <span class="pl-2">Forwarding</span></div>
+            <div class="float-right">
+                {% set text = 'enabled' if zone.forwarding else 'disabled' %}
+                <span class="badge badge-pill badge-primary">{{ text }}</span>
+            </div>
+        </div>
+    </a>
+    <a class="nav-link {{ 'active' if tab == 'edit_zone' }} px-3" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}">
+        <div class="clearfix">
+            <div class="float-left"><i class="fas fa-edit fa-fw"></i> <span class="pl-2">Edit Zone</span></div>
+            <div class="float-right"></div>
+        </div>
+    </a>
+</nav>
