@@ -1,8 +1,9 @@
 from . import bp
 from flask_login import current_user, login_required
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, send_file
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import must_have_base_domain
+import time
 
 
 @bp.route('/', methods=['GET'])
@@ -215,3 +216,24 @@ def zone_create_from_log(query_log_id):
 
     flash('Zone created', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=zone.id))
+
+
+@bp.route('/export', methods=['POST'])
+@login_required
+@must_have_base_domain
+def zones_export():
+    provider = Provider()
+    zones = provider.dns_zones()
+    users = provider.users()
+
+    # Prepare names and variables.
+    filename = str(int(time.time())) + '.csv'
+    download_filename = "snitch_export_" + filename
+    save_results_as = users.get_user_data_path(current_user.id, filename=filename)
+
+    if not zones.export(current_user.id, save_results_as):
+        flash('Could not generate CSV file.', 'error')
+        return redirect(url_for('dns.index'))
+
+    # And download.
+    return send_file(save_results_as, attachment_filename=download_filename, as_attachment=True)

@@ -1,10 +1,13 @@
 import re
+import os
+import csv
 from app.lib.models.dns import DNSZoneModel
 from app.lib.dns.instances.zone import DNSZone
+from app.lib.dns.helpers.shared import SharedHelper
 from sqlalchemy import func
 
 
-class DNSZoneManager:
+class DNSZoneManager(SharedHelper):
     def __init__(self, settings, dns_records, users, notifications, dns_logs, dns_restrictions):
         self.settings = settings
         self.dns_records = dns_records
@@ -43,6 +46,8 @@ class DNSZoneManager:
 
         if order_by == 'user_id':
             query = query.order_by(DNSZoneModel.user_id)
+        elif order_by == 'full_domain':
+            query = query.order_by(DNSZoneModel.full_domain)
         else:
             query = query.order_by(DNSZoneModel.id)
 
@@ -203,3 +208,59 @@ class DNSZoneManager:
             return errors
 
         return zone
+
+    def export(self, user_id, save_as, overwrite=False, create_path=False):
+        if not self._prepare_path(save_as, overwrite, create_path):
+            return False
+
+        zones = self.get_user_zones(user_id, order_by='full_domain')
+
+        header = [
+            'domain',
+            'd_active',
+            'd_exact_match',
+            'd_forwarding',
+            'd_master',
+            'r_ttl',
+            'r_cls',
+            'r_type',
+            'r_active',
+            'r_data'
+        ]
+        with open(save_as, 'w') as f:
+            writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+            writer.writerow(header)
+
+            for zone in zones:
+                # Write the zone.
+                zone_line = [
+                    self._sanitise_csv_value(zone.full_domain),
+                    '1' if zone.active else '0',
+                    '1' if zone.exact_match else '0',
+                    '1' if zone.forwarding else '0',
+                    '1' if zone.master else '0'
+                ]
+                writer.writerow(zone_line)
+
+                # Write the records.
+                records = self.dns_records.get_zone_records(zone.id, order_column='type')
+                for record in records:
+                    properties = []
+                    for name, value in record.properties().items():
+                        properties.append("{0}={1}".format(name, value))
+
+                    record_line = [
+                        self._sanitise_csv_value(zone.full_domain),
+                        '',
+                        '',
+                        '',
+                        '',
+                        record.ttl,
+                        record.cls,
+                        record.type,
+                        '1' if record.active else '0',
+                        "\n".join(properties)
+                    ]
+                    writer.writerow(record_line)
+
+        return os.path.isfile(save_as)

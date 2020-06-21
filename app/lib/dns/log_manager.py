@@ -2,11 +2,12 @@ from sqlalchemy import asc, desc
 from app import db
 from app.lib.models.dns import DNSQueryLogModel
 from app.lib.dns.instances.query_log import DNSQueryLog
+from app.lib.dns.helpers.shared import SharedHelper
 import os
 import csv
 
 
-class DNSLogManager:
+class DNSLogManager(SharedHelper):
     def create(self):
         item = DNSQueryLog(DNSQueryLogModel())
         item.save()
@@ -64,34 +65,8 @@ class DNSLogManager:
         results = self.__get(domain=domain, cls=cls, type=type, completed=completed)
         return self.__load(results[0]) if results else None
 
-    def __prepare_path(self, save_as, overwrite, create_path):
-        if save_as != os.path.realpath(save_as):
-            raise Exception("Coding error: Passed path must be absolute.")
-
-        # Check if the path exists.
-        path = os.path.dirname(save_as)
-        if not os.path.isdir(path):
-            if not create_path:
-                return False
-            os.makedirs(path, exist_ok=True)
-            if not os.path.isdir(path):
-                # If it still doesn't exist.
-                return False
-
-        # Check if the file exists.
-        if os.path.isfile(save_as):
-            if not overwrite:
-                return False
-
-            os.remove(save_as)
-            if os.path.isfile(save_as):
-                # If the file still exists.
-                return False
-
-        return True
-
     def save_results_csv(self, rows, save_as, overwrite=False, create_path=False):
-        if not self.__prepare_path(save_as, overwrite, create_path):
+        if not self._prepare_path(save_as, overwrite, create_path):
             return False
 
         header = [
@@ -112,10 +87,10 @@ class DNSLogManager:
             for row in rows:
                 line = [
                     row.id,
-                    self.__sanitise_value(row.domain),
-                    self.__sanitise_value(row.source_ip),
-                    self.__sanitise_value(row.cls),
-                    self.__sanitise_value(row.type),
+                    self._sanitise_csv_value(row.domain),
+                    self._sanitise_csv_value(row.source_ip),
+                    self._sanitise_csv_value(row.cls),
+                    self._sanitise_csv_value(row.type),
                     row.created_at,
                     '1' if row.forwarded else '0',
                     '1' if row.found else '0',
@@ -124,12 +99,6 @@ class DNSLogManager:
                 writer.writerow(line)
 
         return os.path.isfile(save_as)
-
-    def __sanitise_value(self, value):
-        if len(value) > 0:
-            if value[0] in ['=', '+', '-', '@']:
-                value = "'" + value
-        return value
 
     def get_last_log_id(self, dns_zone_id):
         sql = "SELECT COALESCE(MAX(id), 0) AS max_id FROM dns_query_log WHERE dns_zone_id = :id"
