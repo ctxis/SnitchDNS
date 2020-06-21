@@ -112,10 +112,10 @@ class DNSLogManager:
             for row in rows:
                 line = [
                     row.id,
-                    row.domain,
-                    row.source_ip,
-                    row.cls,
-                    row.type,
+                    self.__sanitise_value(row.domain),
+                    self.__sanitise_value(row.source_ip),
+                    self.__sanitise_value(row.cls),
+                    self.__sanitise_value(row.type),
                     row.created_at,
                     '1' if row.forwarded else '0',
                     '1' if row.found else '0',
@@ -124,6 +124,12 @@ class DNSLogManager:
                 writer.writerow(line)
 
         return os.path.isfile(save_as)
+
+    def __sanitise_value(self, value):
+        if len(value) > 0:
+            if value[0] in ['=', '+', '-', '@']:
+                value = "'" + value
+        return value
 
     def get_last_log_id(self, dns_zone_id):
         sql = "SELECT COALESCE(MAX(id), 0) AS max_id FROM dns_query_log WHERE dns_zone_id = :id"
