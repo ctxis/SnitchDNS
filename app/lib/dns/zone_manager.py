@@ -216,6 +216,7 @@ class DNSZoneManager(SharedHelper):
         zones = self.get_user_zones(user_id, order_by='full_domain')
 
         header = [
+            'type',
             'domain',
             'd_active',
             'd_exact_match',
@@ -234,6 +235,7 @@ class DNSZoneManager(SharedHelper):
             for zone in zones:
                 # Write the zone.
                 zone_line = [
+                    'zone',
                     self._sanitise_csv_value(zone.full_domain),
                     '1' if zone.active else '0',
                     '1' if zone.exact_match else '0',
@@ -250,6 +252,7 @@ class DNSZoneManager(SharedHelper):
                         properties.append("{0}={1}".format(name, value))
 
                     record_line = [
+                        'record',
                         self._sanitise_csv_value(zone.full_domain),
                         '',
                         '',
