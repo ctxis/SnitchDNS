@@ -1,17 +1,16 @@
 from app.lib.models.user import UserModel
+from app.lib.dns.helpers.shared import SharedHelper
 from app import db
-from flask import current_app
 import flask_bcrypt as bcrypt
 import random
 import string
 import datetime
-import os
 from sqlalchemy import and_, func
 from flask_login import logout_user
 import pyotp
 
 
-class UserManager:
+class UserManager(SharedHelper):
     def __init__(self, password_complexity):
         self.__last_error = ''
         self.password_complexity = password_complexity
@@ -201,19 +200,6 @@ class UserManager:
         if len(users) == 0:
             return False
         return users[0]
-
-    def get_user_data_path(self, user_id, filename=''):
-        path = os.path.join(current_app.root_path, '..', 'data', 'users', str(user_id))
-        if not os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
-            if not os.path.isdir(path):
-                return False
-
-        if len(filename) > 0:
-            filename = filename.replace('..', '').replace('/', '')
-            path = os.path.join(path, filename)
-
-        return os.path.realpath(path)
 
     def get_admins(self, active=None):
         return self.__get(admin=True, active=active)

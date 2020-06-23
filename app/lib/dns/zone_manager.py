@@ -53,8 +53,8 @@ class DNSZoneManager(SharedHelper):
 
         return query.all()
 
-    def get(self, dns_zone_id):
-        results = self.__get(id=dns_zone_id)
+    def get(self, dns_zone_id, user_id=None):
+        results = self.__get(id=dns_zone_id, user_id=user_id)
         if len(results) == 0:
             return False
 
@@ -180,7 +180,7 @@ class DNSZoneManager(SharedHelper):
     def exists(self, dns_zone_id=None, full_domain=None):
         return len(self.__get(id=dns_zone_id, full_domain=full_domain)) > 0
 
-    def new(self, domain, active, exact_match, forwarding, user_id):
+    def new(self, domain, active, exact_match, forwarding, user_id, master=False):
         errors = []
 
         if len(domain) == 0:
@@ -202,11 +202,36 @@ class DNSZoneManager(SharedHelper):
             errors.append('Could not get zone')
             return errors
 
-        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, False, forwarding)
+        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
         if not zone:
             errors.append('Could not save zone')
             return errors
 
+        return zone
+
+    def update(self, zone_id, domain, active, exact_match, forwarding, user_id, master=False):
+        errors = []
+
+        if len(domain) == 0:
+            errors.append('Invalid domain')
+            return errors
+
+        zone = self.get(zone_id, user_id=user_id)
+        if not zone:
+            errors.append('Invalid zone')
+            return errors
+
+        user = self.users.get_user(user_id)
+        if not user:
+            errors.append('Could not load user')
+            return errors
+
+        base_domain = self.get_base_domain(user.admin, user.username)
+        if self.has_duplicate(zone.id, domain, base_domain):
+            errors.append('This domain already exists.')
+            return errors
+
+        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
         return zone
 
     def export(self, user_id, save_as, overwrite=False, create_path=False):
@@ -222,6 +247,7 @@ class DNSZoneManager(SharedHelper):
             'd_exact_match',
             'd_forwarding',
             'd_master',
+            'r_id',
             'r_ttl',
             'r_cls',
             'r_type',
@@ -258,6 +284,7 @@ class DNSZoneManager(SharedHelper):
                         '',
                         '',
                         '',
+                        record.id,
                         record.ttl,
                         record.cls,
                         record.type,

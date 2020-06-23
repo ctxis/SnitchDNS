@@ -19,6 +19,7 @@ from app.lib.notifications.providers.webpush import WebPushNotificationProvider
 from app.lib.notifications.providers.slack import SlackWebhookNotificationProvider
 from app.lib.log.manager import LoggingManager
 from app.lib.dns.restriction_manager import RestrictionManager
+from app.lib.dns.import_manager import DNSImportManager
 from flask import current_app
 import os
 
@@ -58,6 +59,12 @@ class Provider:
 
     def dns_restrictions(self):
         return RestrictionManager()
+
+    def dns_import(self):
+        return DNSImportManager(
+            self.dns_zones(),
+            self.dns_records()
+        )
 
     def search(self):
         return SearchManager()

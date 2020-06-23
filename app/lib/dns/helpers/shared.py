@@ -1,4 +1,6 @@
 import os
+import csv
+from flask import current_app
 
 
 class SharedHelper:
@@ -33,3 +35,40 @@ class SharedHelper:
             if value[0] in ['=', '+', '-', '@']:
                 value = "'" + value
         return value
+
+    def get_user_data_path(self, user_id, filename=''):
+        path = os.path.join(current_app.root_path, '..', 'data', 'users', str(user_id))
+        if not os.path.isdir(path):
+            os.makedirs(path, exist_ok=True)
+            if not os.path.isdir(path):
+                return False
+
+        if len(filename) > 0:
+            filename = filename.replace('..', '').replace('/', '')
+            path = os.path.join(path, filename)
+
+        return os.path.realpath(path)
+
+    def _load_csv(self, csvfile):
+        with open(csvfile, 'r') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+
+        if len(data) == 0:
+            return []
+
+        # Remove the first row and map each header to an index position.
+        first_row = data.pop(0)
+        header = {}
+        for i, name in enumerate(first_row):
+            header[name.strip().lower()] = i
+
+        rows = []
+        for item in data:
+            row = {}
+            for name, position in header.items():
+                # Using the index position we extracted before, get the appropriate column for this header.
+                row[name] = item[position] if position < len(item) else ''
+            rows.append(row)
+
+        return rows
