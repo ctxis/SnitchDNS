@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_required, current_user
 from flask_crontab import Crontab
+from app.lib.base.environment import EnvironmentManager
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -18,9 +19,10 @@ crontab = Crontab()
 def create_app(config_class=None):
     from app.lib.base.provider import Provider
     provider = Provider()
+    environment = EnvironmentManager()
 
     # Make sure the instance path is within the ./data folder.
-    data_path = provider.get_data_path()
+    data_path = environment.get_data_path()
     app = Flask(__name__, instance_path=os.path.join(data_path, 'instance'), instance_relative_config=True)
 
     try:
@@ -28,7 +30,7 @@ def create_app(config_class=None):
     except OSError:
         pass
 
-    dbms = provider.env('SNITCHDNS_DBMS', default='sqlite').lower()
+    dbms = environment.env('SNITCHDNS_DBMS', default='sqlite').lower()
     dbms_uri = ''
 
     # First we load everything we need in order to end up with a working app.
@@ -41,10 +43,10 @@ def create_app(config_class=None):
             dbms_uri = 'mysql+pymysql://{user}:{pw}@{url}/{db}?charset=utf8mb4'
 
         dbms_uri = dbms_uri.format(
-            user=provider.env('SNITCHDNS_DB_USER', must_exist=True),
-            pw=provider.env('SNITCHDNS_DB_PW', must_exist=True),
-            url=provider.env('SNITCHDNS_DB_URL', must_exist=True),
-            db=provider.env('SNITCHDNS_DB_DB', must_exist=True)
+            user=environment.env('SNITCHDNS_DB_USER', must_exist=True),
+            pw=environment.env('SNITCHDNS_DB_PW', must_exist=True),
+            url=environment.env('SNITCHDNS_DB_URL', must_exist=True),
+            db=environment.env('SNITCHDNS_DB_DB', must_exist=True)
         )
     else:
         raise Exception("Unknown DBMS: {0}".format(dbms))
@@ -52,7 +54,7 @@ def create_app(config_class=None):
     app.config['SQLALCHEMY_DATABASE_URI'] = dbms_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # app.config['SQLALCHEMY_ECHO'] = True
-    app.config['SECRET_KEY'] = provider.env('SNITCHDNS_SECRET_KEY', must_exist=True)
+    app.config['SECRET_KEY'] = environment.env('SNITCHDNS_SECRET_KEY', must_exist=True)
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     # This is to ensure only a single cron job runs at a time.
     app.config['CRONTAB_LOCK_JOBS'] = True

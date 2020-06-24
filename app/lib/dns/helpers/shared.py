@@ -1,6 +1,6 @@
 import os
 import csv
-from flask import current_app
+from app.lib.base.environment import EnvironmentManager
 
 
 class SharedHelper:
@@ -37,7 +37,7 @@ class SharedHelper:
         return value
 
     def get_user_data_path(self, user_id, filename=''):
-        path = os.path.join(current_app.root_path, '..', 'data', 'users', str(user_id))
+        path = os.path.join(EnvironmentManager().get_data_path(), 'users', str(user_id))
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
             if not os.path.isdir(path):
