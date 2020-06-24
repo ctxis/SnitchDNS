@@ -1,3 +1,5 @@
+# The 'acl' package is required for 'become' in ansible to work.
+# The 'libpq-dev' is for building the 'psycopg2' requirement.
 - name: "Install packages"
   apt:
     name: "{{ packages }}"

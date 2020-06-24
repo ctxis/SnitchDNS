@@ -1,7 +1,5 @@
 # Environment Variables
 
-## Database
-
 | Type | Name | Description | Required | Expected Value(s) | Default |
 | ---- | ---- | ----------- | -------- | ----------------- | ------- |
 | Database | `SNITCHDNS_DBMS` | DBMS | No | `sqlite`, `mysql`, `postgres` | `sqlite` |
