@@ -1,6 +1,11 @@
 - name: "Check python requirements"
   import_tasks: system/version.yml
 
+# This path is used in a number of roles.
+- name: "Lookup data path"
+  set_fact:
+    var_data_path: "{{ snitch.data_path if snitch.data_path|length > 0 else snitch.destination + '/data' }}"
+
 - name: "Install Ubuntu pre-requisites"
   import_tasks: ubuntu/main.yml
   when: ansible_distribution|lower == 'ubuntu'

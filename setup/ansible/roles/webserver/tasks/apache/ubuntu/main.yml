@@ -24,7 +24,7 @@
 
 - name: "Check for Apache config file"
   stat:
-    path: "{{ snitch.destination }}/data/config/http/vhost.conf"
+    path: "{{ var_data_path }}/config/http/vhost.conf"
   register: http_config
 
 - name: "Check for available vhost"
@@ -41,12 +41,12 @@
   when: http_config.stat.exists == False
   template:
     src: apache/ubuntu.vhost.conf.j2
-    dest: "{{ snitch.destination }}/data/config/http/vhost.conf"
+    dest: "{{ var_data_path }}/config/http/vhost.conf"
 
 - name: "Creating available vhost"
   when: available_host.stat.exists == False
   file:
-    src: "{{ snitch.destination }}/data/config/http/vhost.conf"
+    src: "{{ var_data_path }}/config/http/vhost.conf"
     dest: "/etc/apache2/sites-available/snitch.conf"
     state: link
 

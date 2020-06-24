@@ -1,6 +1,6 @@
 - name: "Creating config directory"
   file:
-    path: "{{ snitch.destination }}/data/config/service"
+    path: "{{ var_data_path }}/config/service"
     state: directory
     recurse: yes
     owner: "{{ web.user }}"
@@ -9,7 +9,7 @@
 - name: "Creating service file"
   template:
     src: systemd.j2
-    dest: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+    dest: "{{ var_data_path }}/config/service/snitchdns.service"
 
 - name: "Checking for installed service"
   stat:
@@ -19,7 +19,7 @@
 - name: "Creating link to service"
   when: existing_service.stat.exists == False
   file:
-    src: "{{ snitch.destination }}/data/config/service/snitchdns.service"
+    src: "{{ var_data_path }}/config/service/snitchdns.service"
     dest: "/etc/systemd/system/snitchdns.service"
     state: link
 

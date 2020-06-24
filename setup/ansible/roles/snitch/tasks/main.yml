@@ -34,6 +34,18 @@
     owner: "{{ web.user }}"
     group: "{{ web.group }}"
 
+- name: "Make sure {{ var_data_path }} exists"
+  file:
+    path: "{{ var_data_path }}"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
+- name: "Generate/Retrieve Secret Key"
+  set_fact:
+    var_secret_key: "{{ snitch.secret_key if snitch.secret_key|length > 0 else lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}"
+
 - name: "Checking for virtual environment"
   stat:
     path: "{{ snitch.destination }}/venv"
@@ -41,7 +53,7 @@
 
 - name: "Creating env data directory"
   file:
-    path: "{{ snitch.destination }}/data/config/env"
+    path: "{{ var_data_path }}/config/env"
     state: directory
     recurse: yes
     owner: "{{ web.user }}"
@@ -50,7 +62,24 @@
 - name: "Creating env file"
   template:
     src: env.conf.j2
+    dest: "{{ var_data_path }}/config/env/snitch.conf"
+
+# The problem here is that the venv.sh file looks for the env variables within ./data/config/env/snitch.conf.
+# For this reason, if the path of snitch.data_path is set, we'll need to create a symlink to it.
+- name: "Creating standard env data directory"
+  file:
+    path: "{{ snitch.destination }}/data/config/env"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
+- name: "Creating symlink for env file"
+  when: snitch.data_path != ''
+  file:
+    src: "{{ var_data_path }}/config/env/snitch.conf"
     dest: "{{ snitch.destination }}/data/config/env/snitch.conf"
+    state: link
 
 - name: "Setting up virtual environment"
   when: venv.stat.exists == False

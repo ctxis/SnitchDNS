@@ -23,6 +23,6 @@
 
     SSLEngine on
 
-    SSLCertificateFile	{{ snitch.destination }}/data/config/http/ssl.crt
-    SSLCertificateKeyFile {{ snitch.destination }}/data/config/http/ssl.pem
+    SSLCertificateFile	{{ var_data_path }}/config/http/ssl.crt
+    SSLCertificateKeyFile {{ var_data_path }}/config/http/ssl.pem
 </VirtualHost>

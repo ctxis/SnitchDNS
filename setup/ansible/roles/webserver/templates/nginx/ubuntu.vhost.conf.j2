@@ -8,8 +8,8 @@ server {
     listen 443 ssl http2;
     server_name {{ web.domain }};
 
-    ssl_certificate {{ snitch.destination }}/data/config/http/ssl.crt;
-    ssl_certificate_key {{ snitch.destination }}/data/config/http/ssl.pem;
+    ssl_certificate {{ var_data_path }}/config/http/ssl.crt;
+    ssl_certificate_key {{ var_data_path }}/config/http/ssl.pem;
 
     ssl_protocols TLSv1.2;
 

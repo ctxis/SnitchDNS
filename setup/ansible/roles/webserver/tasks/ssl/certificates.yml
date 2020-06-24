@@ -1,6 +1,6 @@
 - name: "Creating http config directory"
   file:
-    path: "{{ snitch.destination }}/data/config/http"
+    path: "{{ var_data_path }}/config/http"
     state: directory
     recurse: yes
     owner: "{{ web.user }}"
@@ -8,52 +8,52 @@
 
 - name: "Check for private key"
   stat:
-    path: "{{ snitch.destination }}/data/config/http/ssl.pem"
+    path: "{{ var_data_path }}/config/http/ssl.pem"
   register: ssl_pem
 
 - name: "Check for csr key"
   stat:
-    path: "{{ snitch.destination }}/data/config/http/ssl.csr"
+    path: "{{ var_data_path }}/config/http/ssl.csr"
   register: ssl_csr
 
 - name: "Check for crt key"
   stat:
-    path: "{{ snitch.destination }}/data/config/http/ssl.crt"
+    path: "{{ var_data_path }}/config/http/ssl.crt"
   register: ssl_crt
 
 - name: "Check if custom SSL certificate exists"
   when: web.ssl_cert_file != ''
   copy:
     src: "{{ web.ssl_cert_file }}"
-    dest: "{{ snitch.destination }}/data/config/http/ssl.crt"
+    dest: "{{ var_data_path }}/config/http/ssl.crt"
     mode: "0644"
 
 - name: "Check if custom SSL private key exists"
   when: web.ssl_cert_keyfile != ''
   copy:
     src: "{{ web.ssl_cert_keyfile }}"
-    dest: "{{ snitch.destination }}/data/config/http/ssl.pem"
+    dest: "{{ var_data_path }}/config/http/ssl.pem"
     mode: "0600"
 
 - name: "Generating private key"
   when: ssl_pem.stat.exists == False and web.ssl_cert_file == ''
   openssl_privatekey:
-    path: "{{ snitch.destination }}/data/config/http/ssl.pem"
+    path: "{{ var_data_path }}/config/http/ssl.pem"
     size: 2048
     mode: "0600"
 
 - name: "Generating csr key"
   when: ssl_csr.stat.exists == False and web.ssl_cert_file == ''
   openssl_csr:
-    path: "{{ snitch.destination }}/data/config/http/ssl.csr"
-    privatekey_path: "{{ snitch.destination }}/data/config/http/ssl.pem"
+    path: "{{ var_data_path }}/config/http/ssl.csr"
+    privatekey_path: "{{ var_data_path }}/config/http/ssl.pem"
     common_name: "{{ web.domain }}"
 
 - name: "Generating crt key"
   when: ssl_crt.stat.exists == False and web.ssl_cert_file == ''
   openssl_certificate:
-    path: "{{ snitch.destination }}/data/config/http/ssl.crt"
-    privatekey_path: "{{ snitch.destination }}/data/config/http/ssl.pem"
-    csr_path: "{{ snitch.destination }}/data/config/http/ssl.csr"
+    path: "{{ var_data_path }}/config/http/ssl.crt"
+    privatekey_path: "{{ var_data_path }}/config/http/ssl.pem"
+    csr_path: "{{ var_data_path }}/config/http/ssl.csr"
     provider: selfsigned
     mode: "0644"

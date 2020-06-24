@@ -20,6 +20,11 @@ snitch:
   # have it work as a forwarder. However, even with caching disabled Bind9 still cached responses, therefore iptables
   # is preferred.
   listen_port: 2024
+  # Where all the user data will be stored, including the sqlite database (if that is the DBMS of choice). If left empty
+  # the default value will fallback to: << snitch.destination + '/data' >>
+  data_path: '/opt/outside_data'
+  # Secret key to encrypt sessions. If left empty it will be auto-generated.
+  secret_key: ''
 
 web:
   # Define the web server that will be installed. This can be one of:
