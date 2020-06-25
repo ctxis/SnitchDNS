@@ -1,8 +1,35 @@
 # Manual Setup
 
-At the moment the ansible scripts have been tested on Ubuntu 18.04 and 20.04, but following the instructions on this page will allow you to install SnitchDNS on any OS (slight changes may be required though).
+The following instructions have been put together for Ubuntu 18.04 and 20.04. However, the templates and instructions should work on other versions/distributions with minimal changes.
 
-## Pre-requisites
+# Table of Contents
+
+* [Prerequisites](#prerequisites)
+  * [Minimum Python Version](#python)
+  * [Required Packages](#packages)
+* [Database Support](#database)
+* [SnitchDNS](#setup-snitchdns)
+  * [Clone Repo](#clone)
+  * [Virtual Environment](#virtual-environment)
+  * [Environment Variables](#setup-env-variables)
+  * [Initialise Database and Cron](#setup-database-and-cron)
+  * [Initialise Settings](#initial-settings-optional) (optional)
+  * [Permissions](#permissions)
+* [System Service](#setup-system-service)
+  * [Create Service](#create-service-file)
+  * [Install Service](#install-service)
+* [Web Server](#web-server)
+  * [SSL Certificates](#ssl-certificates)
+  * [Apache](#apache)
+    * [Install](#install-apache)
+    * [Virtual Host](#setup-apache-vhost)
+  * [nginx](#nginx)
+    * [Install](#install-nginx)
+    * [Virtual Host](#setup-nginx-vhost)
+* [Forwarding DNS Port](#iptables)
+* [Conclusion](#conclusion)
+    
+## Prerequisites
 
 ### Python
 
@@ -197,6 +224,8 @@ Otherwise put your `ssl.crt` and `ssl.pem` files within the folder `./data/confi
 
 ### Apache
 
+#### Install Apache
+
 Install Apache and enable all the required modules:
 
 ```
@@ -207,6 +236,8 @@ sudo a2enmod rewrite
 sudo a2enmod ssl
 ```
 
+#### Setup Apache vhost
+
 Using [this template](/setup/ansible/roles/webserver/templates/apache/ubuntu.vhost.conf.j2) create a config file under `./data/config/http/vhost.conf` and replace the variables with:
 
 | Variable | Replace With | Comment |
@@ -215,8 +246,6 @@ Using [this template](/setup/ansible/roles/webserver/templates/apache/ubuntu.vho
 | `{{ web.bind_host }}` | `127.0.0.1` | Same as where the gunicorn service is running on. |
 | `{{ web.bind_port }}` | `8888` | Same as where the gunicorn service is running on. |
 | `{{ var_data_path }}` | `/opt/snitch/data` | If you specified an external `SNITCHDNS_DATA_PATH`, use that location here. |
-
-#### Enabling Virtual Host
 
 Now that the configuration is ready, we need to create a link to the `/sites-available` folder of Apache.
 
@@ -235,11 +264,15 @@ You should be able to visit SnitchDNS via `https://www.snitch.lan` (or whichever
 
 ### nginx
 
+#### Install nginx
+
 Install nginx and enable all the required modules:
 
 ```
 sudo apt install nginx
 ```
+
+#### Setup nginx vhost
 
 Using [this template](/setup/ansible/roles/webserver/templates/nginx/ubuntu.vhost.conf.j2) create a config file under `./data/config/http/vhost.conf` and replace the variables with:
 
@@ -249,8 +282,6 @@ Using [this template](/setup/ansible/roles/webserver/templates/nginx/ubuntu.vhos
 | `{{ web.bind_host }}` | `127.0.0.1` | Same as where the gunicorn service is running on. |
 | `{{ web.bind_port }}` | `8888` | Same as where the gunicorn service is running on. |
 | `{{ var_data_path }}` | `/opt/snitch/data` | If you specified an external `SNITCHDNS_DATA_PATH`, use that location here. |
-
-#### Enabling Virtual Host
 
 Now that the configuration is ready, we need to create a link to the `/sites-enabled` folder of nginx.
 
