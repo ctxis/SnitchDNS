@@ -27,7 +27,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * Slack Webhooks
 * User Management
   * Multi-User support
-    * Each user is given their own subdomain to user.
+    * Each user is given their own subdomain to use.
   * LDAP Support
   * Two Factor Authentication
   * Password Complexity Management
