@@ -24,7 +24,7 @@ class DNSManager:
 
         return True
 
-    def find_zone(self, domain, original_domain):
+    def find_zone(self, domain, original_domain, validate_exact_match=True):
         zone = self.zone_manager.find(domain)
         if zone is False:
             return False
@@ -35,7 +35,8 @@ class DNSManager:
         # If it is, in order for it to be used here the query.qname (the DNS request that came in) must match the
         # 'full domain' of this result. Because the returned value could be 'hi.bye.contextis.com' and set as
         # 'exact match' but the original query could be for 'greeting.hi.bye.contextis.com'
-        if zone.exact_match:
+        # The 'validate_exact_match' was added to add the option to skip this check to make CNAME responses easier.
+        if zone.exact_match and validate_exact_match:
             if zone.full_domain != original_domain:
                 return False
 

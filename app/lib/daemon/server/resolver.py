@@ -84,13 +84,7 @@ class DatabaseDNSResolver:
             # Log the identified zone id.
             log.dns_zone_id = db_zone.id
 
-            # Look for more than one records (nameservers, mx records etc may have more than one).
-            db_records = self.__dns_manager.find_all_records(db_zone, cls, type, active=True)
-            if len(db_records) == 0:
-                # If it's a query to A/AAAA check for CNAME records as well.
-                if type in ['A', 'AAAA']:
-                    db_records = self.__dns_manager.find_all_records(db_zone, cls, 'CNAME', active=True)
-
+            db_records = self.__get_records(db_zone, cls, type)
             if len(db_records) == 0:
                 # If we still haven't found anything (no matches), determine whether we can forward this record or not.
                 lookup_result = 'continue' if db_zone.forwarding else 'stop'
@@ -119,6 +113,22 @@ class DatabaseDNSResolver:
             'answers': answers,
             'log': log
         }
+
+    def __get_records(self, db_zone, cls, type):
+        # First look for a CNAME.
+        redir_records = []
+        records = self.__dns_manager.find_all_records(db_zone, cls, 'CNAME', active=True)
+        if len(records) == 0:
+            records = self.__dns_manager.find_all_records(db_zone, cls, type, active=True)
+        else:
+            redir_domain = records[0].property('name', '')
+            if len(redir_domain) > 0:
+                redir_zone = self.__dns_manager.find_zone(redir_domain, '', validate_exact_match=False)
+                if redir_zone:
+                    # We have an entry for this domain. Lookup the requested record there.
+                    redir_records = self.__dns_manager.find_all_records(redir_zone, cls, type, active=True)
+
+        return records + redir_records
 
     def __build_answer(self, query, db_zone, db_record):
         record = None
