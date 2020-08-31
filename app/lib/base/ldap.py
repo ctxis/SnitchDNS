@@ -1,8 +1,14 @@
 import ldap3
 from ldap3.core.exceptions import LDAPSocketSendError, LDAPSocketOpenError
+from ldap3.extend.microsoft.modifyPassword import ad_modify_password
 
 
 class LDAPManager:
+    AUTH_INVALID_LOGIN = -1
+    AUTH_SUCCESS = 0
+    AUTH_CHANGE_PASSWORD = 1
+    AUTH_LOCKED = 2
+
     @property
     def enabled(self):
         return self.__enabled
@@ -99,6 +105,14 @@ class LDAPManager:
     def error_details(self, value):
         self.__error_details = value
 
+    @property
+    def last_result(self):
+        return self.__last_result
+
+    @last_result.setter
+    def last_result(self, value):
+        self.__last_result = value
+
     def __init__(self):
         self.__enabled = False
         self.__host = ''
@@ -114,20 +128,39 @@ class LDAPManager:
         # Internal.
         self.__error_message = ''
         self.__error_details = ''
+        self.__last_result = None
 
-    def authenticate(self, username, password, test_only=False):
+    def authenticate(self, username, password):
         self.error_message = ''
         self.error_details = ''
         connection = self.__connect(username, password)
         if connection:
             # Authentication worked - close connection.
             connection.unbind()
-            if test_only:
-                return True
 
             # Reconnect using the BindUser and return the user's data.
-            return self.__load_user(username)
-        return False
+            return {'result': self.AUTH_SUCCESS, 'user': self.__load_user(username)}
+        print(self.last_result)
+        return self.__process_result(self.last_result)
+
+    def __process_result(self, result):
+        # https://ldapwiki.com/wiki/Common%20Active%20Directory%20Bind%20Errors
+        # Weird way to get the AD response as it only returns a string rather than the code in a property. It could
+        # be the ldap3 library or the way AD returns the code, but I can't can't fix either one soooo here it is!
+        ldap_responses = {
+            'data 532': self.AUTH_CHANGE_PASSWORD,  # ERROR_PASSWORD_EXPIRED
+            'data 773': self.AUTH_CHANGE_PASSWORD, # ERROR_PASSWORD_MUST_CHANGE
+            'data 533': self.AUTH_LOCKED, # ERROR_ACCOUNT_DISABLED
+        }
+
+        response = self.AUTH_INVALID_LOGIN
+        if ('message' in result) and (len(result['message']) > 0):
+            for seed, code in ldap_responses.items():
+                if seed in result['message']:
+                    response = code
+                    break
+
+        return {'result': response}
 
     def test_connection(self):
         self.error_message = ''
@@ -143,7 +176,9 @@ class LDAPManager:
         ldap_user = "{0}\\{1}".format(self.domain, username)
         connection = ldap3.Connection(server, user=ldap_user, password=password, authentication=ldap3.NTLM)
         try:
+            self.last_result = None
             result = connection.bind()
+            self.last_result = connection.result
         except (LDAPSocketOpenError, LDAPSocketSendError) as e:
             # I kept these separately as these are when it can't connect to the server.
             self.error_message = 'Internal Error: Could not connect to the LDAP Server.'
@@ -176,13 +211,34 @@ class LDAPManager:
             connection.unbind()
             return False
 
+        response = connection.response[0]
+        response_attributes = response['attributes']
+
         data = {
-            'username': connection.entries[0][self.mapping_username].value,
-            'fullname': connection.entries[0][self.mapping_fullname].value,
-            'email': connection.entries[0][self.mapping_email].value if len(self.mapping_email) > 0 else ''
+            'username': response_attributes[self.mapping_username] if self.mapping_username in response_attributes else '',
+            'fullname': response_attributes[self.mapping_fullname] if self.mapping_fullname in response_attributes else '',
+            'email': response_attributes[self.mapping_email] if self.mapping_email in response_attributes else '',
+            'dn': response['dn']
         }
+
+        if isinstance(data['email'], list):
+            data['email'] = data['email'][0] if len(data['email']) > 0 else ''
 
         # Close connection.
         connection.unbind()
 
         return data
+
+    def update_password_ad(self, username, old_password, new_password):
+        # First we need to check their existing password.
+        result = self.authenticate(username, old_password)
+        if result['result'] != self.AUTH_CHANGE_PASSWORD:
+            return False
+
+        user = self.__load_user(username)
+        if not user or len(user['username']) == 0:
+            return False
+
+        connection = self.__connect(self.bind_user, self.bind_pass)
+        result = ad_modify_password(connection, user['dn'], new_password, old_password)
+        return result

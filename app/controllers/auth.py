@@ -39,8 +39,18 @@ def login_process():
             flash('Invalid credentials', 'error')
             return redirect(url_for('auth.login', next=next))
     elif ldap.enabled:
-        ldap_user = ldap.authenticate(username, password)
-        if not ldap_user:
+        ldap_result = ldap.authenticate(username, password)
+        if ldap_result['result'] == ldap.AUTH_SUCCESS:
+            ldap_user = ldap_result['user']
+        elif ldap_result['result'] == ldap.AUTH_CHANGE_PASSWORD:
+            session['ldap_username'] = username
+            session['ldap_time'] = int(time.time())
+            flash('Your LDAP password has expired or needs changing', 'error')
+            return redirect(url_for('auth.ldap_changepwd', next=next))
+        elif ldap_result['result'] == ldap.AUTH_LOCKED:
+            flash('Your AD account is disabled', 'error')
+            return redirect(url_for('auth.login', next=next))
+        else:
             if len(ldap.error_message) > 0:
                 flash(ldap.error_message, 'error')
             else:
@@ -106,10 +116,8 @@ def login_2fa():
         can_continue = False
 
     if not can_continue:
-        if 'otp_userid' in session:
-            del session['otp_userid']
-        if 'otp_time' in session:
-            del session['otp_time']
+        session.pop('otp_userid', None)
+        session.pop('otp_time', None)
 
         return redirect(url_for('auth.login', next=next))
 
@@ -139,10 +147,8 @@ def login_2fa_process():
         can_continue = False
 
     if not can_continue:
-        if 'otp_userid' in session:
-            del session['otp_userid']
-        if 'otp_time' in session:
-            del session['otp_time']
+        session.pop('otp_userid', None)
+        session.pop('otp_time', None)
 
         return redirect(url_for('auth.login', next=next))
 
@@ -154,8 +160,8 @@ def login_2fa_process():
         flash('Invalid Code', 'error')
         return redirect(url_for('auth.login_2fa', next=next))
 
-    del session['otp_userid']
-    del session['otp_time']
+    session.pop('otp_userid', None)
+    session.pop('otp_time', None)
 
     # If we reach this point it means that our user exists. Check if the user is active.
     user = users.login_session(user)
@@ -179,3 +185,78 @@ def logout():
 
     users.logout_session(current_user.id)
     return redirect(url_for('auth.login'))
+
+
+@bp.route('/ldap/password', methods=['GET'])
+def ldap_changepwd():
+    provider = Provider()
+    users = provider.users()
+
+    next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
+    username = session['ldap_username'] if 'ldap_username' in session else ''
+    ldap_time = session['ldap_time'] if 'ldap_time' in session else 0
+    if len(username) == 0:
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+    elif int(time.time()) > (ldap_time + 120):
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+
+    user = users.find_user_login(username, True)
+    if not user:
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+
+    return render_template('auth/ldap_password.html', next=request.args.get('next', ''))
+
+
+@bp.route('/ldap/password', methods=['POST'])
+def ldap_changepwd_process():
+    provider = Provider()
+    users = provider.users()
+    ldap = provider.ldap()
+
+    next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
+    password = request.form['password'].strip()
+    new_password = request.form['new_password'].strip()
+    confirm_password = request.form['confirm_password'].strip()
+
+    username = session['ldap_username'] if 'ldap_username' in session else ''
+    ldap_time = session['ldap_time'] if 'ldap_time' in session else 0
+    if len(username) == 0:
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+    elif int(time.time()) > (ldap_time + 120):
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+
+    user = users.find_user_login(username, True)
+    if not user:
+        session.pop('ldap_username', None)
+        session.pop('ldap_time', None)
+        return redirect(url_for('auth.login', next=next))
+
+    if len(password) == 0:
+        flash('Please enter your current password', 'error')
+        return redirect(url_for('ldap_changepwd', next=next))
+    elif len(new_password) == 0 or len(confirm_password) == 0:
+        flash('Please enter your new password', 'error')
+        return redirect(url_for('ldap_changepwd', next=next))
+    elif new_password != confirm_password:
+        flash('New passwords do not match', 'error')
+        return redirect(url_for('ldap_changepwd', next=next))
+
+    session.pop('ldap_username', None)
+    session.pop('ldap_time', None)
+
+    if not ldap.update_password_ad(user.username, password, new_password):
+        flash('Could not update password', 'error')
+        return redirect(url_for('auth.login', next=next))
+
+    flash('Password updated - please login again', 'success')
+    return redirect(url_for('auth.login', next=next))
