@@ -23,6 +23,8 @@
             {% include 'dns/notifications/settings/email.html' %}
         {% elif section == 'slack_settings' %}
             {% include 'dns/notifications/settings/slack.html' %}
+        {% elif section == 'teams_settings' %}
+            {% include 'dns/notifications/settings/teams.html' %}
         {% elif section == 'restrictions' %}
             {% include 'dns/restrictions/view.html' %}
         {% elif section == 'restrictions_edit' %}

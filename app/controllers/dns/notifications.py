@@ -52,7 +52,7 @@ def zone_notifications_save(dns_zone_id):
         return redirect(url_for('home.index'))
 
     max_id = logs.get_last_log_id(zone.id)
-    for type in ['email', 'webpush', 'slack']:
+    for type in ['email', 'webpush', 'slack', 'teams']:
         enabled = True if int(request.form.get(type, 0)) == 1 else False
         notifications.save_zone_subscription(zone.id, type, enabled=enabled, last_query_log_id=max_id)
 
@@ -148,6 +148,13 @@ def zone_notifications_settings_save(dns_zone_id, item):
         subscription = zone.notifications.get(item)
         if subscription:
             subscription.data = slack_webhook_url
+            subscription.save()
+    elif item == 'teams':
+        teams_webhook_url = request.form['teams_webhook_url'].strip()
+
+        subscription = zone.notifications.get(item)
+        if subscription:
+            subscription.data = teams_webhook_url
             subscription.save()
 
     flash('Notification settings saved.')

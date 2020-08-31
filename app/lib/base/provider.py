@@ -17,6 +17,7 @@ from app.lib.notifications.manager import NotificationManager
 from app.lib.notifications.providers.email import EmailNotificationProvider
 from app.lib.notifications.providers.webpush import WebPushNotificationProvider
 from app.lib.notifications.providers.slack import SlackWebhookNotificationProvider
+from app.lib.notifications.providers.teams import TeamsWebhookNotificationProvider
 from app.lib.log.manager import LoggingManager
 from app.lib.dns.restriction_manager import RestrictionManager
 from app.lib.dns.import_manager import DNSImportManager
@@ -147,7 +148,7 @@ class Provider:
         manager = NotificationManager()
 
         # Put some error handler in case the user forgets to run the seed function.
-        expected_providers = ['email', 'webpush', 'slack']
+        expected_providers = ['email', 'webpush', 'slack', 'teams']
         for name in expected_providers:
             if manager.types.get(name=name) is False:
                 raise Exception("Notification provider {0} is missing. Make sure you run the SnitchDNS 'snitchdb' function".format(name))
@@ -176,9 +177,15 @@ class Provider:
         slack_provider.enabled = settings.get('slack_enabled', False, type=bool)
         slack_provider.type_id = manager.types.get(name='slack').id
 
+        # Load Teams Webhook Provider.
+        teams_provider = TeamsWebhookNotificationProvider()
+        teams_provider.enabled = settings.get('teams_enabled', False, type=bool)
+        teams_provider.type_id = manager.types.get(name='teams').id
+
         manager.providers.add('email', email_provider)
         manager.providers.add('webpush', webpush_provider)
         manager.providers.add('slack', slack_provider)
+        manager.providers.add('teams', teams_provider)
 
         return manager
 

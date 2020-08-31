@@ -11,7 +11,8 @@ class SeedDatabase:
         data = [
             {'name': 'email', 'description': 'E-mail'},
             {'name': 'webpush', 'description': 'Web Push'},
-            {'name': 'slack', 'description': 'Slack Webhooks'}
+            {'name': 'slack', 'description': 'Slack Webhooks'},
+            {'name': 'teams', 'description': 'Teams Webhooks'},
         ]
 
         type_manager = NotificationTypeManager()

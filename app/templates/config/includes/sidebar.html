@@ -9,6 +9,7 @@
     <a class="nav-link {{ 'active' if active_nav == 'smtp' }}" href="{{ url_for('config.smtp') }}"><i class="fas fa-at fa-fw"></i> <span class="pl-2">E-mail</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'webpush' }}" href="{{ url_for('config.webpush') }}"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Web Push</span></a>
     <a class="nav-link {{ 'active' if active_nav == 'slack' }}" href="{{ url_for('config.slack') }}"><i class="fab fa-slack fa-fw"></i> <span class="pl-2">Slack</span></a>
+    <a class="nav-link {{ 'active' if active_nav == 'teams' }}" href="{{ url_for('config.teams') }}"><i class="fab fa-microsoft fa-fw"></i> <span class="pl-2">Teams</span></a>
     <a class="nav-link ml-n4"><i class="fas fa-chevron-circle-right fa-fw"></i> Authentication</a>
     <a class="nav-link {{ 'active' if active_nav == 'ldap' }}" href="{{ url_for('config.ldap') }}"><i class="fas fa-passport fa-fw"></i> <span class="pl-2">LDAP</span></a>
     <a class="nav-link ml-n4"><i class="fas fa-chevron-circle-right fa-fw"></i> Accounts</a>
