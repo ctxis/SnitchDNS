@@ -36,6 +36,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
 * Swagger 2.0 API
 * Deployment
   * Ansible scripts for Ubuntu 18.04 / 20.04
+  * Dockerfile
   * CLI support for zone, record, user, and settings management.
   * CSV Export/Import 
   
@@ -59,6 +60,7 @@ For more details on scenarios please see the [Use Cases Document](docs/use_cases
 
 * [The Ansible Way](docs/setup/ansible.md)
 * [The Manual Way](docs/setup/manual.md)
+* [Docker](docs/setup/docker.md)
 
 ## Documentation
 
