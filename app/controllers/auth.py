@@ -40,7 +40,13 @@ def login_process():
             return redirect(url_for('auth.login', next=next))
     elif ldap.enabled:
         ldap_result = ldap.authenticate(username, password)
-        if ldap_result['result'] == ldap.AUTH_SUCCESS:
+        if ldap_result is False:
+            if len(ldap.error_message) > 0:
+                flash(ldap.error_message, 'error')
+            else:
+                flash('Invalid credentials', 'error')
+            return redirect(url_for('auth.login', next=next))
+        elif ldap_result['result'] == ldap.AUTH_SUCCESS:
             ldap_user = ldap_result['user']
         elif ldap_result['result'] == ldap.AUTH_CHANGE_PASSWORD:
             session['ldap_username'] = username
