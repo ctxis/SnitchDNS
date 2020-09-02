@@ -5,7 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG INSTALL_PATH=/opt/snitchdns
 ARG DATA_PATH=$INSTALL_PATH/data
 ARG CONFIG_PATH=$DATA_PATH/config
-ARG REPO=https://github.com/sadreck/SnitchDNS
+ARG REPO=https://github.com/ctxis/SnitchDNS
 
 # Configuration.
 ARG SNITCHDNS_DBMS=sqlite
@@ -87,4 +87,4 @@ VOLUME $DATA_PATH
 
 EXPOSE 80 443 2024
 
-CMD ["/bin/bash", "entrypoint.sh"]
+CMD ["/bin/bash", "setup/docker/entrypoint.sh"]
