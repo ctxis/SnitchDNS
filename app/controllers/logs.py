@@ -14,13 +14,15 @@ def index():
     search = provider.search()
 
     results = search.search_from_request(request)
+    advanced = int(request.args.get('advanced', 0)) == 1
 
     return render_template(
         'logs/index.html',
         results=results['results'],
         params=results['params'],
         filters=results['filters'],
-        page_url='logs.index'
+        page_url='logs.index',
+        advanced=advanced
     )
 
 

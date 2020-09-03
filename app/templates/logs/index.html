@@ -14,8 +14,9 @@
 
         <div class="search-form">
             <form action="{{ url_for('logs.index') }}" method="get">
+                <input type="hidden" name="advanced" value="1" class="field-advanced">
                 <div class="form-group row">
-                    <div class="col">
+                    <div class="col-6">
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text">Domain</span></div>
                             <input type="text" class="form-control" value="{{ params.domain }}" name="domain" placeholder="%.example.com">
@@ -24,12 +25,32 @@
                             <input type="text" class="form-control" value="{{ params.source_ip }}" name="source_ip" placeholder="192.168.%">
                         </div>
                     </div>
-                </div>
+                    <div class="col-4 pl-0 ml-0">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">Type</span></div>
+                            <select class="custom-select form-control" name="type">
+                                <option value=""></option>
+                                {% for type in filters.types %}
+                                <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
+                                {% endfor %}
+                            </select>
 
-                <div class="form-group row">
-                    <div class="col">
+                            <div class="input-group-prepend"><span class="input-group-text">Matched</span></div>
+                            <select class="custom-select" name="matched">
+                                <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
+                                <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
+                                <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col pl-0 ml-0">
+                        <button type="submit" class="btn btn-primary btn-block">search</button>
+                    </div>
+                </div>
+                <div class="form-group row search-advanced">
+                    <div class="col-6">
                         <div class="row">
-                            <div class="col">
+                            <div class="col mr-0 pr-0">
                                 <div class="input-group date" id="date_from" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">From</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="date_from" data-target="#date_from" placeholder="YYYY-MM-DD">
@@ -38,7 +59,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col ml-0 pl-0">
                                 <div class="input-group date" id="time_from" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">At</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="time_from" data-target="#time_from" placeholder="HH:MM">
@@ -49,41 +70,28 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="row">
-                            <div class="col pl-0 ml-0">
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Type</span></div>
-                                    <select class="custom-select" name="type">
-                                        <option value=""></option>
-                                        {% for type in filters.types %}
-                                        <option value="{{ type }}" {{ 'selected' if type == params.type }}>{{ type }}</option>
-                                        {% endfor %}
-                                    </select>
+                    <div class="col ml-0 pl-0">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
+                            <select class="custom-select" name="forwarded">
+                                <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
+                                <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
+                                <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
+                            </select>
 
-                                    <div class="input-group-prepend"><span class="input-group-text">Matched</span></div>
-                                    <select class="custom-select" name="matched">
-                                        <option value="-1" {{ 'selected' if params.matched == -1 }}></option>
-                                        <option value="0" {{ 'selected' if params.matched == 0 }}>No</option>
-                                        <option value="1" {{ 'selected' if params.matched == 1 }}>Yes</option>
-                                    </select>
-
-                                    <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
-                                    <select class="custom-select" name="forwarded">
-                                        <option value="-1" {{ 'selected' if params.forwarded == -1 }}></option>
-                                        <option value="0" {{ 'selected' if params.forwarded == 0 }}>No</option>
-                                        <option value="1" {{ 'selected' if params.forwarded == 1 }}>Yes</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <div class="input-group-prepend"><span class="input-group-text">Blocked</span></div>
+                            <select class="custom-select" name="blocked">
+                                <option value="-1" {{ 'selected' if params.blocked == -1 }}></option>
+                                <option value="0" {{ 'selected' if params.blocked == 0 }}>No</option>
+                                <option value="1" {{ 'selected' if params.blocked == 1 }}>Yes</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group row">
-                    <div class="col">
+                <div class="form-group row search-advanced">
+                    <div class="col-6">
                         <div class="row">
-                            <div class="col">
+                            <div class="col mr-0 pr-0">
                                 <div class="input-group date" id="date_to" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">To</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="date_to" data-target="#date_to" placeholder="YYYY-MM-DD">
@@ -92,7 +100,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col ml-0 pl-0">
                                 <div class="input-group date" id="time_to" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">At</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="time_to" data-target="#time_to" placeholder="HH:MM">
@@ -103,38 +111,25 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="row">
-                            <div class="col pl-0 ml-0">
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Blocked</span></div>
-                                    <select class="custom-select" name="blocked">
-                                        <option value="-1" {{ 'selected' if params.blocked == -1 }}></option>
-                                        <option value="0" {{ 'selected' if params.blocked == 0 }}>No</option>
-                                        <option value="1" {{ 'selected' if params.blocked == 1 }}>Yes</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col pl-0 ml-0">
-                            {% if current_user.admin %}
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
-                                    <select class="custom-select" name="user_id">
-                                        <option value="-1"></option>
-                                        <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
-                                        {% for user_id, username in filters.users.items() %}
-                                        <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            {% endif %}
-                            </div>
+                    <div class="col ml-0 pl-0">
+                        {% if current_user.admin %}
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
+                            <select class="custom-select" name="user_id">
+                                <option value="-1"></option>
+                                <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
+                                {% for user_id, username in filters.users.items() %}
+                                <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-block btn-search btn-outline-info">search</button>
+                <div class="row">
+                    <div class="col text-right">
+                        <a href="#" class="text-info toggle-advanced">show advanced search</a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -164,6 +159,28 @@
             format: 'HH:mm',
             date: '{{ params.full_date_to }}'
         });
+
+        $('.toggle-advanced').click(function() {
+            if ($('.search-advanced').hasClass('hidden')) {
+                $(this).text('hide advanced search');
+                $('.search-advanced').removeClass('hidden');
+                $('.search-form form').append(advancedField);
+            } else {
+                $(this).text('show advanced search');
+                $('.search-advanced').addClass('hidden');
+                $('.field-advanced').remove();
+            }
+        });
+
+        var isAdvancedVisible = {{ 'true' if advanced else 'false' }};
+
+        var advancedField = $('.field-advanced').clone();
+        $('.field-advanced').remove();
+        $('.search-advanced').addClass('hidden');
+
+        if (isAdvancedVisible) {
+            $('.toggle-advanced').click();
+        }
     });
 </script>
 {% endblock %}
