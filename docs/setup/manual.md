@@ -107,6 +107,12 @@ SNITCHDNS_DATA_PATH=/some/path/to/another/data/folder
 
 **Important**: If you use an external `SNITCHDNS_DATA_PATH` path, you need to create a soft link between the 2 `snitch.conf` files, as the service will look into the above path for the file. Also, make sure the user under which SnitchDNS will run, has read/write access to that folder.
 
+Once the config file is ready, create a link to the root directory (this is for the cron to work properly):
+
+```
+ln -s /opt/snitch/data/config/env/snitch.conf /opt/snitch.env
+```
+
 ### Setup Database and Cron
 
 `venv.sh` helps run `flask` commands without having to manually activate `venv.sh` so you can proxy all your commands through it.
