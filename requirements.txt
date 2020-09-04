@@ -16,3 +16,4 @@ psycopg2
 PyMySQL
 pyotp
 tabulate
+python-dotenv

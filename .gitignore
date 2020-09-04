@@ -18,3 +18,5 @@ data/*
 !data/.gitkeep
 
 setup/ansible/vars.yml
+
+.env
