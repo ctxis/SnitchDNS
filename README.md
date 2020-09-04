@@ -60,7 +60,7 @@ For more details on scenarios please see the [Use Cases Document](docs/use_cases
 
 * [The Ansible Way](docs/setup/ansible.md)
 * [The Manual Way](docs/setup/manual.md)
-* [Docker](docs/setup/docker.md)
+* [The Docker Way](docs/setup/docker.md)
 
 ## Documentation
 

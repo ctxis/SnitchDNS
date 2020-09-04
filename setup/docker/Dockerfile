@@ -54,6 +54,7 @@ RUN touch $CONFIG_PATH/env/snitch.conf && \
     echo SNITCHDNS_DB_URL=$SNITCHDNS_DB_URL >> $CONFIG_PATH/env/snitch.conf && \
     echo SNITCHDNS_DB_DB=$SNITCHDNS_DB_DB >> $CONFIG_PATH/env/snitch.conf && \
     echo SNITCHDNS_SECRET_KEY=$SNITCHDNS_SECRET_KEY >> $CONFIG_PATH/env/snitch.conf
+RUN ln -s $CONFIG_PATH/env/snitch.conf $INSTALL_PATH/.env
 
 RUN ./venv.sh flask db init && \
     ./venv.sh flask db migrate && \
