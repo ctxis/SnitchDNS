@@ -64,6 +64,12 @@
     src: env.conf.j2
     dest: "{{ var_data_path }}/config/env/snitch.conf"
 
+- name: "Creating env file link to .env"
+  file:
+    src: "{{ var_data_path }}/config/env/snitch.conf"
+    dest: "{{ snitch.destination }}/.env"
+    state: link
+
 # The problem here is that the venv.sh file looks for the env variables within ./data/config/env/snitch.conf.
 # For this reason, if the path of snitch.data_path is set, we'll need to create a symlink to it.
 - name: "Creating standard env data directory"
