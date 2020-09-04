@@ -49,6 +49,7 @@ SnitchDNS can be used for:
 * DNS Tunnel - Log all DNS requests and egress data.
 * Let's Encrypt DNS Challenge, using the API or the CLI interface.
 * Ad-blocking
+* Canary Tokens
 
 For more details on scenarios please see the [Use Cases Document](docs/use_cases.md)
 
@@ -66,10 +67,6 @@ For more details on scenarios please see the [Use Cases Document](docs/use_cases
 
 For general documentation [see here](docs/general/index.md)
 
-## Troubleshooting
-
-For troubleshooting [see here](docs/general/troubleshooting.md)
-
 ## Limitations
 
 * Caching has not been implemented, which means this isn't suitable for environments with hundreds of DNS requests per minute.
@@ -77,3 +74,8 @@ For troubleshooting [see here](docs/general/troubleshooting.md)
 ## Contributing
 
 As we maintain an internal tracker as well, before contributing please create an issue to discuss before implementing any features/changes.
+
+## Credits
+
+* Theme from [Bootswatch](https://bootswatch.com/)
+* Images from [Freepik](http://www.freepik.com/)

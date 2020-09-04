@@ -1,22 +1,22 @@
 # SnitchDNS Use Cases
 
-# DNS Server
+## DNS Server
 
 Use it as a basic DNS Server to respond or forward queries in your local network.
 
-# DNS Forwarding
+## DNS Forwarding
 
 I never thought I'd write this sentence, but have you ever wondered what DNS queries your oven is making? Using SnitchDNS as a DNS Forwarder you can easily monitor all requests, and block them with a single click.
 
-# Ad-Blocking
+## Ad-Blocking
 
 SnitchDNS is not here to replace, or even compete with existing ad-blocking solutions. But if you wanted to, it can also be used to block requests against specific domains. Using the CSV import functionality you can easily import all the domains and records you wish to block. 
 
-# Let's Encrypt DNS-01 Challenge
+## Let's Encrypt DNS-01 Challenge
 
 With the Swagger 2.0 API (or CLI), use the DNS-01 Challenge type to re-new your Let's Encrypt certificate - https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
 
-# DNS Tunnel
+## DNS Tunnel
 
 As all the DNS queries are logged, it can also be used as a DNS Tunnel and assist with egress of data.
 
@@ -35,7 +35,7 @@ If you are a security consultancy that wishes to offer your employees a DNS Tunn
 
 It is very similar to Burp Collaborator, but is self-hosted and you have user segregation/management.
 
-# Red Teams
+## Red Teams
 
 It can also be used for Red Team engagements:
 
@@ -59,6 +59,10 @@ It can also be used for Red Team engagements:
 
 It's currently on the roadmap to enable different responses depending on the source IP, for example "Region X resolves to A" and "Region Y resolved to B". 
 
-# Misc
+## Canary Tokens
+
+Include as canary links / images within documents and internal sites to identify malicious activity or breaches.
+
+## Misc
 
 Try adding a domain served by SnitchDNS as a link into an e-mail and see how many times it is scanned before/after it reaches an inbox (spoiler alert: a lot!).
