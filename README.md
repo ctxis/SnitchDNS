@@ -10,7 +10,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * Changes are reflected immediately on each DNS request.
   * Supported DBMS:
     * SQLite
-    * MySQL
+    * MySQL / MariaDB
     * Postgres
 * DNS Server
   * Support for common DNS Records.
@@ -36,7 +36,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
 * Swagger 2.0 API
 * Deployment
   * Ansible scripts for Ubuntu 18.04 / 20.04
-  * Dockerfile
+  * Docker
   * CLI support for zone, record, user, and settings management.
   * CSV Export/Import 
   
