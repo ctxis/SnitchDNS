@@ -40,7 +40,7 @@ Python 3.6+ is required for SnitchDNS to work.
 Install the following required packages:
 
 ```
-sudo apt get install git python3-pip python3-venv libpq-dev
+sudo apt install git python3-pip python3-venv libpq-dev
 ```
 
 `libpq-dev` is required by the `psycopg2` requirement for Postgres support (to be built while installing requirements.txt).
@@ -110,7 +110,7 @@ SNITCHDNS_DATA_PATH=/some/path/to/another/data/folder
 Once the config file is ready, create a link to the root directory (this is for the cron to work properly):
 
 ```
-ln -s /opt/snitch/data/config/env/snitch.conf /opt/snitch.env
+ln -s /opt/snitch/data/config/env/snitch.conf /opt/snitch/.env
 ```
 
 ### Setup Database and Cron
@@ -124,12 +124,6 @@ To initialise the database run:
 ./venv.sh flask db migrate
 ./venv.sh flask db upgrade
 ./venv.sh flask snitchdb
-```
-
-And to install the cron, run:
-
-```
-./venv.sh flask crontab add
 ```
 
 ### Initial Settings (optional)
@@ -155,6 +149,13 @@ sudo chown -R www-data:www-data /opt/snitch
 ```
 
 If you have set an external `SNITCHDNS_DATA_PATH` path, use the above command for that folder too.
+
+Switch to the `www-data` user and install the cron, run:
+
+```
+sudo -u www-data /bin/bash
+./venv.sh flask crontab add
+```
 
 ## Setup System Service
 
@@ -187,7 +188,7 @@ Now that the `snitchdns.service` file is ready, we can install the service.
 First, create a soft link between the service file and the systemd location where it has to be:
 
 ```
-sudo ln -s /opt/data/config/service/snitchdns.service /etc/systemd/system/snitchdns.service
+sudo ln -s /opt/snitch/data/config/service/snitchdns.service /etc/systemd/system/snitchdns.service
 ```
 
 Enable the service
@@ -257,7 +258,7 @@ Now that the configuration is ready, we need to create a link to the `/sites-ava
 
 ```
 # Create link
-sudo ln -s /absolut/path/to/data/config/http/vhost.conf /etc/apache2/sites-available/snitch.conf
+sudo ln -s /opt/snitch/data/config/http/vhost.conf /etc/apache2/sites-available/snitch.conf
 
 # Enable site
 sudo a2ensite snitch.conf
@@ -293,7 +294,7 @@ Now that the configuration is ready, we need to create a link to the `/sites-ena
 
 ```
 # Create link
-sudo ln -s /absolute/path/to/data/config/http/vhost.conf /etc/nginx/sites-enabled/snitchdns
+sudo ln -s /opt/snitch/data/config/http/vhost.conf /etc/nginx/sites-enabled/snitchdns
 
 # Restart nginx
 sudo systemctl restart nginx.service
