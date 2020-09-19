@@ -2,7 +2,15 @@
 
 SnitchDNS is database driven (basic) DNS server built using [Twisted](https://github.com/twisted/twisted)
 
-Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and more. 
+Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and more.
+
+* [Basic Feature](#basic-features)
+* [Use Cases](#use-cases)
+* [Installation](#installation)
+* [Documentation](#documentation)
+* [Limitations](#limitations)
+* [Contributing](#contributing)
+* [Credits](#credits)
 
 ## Basic Features
 
@@ -25,6 +33,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * E-mail
   * Web Push
   * Slack Webhooks
+  * Microsoft Teams Webhooks
 * User Management
   * Multi-User support
     * Each user is given their own subdomain to use.
@@ -32,7 +41,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * Two Factor Authentication
   * Password Complexity Management
 * Logging
-  * All DNS queries are logged, regardless whether or not they have been matched.
+  * All DNS queries are logged, whether they have been matched or not.
 * Swagger 2.0 API
 * Deployment
   * Ansible scripts for Ubuntu 18.04 / 20.04
@@ -44,8 +53,8 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
 
 SnitchDNS can be used for:
 
-* A DNS Forwarding Server - Allowing you to monitor all requests.
-* Red Teams - Implement IP restrictions to block sandboxes, monitor phishing e-mails, and restrict access to known IP ranges.
+* A DNS Forwarding Server - Allowing you to monitor all requests via a Web GUI.
+* Red Teams - Implement IP restrictions to block sandboxes, monitor phishing domain resolutions and e-mails, and restrict access to known IP ranges.
 * DNS Tunnel - Log all DNS requests and egress data.
 * Let's Encrypt DNS Challenge, using the API or the CLI interface.
 * Ad-blocking
@@ -66,6 +75,10 @@ For more details on scenarios please see the [Use Cases Document](docs/use_cases
 ## Documentation
 
 For general documentation [see here](docs/general/index.md)
+
+### Screenshots
+
+For screenshots [see here](docs/general/screenshots.md)
 
 ## Limitations
 
