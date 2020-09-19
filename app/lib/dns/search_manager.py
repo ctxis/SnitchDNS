@@ -22,7 +22,7 @@ class SearchManager:
         user_ids = [current_user.id]
         if current_user.admin:
             # Plot-twist! Unless they are an admin.
-            if search_params.user_id == 0:
+            if search_params.user_id <= 0:
                 # Search for everyone.
                 user_ids = []
             elif search_params.user_id > 0:
