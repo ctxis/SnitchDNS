@@ -161,7 +161,6 @@ class DNSImportManager(SharedHelper):
                     'type': type,
                     'data': data
                 })
-                print(items)
             else:
                 errors += record_errors
 
