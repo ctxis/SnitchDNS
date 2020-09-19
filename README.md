@@ -8,6 +8,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
 * [Use Cases](#use-cases)
 * [Installation](#installation)
 * [Documentation](#documentation)
+  * [Screenshots](docs/general/screenshots.md)
 * [Limitations](#limitations)
 * [Contributing](#contributing)
 * [Credits](#credits)
