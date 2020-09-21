@@ -1,63 +1,31 @@
 <div class="row mt-4">
     <div class="col">
-        <h5>{{ 'Edit' if dns_record_id > 0 else 'Create' }} Record</h5>
+        <h5>Edit Record Conditional Responses</h5>
 
-        <form action="{{ url_for('dns.record_edit_save', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}" method="post">
+        <form action="{{ url_for('dns.record_conditions_edit_save', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="type" id="type" value="{{ record.type }}">
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col">
-                    <div class="form-group">
-                        <label for="class">Class</label>
-                        <select name="class" id="class" class="custom-select form-control" required>
-                            <option value=""></option>
-                            {% for dns_class in dns_classes %}
-                            <option value="{{ dns_class }}" {{ 'selected' if (dns_record_id == 0 and dns_class == 'IN') or (dns_record_id > 0 and record.cls == dns_class) }}>{{ dns_class }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="type">Type</label>
-                        <select name="type" id="type" class="custom-select form-control" required>
-                            <option value=""></option>
-                            {% for dns_type in dns_types %}
-                            <option value="{{ dns_type }}" {{ 'selected' if (dns_record_id == 0 and dns_type == 'A') or (dns_record_id > 0 and record.type == dns_type) }}>{{ dns_type }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="ttl">TTL</label>
-                        <input type="number" name="ttl" id="ttl" class="form-control hide-spin-buttons text-right" value="{{ record.ttl if dns_record_id > 0 }}" placeholder="60" required>
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">Return response after</span></div>
+                        <input type="number" name="conditional_limit" id="conditional_limit" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_limit if dns_record_id > 0 }}" placeholder="5" required>
+                        <div class="input-group-prepend"><span class="input-group-text">DNS queries. Current count is</span></div>
+                        <input type="number" name="conditional_count" id="conditional_count" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_count if dns_record_id > 0 }}" placeholder="5">
                     </div>
                 </div>
             </div>
 
-            <div class="form-group row py-0 my-0">
+            <div class="form-group row mb-2">
                 <div class="col">
-                    <label for="active">Active</label>
+                    <label for="conditional_reset">Reset count once triggered</label>
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch">
-                        <input name="active" type="checkbox" class="custom-control-input" id="active" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.active) }}>
-                        <label class="custom-control-label" for="active"></label>
+                        <input name="conditional_reset" type="checkbox" class="custom-control-input" id="conditional_reset" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.conditional_reset) }}>
+                        <label class="custom-control-label" for="conditional_reset"></label>
                     </div>
-                </div>
-            </div>
-
-            <div class="form-group row py-0 my-0">
-                <div class="col">
-                    <label for="has_conditional_responses">Conditional Responses</label>
-                </div>
-                <div class="col text-right">
-                    <div class="custom-control custom-switch d-inline">
-                        <input name="has_conditional_responses" type="checkbox" class="custom-control-input" id="has_conditional_responses" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.has_conditional_responses) }}>
-                        <label class="custom-control-label" for="has_conditional_responses"></label>
-                    </div>
-                    <div class="d-inline"><a href="{{ url_for('dns.record_conditions_edit', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}"><i class="fas fa-cog"></i></a></div>
                 </div>
             </div>
 
@@ -369,6 +337,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        SnitchDNSRecords.init({{ record.data|safe }});
+        {% set data = record.conditional_data if record.conditional_data != None else '' %}
+        SnitchDNSRecords.initConditions({{ data|safe }});
     });
 </script>

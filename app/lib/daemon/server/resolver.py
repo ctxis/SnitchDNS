@@ -94,7 +94,7 @@ class DatabaseDNSResolver:
                 # This will hold the last db_record but we don't really care about that.
                 log.dns_record_id = db_record.id
 
-                answer = self.__build_answer(query, db_zone, db_record)
+                answer = self.__build_answer(query, db_zone, db_record, is_conditional_response=self.__is_conditional_response(db_record))
                 if not answer:
                     # Something went terribly wrong. If it dies, it dies.
                     # This can be caused if the UI allows more record types to be created than the
@@ -114,6 +114,22 @@ class DatabaseDNSResolver:
             'log': log
         }
 
+    def __is_conditional_response(self, db_record):
+        if not db_record.has_conditional_responses:
+            return False
+
+        db_record.conditional_count += 1
+        db_record.save()
+
+        if db_record.conditional_count < db_record.conditional_limit:
+            return False
+
+        if db_record.conditional_reset:
+            db_record.conditional_count = 0
+            db_record.save()
+
+        return True
+
     def __get_records(self, db_zone, cls, type):
         # First look for a CNAME.
         redir_records = []
@@ -130,108 +146,108 @@ class DatabaseDNSResolver:
 
         return records + redir_records
 
-    def __build_answer(self, query, db_zone, db_record):
+    def __build_answer(self, query, db_zone, db_record, is_conditional_response=False):
         record = None
         # Calculate the query type (in case it's a request for A but a CNAME is returned).
         query_type = REV_TYPES[db_record.type]
         if query_type == dns.A:
             record = dns.Record_A(
-                address=db_record.property('address'),
+                address=db_record.property('address', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.AAAA:
             record = dns.Record_AAAA(
-                address=db_record.property('address'),
+                address=db_record.property('address', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.AFSDB:
             record = dns.Record_AFSDB(
-                subtype=int(db_record.property('subtype')),
-                hostname=db_record.property('hostname')
+                subtype=int(db_record.property('subtype', conditional=is_conditional_response)),
+                hostname=db_record.property('hostname', conditional=is_conditional_response)
             )
         elif query_type == dns.CNAME:
             record = dns.Record_CNAME(
-                name=db_record.property('name'),
+                name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.DNAME:
             record = dns.Record_DNAME(
-                name=db_record.property('name'),
+                name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.HINFO:
             record = dns.Record_HINFO(
-                cpu=db_record.property('cpu').encode(),
-                os=db_record.property('os').encode()
+                cpu=db_record.property('cpu', conditional=is_conditional_response).encode(),
+                os=db_record.property('os', conditional=is_conditional_response).encode()
             )
         elif query_type == dns.MX:
             record = dns.Record_MX(
-                preference=int(db_record.property('preference')),
-                name=db_record.property('name')
+                preference=int(db_record.property('preference', conditional=is_conditional_response)),
+                name=db_record.property('name', conditional=is_conditional_response)
             )
         elif query_type == dns.NAPTR:
             record = dns.Record_NAPTR(
-                order=int(db_record.property('order')),
-                preference=int(db_record.property('preference')),
-                flags=db_record.property('flags').encode(),
-                service=db_record.property('service').encode(),
-                regexp=db_record.property('regexp').encode(),
-                replacement=db_record.property('replacement')
+                order=int(db_record.property('order', conditional=is_conditional_response)),
+                preference=int(db_record.property('preference', conditional=is_conditional_response)),
+                flags=db_record.property('flags', conditional=is_conditional_response).encode(),
+                service=db_record.property('service', conditional=is_conditional_response).encode(),
+                regexp=db_record.property('regexp', conditional=is_conditional_response).encode(),
+                replacement=db_record.property('replacement', conditional=is_conditional_response)
             )
         elif query_type == dns.NS:
             record = dns.Record_NS(
-                name=db_record.property('name'),
+                name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.PTR:
             record = dns.Record_PTR(
-                name=db_record.property('name'),
+                name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
         elif query_type == dns.RP:
             record = dns.Record_RP(
-                mbox=db_record.property('mbox'),
-                txt=db_record.property('txt')
+                mbox=db_record.property('mbox', conditional=is_conditional_response),
+                txt=db_record.property('txt', conditional=is_conditional_response)
             )
         elif query_type == dns.SOA:
             record = dns.Record_SOA(
-                mname=db_record.property('mname'),
-                rname=db_record.property('rname'),
-                serial=int(db_record.property('serial')),
-                refresh=int(db_record.property('refresh')),
-                retry=int(db_record.property('retry')),
-                expire=int(db_record.property('expire')),
-                minimum=int(db_record.property('minimum'))
+                mname=db_record.property('mname', conditional=is_conditional_response),
+                rname=db_record.property('rname', conditional=is_conditional_response),
+                serial=int(db_record.property('serial', conditional=is_conditional_response)),
+                refresh=int(db_record.property('refresh', conditional=is_conditional_response)),
+                retry=int(db_record.property('retry', conditional=is_conditional_response)),
+                expire=int(db_record.property('expire', conditional=is_conditional_response)),
+                minimum=int(db_record.property('minimum', conditional=is_conditional_response))
             )
         elif query_type == dns.SPF:
             record = dns.Record_SPF(
-                db_record.property('data').encode()
+                db_record.property('data', conditional=is_conditional_response).encode()
             )
         elif query_type == dns.SRV:
             record = dns.Record_SRV(
-                priority=int(db_record.property('priority')),
-                port=int(db_record.property('port')),
-                weight=int(db_record.property('weight')),
-                target=db_record.property('target')
+                priority=int(db_record.property('priority', conditional=is_conditional_response)),
+                port=int(db_record.property('port', conditional=is_conditional_response)),
+                weight=int(db_record.property('weight', conditional=is_conditional_response)),
+                target=db_record.property('target', conditional=is_conditional_response)
             )
         elif query_type == dns.SSHFP:
             record = dns.Record_SSHFP(
-                algorithm=int(db_record.property('algorithm')),
-                fingerprintType=int(db_record.property('fingerprint_type')),
-                fingerprint=db_record.property('fingerprint').encode()
+                algorithm=int(db_record.property('algorithm', conditional=is_conditional_response)),
+                fingerprintType=int(db_record.property('fingerprint_type', conditional=is_conditional_response)),
+                fingerprint=db_record.property('fingerprint', conditional=is_conditional_response).encode()
             )
         elif query_type == dns.TSIG:
             record = dns.Record_TSIG(
-                algorithm=db_record.property('algorithm').encode(),
-                timeSigned=int(db_record.property('timesigned')),
-                fudge=int(db_record.property('fudge')),
-                originalID=int(db_record.property('original_id')),
-                MAC=db_record.property('mac').encode(),
-                otherData=db_record.property('other_data').encode()
+                algorithm=db_record.property('algorithm', conditional=is_conditional_response).encode(),
+                timeSigned=int(db_record.property('timesigned', conditional=is_conditional_response)),
+                fudge=int(db_record.property('fudge', conditional=is_conditional_response)),
+                originalID=int(db_record.property('original_id', conditional=is_conditional_response)),
+                MAC=db_record.property('mac', conditional=is_conditional_response).encode(),
+                otherData=db_record.property('other_data', conditional=is_conditional_response).encode()
             )
         elif query_type == dns.TXT:
             record = dns.Record_TXT(
-                db_record.property('data').encode()
+                db_record.property('data', conditional=is_conditional_response).encode()
             )
         else:
             pass

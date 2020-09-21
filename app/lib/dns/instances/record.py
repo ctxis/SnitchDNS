@@ -8,6 +8,7 @@ class DNSRecord(BaseInstance):
 
         self.__match_count = 0
         self.__load_properties()
+        self.__load_conditional_properties()
 
     @property
     def dns_zone_id(self):
@@ -69,7 +70,59 @@ class DNSRecord(BaseInstance):
     def __load_properties(self):
         self.__data_properties = json.loads(self.data) if self.data is not None else {}
 
-    def property(self, name, default=None):
+    def conditional_properties(self):
+        return self.__conditional_data_properties
+
+    @property
+    def has_conditional_responses(self):
+        return self.item.has_conditional_responses
+
+    @has_conditional_responses.setter
+    def has_conditional_responses(self, value):
+        self.item.has_conditional_responses = value
+
+    @property
+    def conditional_data(self):
+        return self.item.conditional_data
+
+    @conditional_data.setter
+    def conditional_data(self, value):
+        self.item.conditional_data = value
+        self.__load_conditional_properties()
+
+    @property
+    def conditional_count(self):
+        return self.item.conditional_count
+
+    @conditional_count.setter
+    def conditional_count(self, value):
+        self.item.conditional_count = value
+
+    @property
+    def conditional_limit(self):
+        return self.item.conditional_limit
+
+    @conditional_limit.setter
+    def conditional_limit(self, value):
+        self.item.conditional_limit = value
+
+    @property
+    def conditional_reset(self):
+        return self.item.conditional_reset
+
+    @conditional_reset.setter
+    def conditional_reset(self, value):
+        self.item.conditional_reset = value
+
+    def __load_conditional_properties(self):
+        self.__conditional_data_properties = json.loads(self.conditional_data) if self.conditional_data is not None else {}
+
+    def conditional_property(self, name, default=None):
+        return self.__conditional_data_properties[name] if name in self.__conditional_data_properties else default
+
+    def property(self, name, default=None, conditional=False):
+        if conditional:
+            return self.__conditional_data_properties[name] if name in self.__conditional_data_properties else default
         return self.__data_properties[name] if name in self.__data_properties else default
 
     def properties(self):

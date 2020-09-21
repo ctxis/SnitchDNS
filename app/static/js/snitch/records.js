@@ -9,6 +9,14 @@ var SnitchDNSRecords = {
         this.setValues(properties);
     },
 
+    initConditions: function(properties) {
+        if (typeof properties === 'undefined') {
+            properties = {};
+        }
+        this.setValues(properties);
+        SnitchDNSRecords.buildUI(SnitchDNSRecords.getType());
+    },
+
     getType: function() {
         return $('#type').val();
     },

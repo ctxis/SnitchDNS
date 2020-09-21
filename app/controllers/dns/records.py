@@ -71,6 +71,7 @@ def record_edit_save(dns_zone_id, dns_record_id):
     cls = request.form['class'].strip()
     type = request.form['type'].strip()
     active = True if int(request.form.get('active', 0)) == 1 else False
+    has_conditional_responses = True if int(request.form.get('has_conditional_responses', 0)) == 1 else False
 
     if ttl <= 0:
         flash('Invalid TTL value', 'error')
@@ -96,9 +97,12 @@ def record_edit_save(dns_zone_id, dns_record_id):
     else:
         record = records.create()
 
-    if not records.save(record, zone.id, ttl, cls, type, data, active):
+    record = records.save(record, zone.id, ttl, cls, type, data, active)
+    if not record:
         flash('Could not save record', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+
+    records.save_conditions(record, enabled=has_conditional_responses)
 
     flash('Record saved', 'success')
     return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))
@@ -159,3 +163,96 @@ def gather_record_data(record_type):
         data[property] = value
 
     return data
+
+
+@bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/conditions/edit', methods=['GET'])
+@login_required
+@must_have_base_domain
+def record_conditions_edit(dns_zone_id, dns_record_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+    records = provider.dns_records()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+    elif dns_record_id > 0:
+        if not records.can_access(dns_zone_id, dns_record_id):
+            flash('Access Denied', 'error')
+            return redirect(url_for('home.index'))
+    elif dns_record_id == 0:
+        flash('Please create and save your record first', 'error')
+        return redirect(url_for('home.index'))
+
+    zone = zones.get(dns_zone_id)
+    if not zone:
+        flash('Zone not found', 'error')
+        return redirect(url_for('home.index'))
+
+    record = records.get(dns_record_id, zone.id)
+    if dns_record_id > 0:
+        if not record:
+            flash('Could not load record', 'error')
+            return redirect(url_for('home.index'))
+
+    dns_types = records.get_types()
+    dns_classes = records.get_classes()
+
+    return render_template(
+        'dns/zones/view.html',
+        dns_record_id=dns_record_id,
+        dns_types=dns_types,
+        dns_classes=dns_classes,
+        zone=zone,
+        record=record,
+        section='conditions_edit',
+        tab='records'
+    )
+
+
+@bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/conditions/edit/save', methods=['POST'])
+@login_required
+@must_have_base_domain
+def record_conditions_edit_save(dns_zone_id, dns_record_id):
+    provider = Provider()
+    zones = provider.dns_zones()
+    records = provider.dns_records()
+
+    if not zones.can_access(dns_zone_id, current_user.id):
+        flash('Access Denied', 'error')
+        return redirect(url_for('home.index'))
+    elif dns_record_id > 0:
+        if not records.can_access(dns_zone_id, dns_record_id):
+            flash('Access Denied', 'error')
+            return redirect(url_for('home.index'))
+    elif dns_record_id == 0:
+        flash('Please create and save your record first', 'error')
+        return redirect(url_for('home.index'))
+
+    record = records.get(dns_zone_id, dns_record_id)
+
+    conditional_limit = int(request.form['conditional_limit'].strip())
+    conditional_reset = True if int(request.form.get('conditional_reset', 0)) == 1 else False
+    conditional_count = request.form['conditional_count'].strip()
+    conditional_count = 0 if len(conditional_count) == 0 else int(conditional_count)
+
+    if conditional_limit <= 0:
+        flash('Invalid DNS query limit', 'error')
+        return redirect(url_for('dns.record_conditions_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+    elif conditional_count < 0:
+        flash('Invalid DNS query current count', 'error')
+        return redirect(url_for('dns.record_conditions_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+
+    # Depending on the type, get the right properties.
+    data = gather_record_data(record.type)
+    if data is False:
+        # Flash errors should already be set in gather_record_data()
+        return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+
+    record = records.save_conditions(record, data=data, count=conditional_count, limit=conditional_limit, reset=conditional_reset)
+    if not record:
+        flash('Could not save record', 'error')
+        return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+
+    flash('Record saved', 'success')
+    return redirect(url_for('dns.zone_view', dns_zone_id=dns_zone_id))

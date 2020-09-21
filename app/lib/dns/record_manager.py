@@ -91,6 +91,26 @@ class DNSRecordManager:
 
         return record
 
+    def save_conditions(self, record, enabled=None, data=None, count=None, limit=None, reset=None):
+        if enabled is not None:
+            record.has_conditional_responses = enabled
+
+        if data is not None:
+            record.conditional_data = json.dumps(data) if isinstance(data, dict) else data
+
+        if count is not None:
+            record.conditional_count = count
+
+        if limit is not None:
+            record.conditional_limit = limit
+
+        if reset is not None:
+            record.conditional_reset = reset
+
+        record.save()
+
+        return record
+
     def get_zone_records(self, dns_zone_id, order_column='id', order_by='asc'):
         results = self.__get(dns_zone_id=dns_zone_id, order_column=order_column, order_by=order_by)
         return self.__load_results(results)

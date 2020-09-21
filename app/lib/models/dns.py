@@ -27,6 +27,11 @@ class DNSRecordModel(db.Model):
     type = db.Column(db.String(32), nullable=True, default='', index=True)
     data = db.Column(db.Text, nullable=True)
     active = db.Column(db.Boolean, default=True, index=True)
+    has_conditional_responses = db.Column(db.Boolean, default=False, index=True)
+    conditional_data = db.Column(db.Text, nullable=True)
+    conditional_count = db.Column(db.Integer, nullable=True, default=0)
+    conditional_limit = db.Column(db.Integer, nullable=True, default=0)
+    conditional_reset = db.Column(db.Boolean, default=False, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)
