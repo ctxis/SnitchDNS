@@ -54,7 +54,7 @@
                 </div>
                 <div class="col text-right">
                     <div class="custom-control custom-switch d-inline">
-                        <input name="has_conditional_responses" type="checkbox" class="custom-control-input" id="has_conditional_responses" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.has_conditional_responses) }}>
+                        <input name="has_conditional_responses" type="checkbox" class="custom-control-input" id="has_conditional_responses" value="1" {{ 'checked' if (dns_record_id > 0 and record.has_conditional_responses) }}>
                         <label class="custom-control-label" for="has_conditional_responses"></label>
                     </div>
                     <div class="d-inline"><a href="{{ url_for('dns.record_conditions_edit', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}"><i class="fas fa-cog"></i></a></div>
