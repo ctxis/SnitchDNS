@@ -215,7 +215,7 @@ class DNSImportManager(SharedHelper):
             errors.append({'row': record['row'], 'error': 'Invalid TTL: {0}'.format(record['ttl'])})
         else:
             ttl = int(record['ttl'])
-            if ttl <= 0:
+            if ttl < 0:
                 errors.append({'row': record['row'], 'error': 'Invalid TTL: {0}'.format(record['ttl'])})
 
         return ttl

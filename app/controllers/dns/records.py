@@ -73,7 +73,7 @@ def record_edit_save(dns_zone_id, dns_record_id):
     active = True if int(request.form.get('active', 0)) == 1 else False
     has_conditional_responses = True if int(request.form.get('has_conditional_responses', 0)) == 1 else False
 
-    if ttl <= 0:
+    if ttl < 0:
         flash('Invalid TTL value', 'error')
         return redirect(url_for('dns.record_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
     elif cls not in dns_classes:
