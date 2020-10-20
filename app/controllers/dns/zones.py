@@ -11,10 +11,12 @@ import time
 @login_required
 @must_have_base_domain
 def index(type=''):
+    results_per_page = 50
+
     provider = Provider()
     zones = provider.dns_zones()
 
-    results_per_page = 50
+    search = request.args.get('search', '').strip()
     page = int(request.args.get('page', 1))
     if page <= 0:
         page = 1
@@ -30,10 +32,12 @@ def index(type=''):
 
     return render_template(
         'dns/zones/index.html',
-        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page),
+        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page, search=search),
         type=type,
         page=page,
-        per_page=results_per_page
+        per_page=results_per_page,
+        page_url="search={0}&page=".format(search),
+        search=search
     )
 
 

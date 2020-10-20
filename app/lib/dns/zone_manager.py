@@ -17,7 +17,7 @@ class DNSZoneManager(SharedHelper):
         self.dns_restrictions = dns_restrictions
 
     def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
-              exact_match=None, master=None, order_by='id', page=None, per_page=None):
+              exact_match=None, master=None, order_by='id', page=None, per_page=None, search=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -43,6 +43,9 @@ class DNSZoneManager(SharedHelper):
 
         if master is not None:
             query = query.filter(DNSZoneModel.master == master)
+
+        if (search is not None) and (len(search) > 0):
+            query = query.filter(DNSZoneModel.full_domain.ilike("%{0}%".format(search)))
 
         if order_by == 'user_id':
             query = query.order_by(DNSZoneModel.user_id)
@@ -132,8 +135,8 @@ class DNSZoneManager(SharedHelper):
 
         return zones
 
-    def get_user_zones_paginated(self, user_id, order_by='id', page=None, per_page=None):
-        results = self.__get(user_id=user_id, order_by=order_by, page=page, per_page=per_page)
+    def get_user_zones_paginated(self, user_id, order_by='id', page=None, per_page=None, search=None):
+        results = self.__get(user_id=user_id, order_by=order_by, page=page, per_page=per_page, search=search)
 
         zones = []
         for result in results.items:
