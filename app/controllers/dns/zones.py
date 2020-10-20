@@ -14,6 +14,11 @@ def index(type=''):
     provider = Provider()
     zones = provider.dns_zones()
 
+    results_per_page = 50
+    page = int(request.args.get('page', 1))
+    if page <= 0:
+        page = 1
+
     user_id = current_user.id
     if len(type) > 0:
         if current_user.admin and (type == 'all'):
@@ -25,8 +30,10 @@ def index(type=''):
 
     return render_template(
         'dns/zones/index.html',
-        zones=zones.get_user_zones(user_id, order_by='user_id'),
-        type=type
+        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page),
+        type=type,
+        page=page,
+        per_page=results_per_page
     )
 
 

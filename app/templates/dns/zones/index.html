@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import render_pagination with context %}
 
 {% block content %}
 <div class="row mt-5">
@@ -38,7 +39,7 @@
         </div>
         {% endif %}
 
-        {% if zones|length == 0 %}
+        {% if zones.results.total == 0 %}
         <div class="alert alert-info text-center">No zones configured yet.</div>
         {% else %}
         <table class="table table-striped">
@@ -58,9 +59,9 @@
             </tr>
             </thead>
             <tbody>
-            {% for zone in zones %}
+            {% for zone in zones.zones %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td>{{ loop.index + (per_page * (page - 1)) }}</td>
                 <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
                 {% if type == 'all' %}
                 <td>{{ zone.username }}</td>
@@ -96,6 +97,10 @@
             {% endfor %}
             </tbody>
         </table>
+
+        {% if zones.results.pages > 1 %}
+            {{ render_pagination(zones.results, url_for('dns.index', type=type), 'page=') }}
+        {% endif %}
         {% endif %}
     </div>
     <div class="col"></div>

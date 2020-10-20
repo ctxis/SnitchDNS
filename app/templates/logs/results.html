@@ -79,7 +79,7 @@
         </table>
 
         {% if results.pages > 1 %}
-            {{ render_pagination(results, page_url, params.url()) }}
+            {{ render_pagination(results, url_for(page_url), params.url()) }}
         {% endif %}
     </div>
 </div>

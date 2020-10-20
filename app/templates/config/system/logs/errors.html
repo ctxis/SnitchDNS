@@ -47,7 +47,7 @@
         </table>
 
         {% if results.pages > 1 %}
-            {{ render_pagination(results, 'config.logs_errors', 'page=') }}
+            {{ render_pagination(results, url_for('config.logs_errors'), 'page=') }}
         {% endif %}
         {% endif %}
     </div>
