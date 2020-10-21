@@ -229,7 +229,10 @@ def record_conditions_edit_save(dns_zone_id, dns_record_id):
         flash('Please create and save your record first', 'error')
         return redirect(url_for('home.index'))
 
-    record = records.get(dns_zone_id, dns_record_id)
+    record = records.get(dns_record_id, dns_zone_id)
+    if not record:
+        flash('There was an error retrieving the DNS Record', 'error')
+        return redirect(url_for('dns.record_conditions_edit', dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
 
     conditional_limit = int(request.form['conditional_limit'].strip())
     conditional_reset = True if int(request.form.get('conditional_reset', 0)) == 1 else False

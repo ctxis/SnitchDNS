@@ -6,29 +6,6 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="type" id="type" value="{{ record.type }}">
 
-            <div class="row mb-3">
-                <div class="col">
-                    <div class="input-group">
-                        <div class="input-group-prepend"><span class="input-group-text">Return response after</span></div>
-                        <input type="number" name="conditional_limit" id="conditional_limit" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_limit if dns_record_id > 0 }}" placeholder="5" required>
-                        <div class="input-group-prepend"><span class="input-group-text">DNS queries. Current count is</span></div>
-                        <input type="number" name="conditional_count" id="conditional_count" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_count if dns_record_id > 0 }}" placeholder="5">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group row mb-2">
-                <div class="col">
-                    <label for="conditional_reset">Reset count once triggered</label>
-                </div>
-                <div class="col text-right">
-                    <div class="custom-control custom-switch">
-                        <input name="conditional_reset" type="checkbox" class="custom-control-input" id="conditional_reset" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.conditional_reset) }}>
-                        <label class="custom-control-label" for="conditional_reset"></label>
-                    </div>
-                </div>
-            </div>
-
             <!-- NS, CNAME, PTR, DNAME -->
             <div class="record-group record-group-1 d-none">
                 <div class="form-group">
@@ -322,6 +299,29 @@
                             <label for="other_data">Other Data</label>
                             <input type="text" name="other_data" id="other_data" class="form-control" value="">
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">Return response after</span></div>
+                        <input type="number" name="conditional_limit" id="conditional_limit" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_limit if dns_record_id > 0 }}" placeholder="5" required>
+                        <div class="input-group-prepend"><span class="input-group-text">DNS queries. Current count is</span></div>
+                        <input type="number" name="conditional_count" id="conditional_count" class="form-control hide-spin-buttons text-right" value="{{ record.conditional_count if dns_record_id > 0 }}" placeholder="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row mb-2">
+                <div class="col">
+                    <label for="conditional_reset">Reset count once triggered</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="conditional_reset" type="checkbox" class="custom-control-input" id="conditional_reset" value="1" {{ 'checked' if (dns_record_id == 0) or (dns_record_id > 0 and record.conditional_reset) }}>
+                        <label class="custom-control-label" for="conditional_reset"></label>
                     </div>
                 </div>
             </div>
