@@ -9,7 +9,9 @@
         <div class="clearfix">
             <div class="float-left"><i class="fas fa-bell fa-fw"></i> <span class="pl-2">Notifications</span></div>
             <div class="float-right">
-                <span class="badge badge-pill badge-info">{{ 'enabled' if zone.notifications.has_enabled() else 'disabled' }}</span>
+                {% set class = 'success' if zone.notifications.has_enabled() else 'warning' %}
+                {% set text = 'enabled' if zone.notifications.has_enabled() else 'disabled' %}
+                <span class="badge badge-pill badge-{{ class }}">{{ text }}</span>
             </div>
         </div>
     </a>
