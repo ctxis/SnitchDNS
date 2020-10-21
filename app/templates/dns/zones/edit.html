@@ -69,6 +69,15 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="tags">Tags</label>
+                        <select name="tags" id="tags" multiple="multiple" class="custom-select">
+                            {% for tag in tags %}
+                            <option value="{{ tag.name }}" {{ 'selected' if tag.name in zone.tags }}>{{ tag.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block">save</button>
                     </div>
                 </form>
@@ -77,4 +86,13 @@
     </div>
     <div class="col"></div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#tags').select2({
+            tags: true,
+            tokenSeparators: [',', ' ']
+        });
+    });
+</script>
 {% endblock %}

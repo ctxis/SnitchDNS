@@ -77,7 +77,18 @@
             {% for zone in zones.zones %}
             <tr>
                 <td>{{ loop.index + (per_page * (page - 1)) }}</td>
-                <td><a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a></td>
+                <td>
+                    <div>
+                        <a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a>
+                    </div>
+                    {% if zone.tags|length > 0 %}
+                    <div class="mt-1" title="tags">
+                        {% for tag in zone.tags %}
+                        <span class="badge badge-secondary">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </td>
                 {% if type == 'all' %}
                 <td>{{ zone.username }}</td>
                 {% endif %}

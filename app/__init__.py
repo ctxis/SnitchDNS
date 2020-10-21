@@ -166,4 +166,4 @@ def create_app(config_class=None):
 
     return app
 
-from app.lib.models import user, config, dns, api, notifications, logging
+from app.lib.models import user, config, dns, api, notifications, logging, tags

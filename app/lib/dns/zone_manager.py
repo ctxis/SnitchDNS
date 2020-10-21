@@ -1,20 +1,22 @@
 import re
 import os
 import csv
-from app.lib.models.dns import DNSZoneModel
+from app.lib.models.dns import DNSZoneModel, DNSZoneTagModel
 from app.lib.dns.instances.zone import DNSZone
+from app.lib.dns.instances.zone_tag import DNSZoneTag
 from app.lib.dns.helpers.shared import SharedHelper
 from sqlalchemy import func
 
 
 class DNSZoneManager(SharedHelper):
-    def __init__(self, settings, dns_records, users, notifications, dns_logs, dns_restrictions):
+    def __init__(self, settings, dns_records, users, notifications, dns_logs, dns_restrictions, tag_manager):
         self.settings = settings
         self.dns_records = dns_records
         self.users = users
         self.notifications = notifications
         self.dns_logs = dns_logs
         self.dns_restrictions = dns_restrictions
+        self.tag_manager = tag_manager
 
     def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
               exact_match=None, master=None, order_by='id', page=None, per_page=None, search=None):
@@ -81,6 +83,8 @@ class DNSZoneManager(SharedHelper):
             self.notifications.logs.delete(subscription_id=subscription.id)
             subscription.delete()
 
+        self.delete_tags(zone.id)
+
         self.dns_logs.delete(dns_zone_id=zone.id)
 
         zone.delete()
@@ -94,7 +98,20 @@ class DNSZoneManager(SharedHelper):
         zone.notifications = self.notifications.get_zone_subscriptions(zone.id)
         zone.match_count = self.dns_logs.count(dns_zone_id=zone.id)
         zone.restrictions = self.dns_restrictions.get_zone_restrictions(zone.id)
+        zone.tags = self.__load_tags(zone.id)
         return zone
+
+    def __load_tags(self, dns_zone_id):
+        results = DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == dns_zone_id).all()
+        tags = []
+        for result in results:
+            item = self.tag_manager.get(result.tag_id)
+            if not item:
+                continue
+
+            tags.append(item.name)
+
+        return tags
 
     def create(self):
         item = DNSZone(DNSZoneModel())
@@ -309,3 +326,26 @@ class DNSZoneManager(SharedHelper):
                     writer.writerow(record_line)
 
         return os.path.isfile(save_as)
+
+    def save_tags(self, zone, tags):
+        # Create tags.
+        tag_mapping = {}
+        for tag in tags:
+            name = tag.strip().lower()
+            tag_mapping[name] = self.tag_manager.save(zone.user_id, name).id
+
+        # Delete all assigned zone tags.
+        DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == zone.id).delete()
+
+        # Add fresh batch.
+        for name, id in tag_mapping.items():
+            item = DNSZoneTag(DNSZoneTagModel())
+            item.dns_zone_id = zone.id
+            item.tag_id = id
+            item.save()
+
+        return zone
+
+    def delete_tags(self, dns_zone_id):
+        DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == dns_zone_id).delete()
+        return True

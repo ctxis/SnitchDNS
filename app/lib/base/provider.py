@@ -21,6 +21,7 @@ from app.lib.notifications.providers.teams import TeamsWebhookNotificationProvid
 from app.lib.log.manager import LoggingManager
 from app.lib.dns.restriction_manager import RestrictionManager
 from app.lib.dns.import_manager import DNSImportManager
+from app.lib.dns.tag_manager import TagManager
 from flask import current_app
 import os
 
@@ -47,7 +48,8 @@ class Provider:
             self.users(),
             self.notifications(),
             self.dns_logs(),
-            self.dns_restrictions()
+            self.dns_restrictions(),
+            self.tags()
         )
 
     def dns_records(self):
@@ -191,3 +193,6 @@ class Provider:
 
     def logging(self):
         return LoggingManager(self.users())
+
+    def tags(self):
+        return TagManager()

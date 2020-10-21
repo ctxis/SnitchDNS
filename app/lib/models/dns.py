@@ -69,3 +69,14 @@ class DNSZoneRestrictionModel(db.Model):
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)
     updated_at = db.Column(db.DateTime, nullable=True)
+
+
+class DNSZoneTagModel(db.Model):
+    __tablename__ = 'dns_zone_tags'
+    id = db.Column(db.Integer, primary_key=True)
+    dns_zone_id = db.Column(db.Integer, nullable=True, index=True, default=0)
+    tag_id = db.Column(db.Integer, nullable=True, index=True, default=0)
+
+    # Required in all models.
+    created_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)

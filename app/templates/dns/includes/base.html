@@ -11,18 +11,27 @@
             </span>
         </h3>
 
-        <div class="clearfix">
-            <div class="float-right">
-                {% set class = 'success' if zone.active else 'warning' %}
-                {% set text = 'enabled' if zone.active else 'disabled' %}
-                <span class="badge badge-pill badge-{{ class }}">status: {{ text }}</span>
+        <div class="row mt-2">
+            <div class="col" title="tags">
+                {% for tag in zone.tags %}
+                <span class="badge badge-info">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            <div class="col">
+                <div class="clearfix">
+                    <div class="float-right">
+                        {% set class = 'success' if zone.active else 'warning' %}
+                        {% set text = 'enabled' if zone.active else 'disabled' %}
+                        <span class="badge badge-pill badge-{{ class }}">status: {{ text }}</span>
 
-                {% set text = 'exact' if zone.exact_match else 'catch-all' %}
-                <span class="badge badge-pill badge-primary">matching: {{ text }}</span>
+                        {% set text = 'exact' if zone.exact_match else 'catch-all' %}
+                        <span class="badge badge-pill badge-primary">matching: {{ text }}</span>
 
-                {% set class = 'success' if zone.forwarding else 'warning' %}
-                {% set text = 'enabled' if zone.forwarding else 'disabled' %}
-                <span class="badge badge-pill badge-{{ class }}">forwarding: {{ text }}</span>
+                        {% set class = 'success' if zone.forwarding else 'warning' %}
+                        {% set text = 'enabled' if zone.forwarding else 'disabled' %}
+                        <span class="badge badge-pill badge-{{ class }}">forwarding: {{ text }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -10,6 +10,7 @@ class DNSZone(BaseInstance):
         self.__username = ''
         self.__notifications = None
         self.__restrictions = None
+        self.__tags = []
 
     @property
     def domain(self):
@@ -114,3 +115,11 @@ class DNSZone(BaseInstance):
     @restrictions.setter
     def restrictions(self, value):
         self.__restrictions = value
+
+    @property
+    def tags(self):
+        return self.__tags
+
+    @tags.setter
+    def tags(self, value):
+        self.__tags = value

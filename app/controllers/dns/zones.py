@@ -73,6 +73,7 @@ def zone_view(dns_zone_id):
 def zone_edit(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
+    tags = provider.tags()
 
     zone = None
     dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
@@ -88,11 +89,14 @@ def zone_edit(dns_zone_id):
 
     username = current_user.username if zone is None else zone.username
 
+    user_id = zone.user_id if dns_zone_id > 0 else current_user.id
+
     return render_template(
         'dns/zones/edit.html',
         dns_zone_id=dns_zone_id,
         user_domain=zones.get_user_base_domain(username),
-        zone=zone
+        zone=zone,
+        tags=tags.all(user_id=user_id, order_column='name', order_by='asc')
     )
 
 
@@ -141,11 +145,17 @@ def __zone_create():
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
+    tags = request.form.getlist('tags')
 
     zone = zones.new(domain, active, exact_match, forwarding, current_user.id)
     if isinstance(zone, list):
         for error in zone:
             flash(error, 'error')
+        return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
+
+    zone = zones.save_tags(zone, tags)
+    if not zone:
+        flash('Could not save zone tags', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
     flash('Zone created', 'success')
@@ -178,6 +188,7 @@ def __zone_update(dns_zone_id):
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
+    tags = request.form.getlist('tags')
 
     if len(domain) == 0:
         flash('Invalid domain', 'error')
@@ -190,6 +201,11 @@ def __zone_update(dns_zone_id):
     zone = zones.save(zone, zone.user_id, domain, base_domain, active, exact_match, master, forwarding)
     if not zone:
         flash('Could not save zone', 'error')
+        return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
+
+    zone = zones.save_tags(zone, tags)
+    if not zone:
+        flash('Could not save zone tags', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
     flash('Zone saved', 'success')
