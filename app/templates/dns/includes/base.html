@@ -4,7 +4,27 @@
 <div class="row mt-5">
     <div class="col-3"></div>
     <div class="col">
-        <h3 class="mb-0">{{ zone.full_domain }}</h3>
+        <h3 class="mb-0">
+            {{ zone.full_domain }}
+            <span class="position-relative zone-edit-badge">
+                <a class="text-primary" title="edit zone" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit fa-fw"></i></a>
+            </span>
+        </h3>
+
+        <div class="clearfix">
+            <div class="float-right">
+                {% set class = 'success' if zone.active else 'warning' %}
+                {% set text = 'enabled' if zone.active else 'disabled' %}
+                <span class="badge badge-pill badge-{{ class }}">status: {{ text }}</span>
+
+                {% set text = 'exact' if zone.exact_match else 'catch-all' %}
+                <span class="badge badge-pill badge-primary">matching: {{ text }}</span>
+
+                {% set class = 'success' if zone.forwarding else 'warning' %}
+                {% set text = 'enabled' if zone.forwarding else 'disabled' %}
+                <span class="badge badge-pill badge-{{ class }}">forwarding: {{ text }}</span>
+            </div>
+        </div>
     </div>
 </div>
 

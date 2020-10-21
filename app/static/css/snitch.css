@@ -18,3 +18,8 @@
 .qr-box canvas {
     border: 32px solid white;
 }
+
+.zone-edit-badge {
+    top: -10px;
+    font-size: 0.5em;
+}
