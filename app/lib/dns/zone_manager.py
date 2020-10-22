@@ -19,7 +19,7 @@ class DNSZoneManager(SharedHelper):
         self.tag_manager = tag_manager
 
     def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
-              exact_match=None, master=None, order_by='id', page=None, per_page=None, search=None):
+              exact_match=None, master=None, order_by='id', page=None, per_page=None, search=None, tags=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -48,6 +48,11 @@ class DNSZoneManager(SharedHelper):
 
         if (search is not None) and (len(search) > 0):
             query = query.filter(DNSZoneModel.full_domain.ilike("%{0}%".format(search)))
+
+        if tags is not None:
+            tag_ids = self.tag_manager.get_tag_ids(tags, user_id=user_id)
+            query = query.outerjoin(DNSZoneTagModel, DNSZoneTagModel.dns_zone_id == DNSZoneModel.id)
+            query = query.filter(DNSZoneTagModel.tag_id.in_(tag_ids))
 
         if order_by == 'user_id':
             query = query.order_by(DNSZoneModel.user_id)
@@ -152,8 +157,10 @@ class DNSZoneManager(SharedHelper):
 
         return zones
 
-    def get_user_zones_paginated(self, user_id, order_by='id', page=None, per_page=None, search=None):
-        results = self.__get(user_id=user_id, order_by=order_by, page=page, per_page=per_page, search=search)
+    def get_user_zones_paginated(self, user_id, order_by='id', page=None, per_page=None, search=None, tags=None):
+        if isinstance(tags, list) and len(tags) == 0:
+            tags = None
+        results = self.__get(user_id=user_id, order_by=order_by, page=page, per_page=per_page, search=search, tags=tags)
 
         zones = []
         for result in results.items:

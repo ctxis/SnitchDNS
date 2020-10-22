@@ -15,8 +15,11 @@ def index(type=''):
 
     provider = Provider()
     zones = provider.dns_zones()
+    tags = provider.tags()
 
     search = request.args.get('search', '').strip()
+    search_tags = request.args.getlist('tags')
+
     page = int(request.args.get('page', 1))
     if page <= 0:
         page = 1
@@ -30,14 +33,19 @@ def index(type=''):
             # Return user to the previous page.
             return redirect(url_for('dns.index'))
 
+    page_url = 'tags=' + '&tags='.join(search_tags)
+    page_url += "&search={0}&page=".format(search)
+
     return render_template(
         'dns/zones/index.html',
-        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page, search=search),
+        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page, search=search, tags=search_tags),
         type=type,
         page=page,
         per_page=results_per_page,
-        page_url="search={0}&page=".format(search),
-        search=search
+        page_url=page_url,
+        search=search,
+        search_tags=search_tags,
+        tags=tags.all(user_id=current_user.id, order_by='asc', order_column='name')
     )
 
 

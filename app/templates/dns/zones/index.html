@@ -16,39 +16,54 @@
             {% endif %}
         </ul>
 
-        <div class="clearfix mb-2">
-            <div class="float-left">
+        <div class="mb-2">
+            <div class="row">
+                <div class="col">
                 {% if type == '' %}
-                <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-sm btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
+                    <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
                 {% endif %}
-            </div>
-            <div class="float-right">
-                <div class="d-flex">
-                    <div class="mr-2">
-                        <form method="get" action="{{ url_for('dns.index', type=type) }}">
-                            <div class="input-group">
-                                <input type="text" name="search" id="search" class="form-control-sm" placeholder="search" value="{{ search }}">
-                                <div class="input-group-append">
-                                    <a href="#" class="submit-on-click"><span class="input-group-text"><i class="fas fa-search"></i></span></a>
+                </div>
+
+                <div class="col-7 mx-0 px-0">
+                    <form method="get" action="{{ url_for('dns.index', type=type) }}">
+                        <div class="row">
+                            <div class="col px-0 mx-0">
+                                {% if tags|length > 0 %}
+                                <div class="form-group">
+                                    <select name="tags" id="tags" class="form-control custom-select" multiple="multiple" data-placeholder="tags">
+                                        {% for tag in tags %}
+                                        <option value="{{ tag.name }}" {{ 'selected' if tag.name in search_tags }}>{{ tag.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-5 px-0 mx-2">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="text" name="search" id="search" class="form-control" placeholder="search" value="{{ search }}">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><a href="#" class="submit-on-click"><i class="fas fa-search"></i></a></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-
-                    <div class="dropdown">
-                        <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </a>
-
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            {% if type == '' %}
-                            <a href="{{ url_for('dns.zones_import') }}" class="dropdown-item"> <i class="fas fa-file-import"></i> <span class="ml-1">import</span></a>
-                            {% endif %}
-                            <form action="{{ url_for('dns.zones_export') }}" method="post">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <a href="#" class="submit-on-click dropdown-item"> <i class="fas fa-file-export"></i> <span class="ml-1">export</span></a>
-                            </form>
                         </div>
+                    </form>
+                </div>
+
+                <div class="col-1 mr-2">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        {% if type == '' %}
+                        <a href="{{ url_for('dns.zones_import') }}" class="dropdown-item"> <i class="fas fa-file-import"></i> <span class="ml-1">import</span></a>
+                        {% endif %}
+                        <form action="{{ url_for('dns.zones_export') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <a href="#" class="submit-on-click dropdown-item"> <i class="fas fa-file-export"></i> <span class="ml-1">export</span></a>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -131,4 +146,12 @@
     </div>
     <div class="col"></div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#tags').select2({
+            tags: true
+        });
+    });
+</script>
 {% endblock %}

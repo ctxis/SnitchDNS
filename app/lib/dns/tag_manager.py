@@ -14,7 +14,11 @@ class TagManager:
             query = query.filter(TagModel.user_id == user_id)
 
         if name is not None:
-            query = query.filter(TagModel.name == name)
+            if isinstance(name, list):
+                # A list of tags has been passed.
+                query = query.filter(TagModel.name.in_(name))
+            else:
+                query = query.filter(TagModel.name == name)
 
         if (order_column is not None) and (order_by is not None):
             order = None
@@ -57,3 +61,11 @@ class TagManager:
         for result in results:
             tags.append(self.__load(result))
         return tags
+
+    def get_tag_ids(self, tags, user_id=None):
+        results = self.__get(user_id=user_id, name=tags)
+        ids = []
+        for result in results:
+            ids.append(result.id)
+
+        return ids
