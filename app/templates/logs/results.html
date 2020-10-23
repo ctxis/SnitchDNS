@@ -39,9 +39,16 @@
             </thead>
             <tbody>
             {% for result in results.items %}
+                {% set is_zone = zone_exists(full_domain=result.domain) %}
             <tr>
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
-                <td style="width: 100%"><a href="{{ url_for('logs.index', domain=result.domain) }}">{{ result.domain }}</a></td>
+                <td style="width: 100%">
+                    {% if is_zone %}
+                        <a href="{{ url_for('logs.index', domain=result.domain) }}">{{ result.domain }}</a>
+                    {% else %}
+                        {{ result.domain }}
+                    {% endif %}
+                </td>
                 <td>{{ result.source_ip }}</td>
                 <td class="text-right">{{ result.type }}</td>
                 <td class="text-center">
@@ -61,17 +68,27 @@
                 </td>
                 <td class="text-right" style="white-space: nowrap;">{{ result.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td class="text-right" style="white-space: nowrap;">
-                    {% if result.dns_zone_id == 0 and zone_exists(full_domain=result.domain) == False %}
-                    <form action="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" method="post" class="d-inline ml-1">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <a href="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" title="Create a zone for this domain" class="submit-on-click text-info"><i class="fas fa-plus-square"></i></a>
-                    </form>
-                    {% endif %}
+                    <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </a>
 
-                    <form action="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" method="post" class="d-inline ml-1">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <a href="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" title="Block IP address for this domain" class="submit-on-click text-danger"><i class="fas fa-ban"></i></a>
-                    </form>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <a href="{{ url_for('logs.index', domain=result.domain) }}" class="dropdown-item"> <i class="fas fa-filter fa-fw"></i> <span class="ml-1">filter</span></a>
+
+                        {% if result.dns_zone_id == 0 and is_zone == False %}
+                        <form action="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <a href="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" class="submit-on-click dropdown-item"><i class="fas fa-plus-square fa-fw"></i> <span class="ml-1">create zone</span></a>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('dns.zone_view', dns_zone_id=result.dns_zone_id) }}" class="submit-on-click dropdown-item"><i class="fas fa-external-link-alt fa-fw"></i> <span class="ml-1">view zone</span></a>
+                        {% endif %}
+
+                        <form action="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <a href="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" class="submit-on-click dropdown-item"><i class="fas fa-ban"></i> <span class="ml-1">block IP</span></a>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
