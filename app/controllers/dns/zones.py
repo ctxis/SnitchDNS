@@ -4,6 +4,7 @@ from flask import render_template, redirect, url_for, flash, request, send_file
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import must_have_base_domain
 import time
+import os
 
 
 @bp.route('/', methods=['GET'])
@@ -261,17 +262,17 @@ def zones_export():
     zones = provider.dns_zones()
     users = provider.users()
 
-    # Prepare names and variables.
-    filename = str(int(time.time())) + '.csv'
-    download_filename = "snitch_export_" + filename
-    save_results_as = users.get_user_data_path(current_user.id, filename=filename)
-
     search = request.form['search'].strip()
     search_tags = request.form['tags'].strip().split(',')
+    download_filename = "snitch_export.zip"
 
-    if not zones.export(current_user.id, save_results_as, search=search, tags=search_tags):
+    # Prepare names and variables.
+    temp_folder = users.get_user_data_path(current_user.id, folder=str(int(time.time())))
+    save_as = os.path.join(temp_folder, download_filename)
+
+    if not zones.export(current_user.id, temp_folder, save_as, create_path=True, search=search, tags=search_tags):
         flash('Could not generate CSV file.', 'error')
         return redirect(url_for('dns.index'))
 
     # And download.
-    return send_file(save_results_as, attachment_filename=download_filename, as_attachment=True)
+    return send_file(save_as, attachment_filename=download_filename, as_attachment=True)

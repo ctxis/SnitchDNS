@@ -36,14 +36,17 @@ class SharedHelper:
                 value = "'" + value
         return value
 
-    def get_user_data_path(self, user_id, filename=''):
+    def get_user_data_path(self, user_id, folder=None, filename=None):
         path = os.path.join(EnvironmentManager().get_data_path(), 'users', str(user_id))
+        if folder is not None:
+            path = os.path.join(path, folder)
+
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
             if not os.path.isdir(path):
                 return False
 
-        if len(filename) > 0:
+        if filename is not None:
             filename = filename.replace('..', '').replace('/', '')
             path = os.path.join(path, filename)
 

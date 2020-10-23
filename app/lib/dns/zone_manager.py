@@ -1,6 +1,7 @@
 import re
 import os
 import csv
+import zipfile
 from app.lib.models.dns import DNSZoneModel, DNSZoneTagModel
 from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.zone_tag import DNSZoneTag
@@ -50,9 +51,11 @@ class DNSZoneManager(SharedHelper):
             query = query.filter(DNSZoneModel.full_domain.ilike("%{0}%".format(search)))
 
         if tags is not None:
-            tag_ids = self.tag_manager.get_tag_ids(tags, user_id=user_id)
-            query = query.outerjoin(DNSZoneTagModel, DNSZoneTagModel.dns_zone_id == DNSZoneModel.id)
-            query = query.filter(DNSZoneTagModel.tag_id.in_(tag_ids))
+            tags = list(filter(None, tags))
+            if len(tags) > 0:
+                tag_ids = self.tag_manager.get_tag_ids(tags, user_id=user_id)
+                query = query.outerjoin(DNSZoneTagModel, DNSZoneTagModel.dns_zone_id == DNSZoneModel.id)
+                query = query.filter(DNSZoneTagModel.tag_id.in_(tag_ids))
 
         if order_by == 'user_id':
             query = query.order_by(DNSZoneModel.user_id)
@@ -153,8 +156,10 @@ class DNSZoneManager(SharedHelper):
 
         return zones
 
-    def get_user_zones(self, user_id, order_by='id', search=None, tags=None):
+    def get_user_zones(self, user_id, order_by='id', search=None, tags=None, raw=False):
         results = self.__get(user_id=user_id, order_by=order_by, search=search, tags=tags)
+        if raw:
+            return results
 
         zones = []
         for result in results:
@@ -285,58 +290,65 @@ class DNSZoneManager(SharedHelper):
         zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
         return zone
 
-    def export(self, user_id, save_as, overwrite=False, create_path=False, search=None, tags=None):
-        if not self._prepare_path(save_as, overwrite, create_path):
+    def export(self, user_id, folder, save_as, overwrite=False, create_path=False, search=None, tags=None):
+        if not self._prepare_path(folder, overwrite, create_path):
             return False
 
-        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags)
+        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags, raw=True)
 
-        header = [
-            'type',
+        # Set the CSV locations.
+        csv_zones = os.path.join(folder, 'zones.csv')
+        csv_records = os.path.join(folder, 'records.csv')
+
+        # First we export the zones.
+        zone_header = [
             'domain',
-            'd_active',
-            'd_exact_match',
-            'd_forwarding',
-            'd_master',
-            'd_tags',
-            'r_id',
-            'r_ttl',
-            'r_cls',
-            'r_type',
-            'r_active',
-            'r_data'
+            'active',
+            'exact_match',
+            'forwarding',
+            'master',
+            'tags'
         ]
-        with open(save_as, 'w') as f:
+
+        with open(csv_zones, 'w') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_ALL)
-            writer.writerow(header)
+            writer.writerow(zone_header)
 
             for zone in zones:
-                # Write the zone.
-                zone_line = [
-                    'zone',
+                line = [
                     self._sanitise_csv_value(zone.full_domain),
                     '1' if zone.active else '0',
                     '1' if zone.exact_match else '0',
                     '1' if zone.forwarding else '0',
                     '1' if zone.master else '0',
-                    ','.join(zone.tags)
+                    ','.join(self.__load_tags(zone.id))
                 ]
-                writer.writerow(zone_line)
+                writer.writerow(line)
 
-                # Write the records.
+        # Now we export the records.
+        record_header = [
+            'domain',
+            'id',
+            'ttl',
+            'cls',
+            'type',
+            'active',
+            'data'
+        ]
+
+        with open(csv_records, 'w') as f:
+            writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+            writer.writerow(record_header)
+
+            for zone in zones:
                 records = self.dns_records.get_zone_records(zone.id, order_column='type')
                 for record in records:
                     properties = []
                     for name, value in record.properties().items():
                         properties.append("{0}={1}".format(name, value))
 
-                    record_line = [
-                        'record',
+                    line = [
                         self._sanitise_csv_value(zone.full_domain),
-                        '',
-                        '',
-                        '',
-                        '',
                         record.id,
                         record.ttl,
                         record.cls,
@@ -344,7 +356,12 @@ class DNSZoneManager(SharedHelper):
                         '1' if record.active else '0',
                         "\n".join(properties)
                     ]
-                    writer.writerow(record_line)
+                    writer.writerow(line)
+
+        # And finally we compress into a zip file.
+        with zipfile.ZipFile(save_as, 'w', zipfile.ZIP_DEFLATED) as zip:
+            zip.write(csv_zones, 'zones.csv')
+            zip.write(csv_records, 'records.csv')
 
         return os.path.isfile(save_as)
 
