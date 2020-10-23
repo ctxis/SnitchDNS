@@ -70,7 +70,7 @@ class DNSZoneManager(SharedHelper):
 
         return self.__load(results[0])
 
-    def delete(self, dns_zone_id):
+    def delete(self, dns_zone_id, delete_old_logs=False, update_old_logs=True):
         zone = self.get(dns_zone_id)
         if not zone:
             return False
@@ -88,7 +88,10 @@ class DNSZoneManager(SharedHelper):
             self.notifications.logs.delete(subscription_id=subscription.id)
             subscription.delete()
 
-        self.dns_logs.delete(dns_zone_id=zone.id)
+        if delete_old_logs:
+            self.dns_logs.delete(dns_zone_id=zone.id)
+        elif update_old_logs:
+            self.dns_logs.update_old_logs(zone.full_domain, 0)
 
         zone.delete_tags()
         zone.delete()
@@ -122,7 +125,7 @@ class DNSZoneManager(SharedHelper):
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, base_domain, active, exact_match, master, forwarding):
+    def save(self, zone, user_id, domain, base_domain, active, exact_match, master, forwarding, update_old_logs=False):
         zone.user_id = user_id
         zone.domain = self.__fix_domain(domain)
         zone.base_domain = self.__fix_domain(base_domain)
@@ -132,6 +135,9 @@ class DNSZoneManager(SharedHelper):
         zone.master = master
         zone.forwarding = forwarding
         zone.save()
+
+        if update_old_logs:
+            self.dns_logs.update_old_logs(zone.full_domain, zone.id)
 
         return zone
 
@@ -222,7 +228,7 @@ class DNSZoneManager(SharedHelper):
     def exists(self, dns_zone_id=None, full_domain=None):
         return len(self.__get(id=dns_zone_id, full_domain=full_domain)) > 0
 
-    def new(self, domain, active, exact_match, forwarding, user_id, master=False):
+    def new(self, domain, active, exact_match, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0:
@@ -248,6 +254,9 @@ class DNSZoneManager(SharedHelper):
         if not zone:
             errors.append('Could not save zone')
             return errors
+
+        if update_old_logs:
+            self.dns_logs.update_old_logs(zone.full_domain, zone.id)
 
         return zone
 
