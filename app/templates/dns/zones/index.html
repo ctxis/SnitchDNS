@@ -62,6 +62,8 @@
                         {% endif %}
                         <form action="{{ url_for('dns.zones_export') }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="tags" value="{{ ','.join(search_tags) }}">
+                            <input type="hidden" name="search" value="{{ search }}">
                             <a href="#" class="submit-on-click dropdown-item"> <i class="fas fa-file-export"></i> <span class="ml-1">export</span></a>
                         </form>
                     </div>

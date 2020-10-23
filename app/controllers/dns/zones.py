@@ -266,7 +266,10 @@ def zones_export():
     download_filename = "snitch_export_" + filename
     save_results_as = users.get_user_data_path(current_user.id, filename=filename)
 
-    if not zones.export(current_user.id, save_results_as):
+    search = request.form['search'].strip()
+    search_tags = request.form['tags'].strip().split(',')
+
+    if not zones.export(current_user.id, save_results_as, search=search, tags=search_tags):
         flash('Could not generate CSV file.', 'error')
         return redirect(url_for('dns.index'))
 

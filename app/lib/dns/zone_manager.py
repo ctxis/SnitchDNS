@@ -148,8 +148,8 @@ class DNSZoneManager(SharedHelper):
 
         return zones
 
-    def get_user_zones(self, user_id, order_by='id'):
-        results = self.__get(user_id=user_id, order_by=order_by)
+    def get_user_zones(self, user_id, order_by='id', search=None, tags=None):
+        results = self.__get(user_id=user_id, order_by=order_by, search=search, tags=tags)
 
         zones = []
         for result in results:
@@ -273,11 +273,11 @@ class DNSZoneManager(SharedHelper):
         zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
         return zone
 
-    def export(self, user_id, save_as, overwrite=False, create_path=False):
+    def export(self, user_id, save_as, overwrite=False, create_path=False, search=None, tags=None):
         if not self._prepare_path(save_as, overwrite, create_path):
             return False
 
-        zones = self.get_user_zones(user_id, order_by='full_domain')
+        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags)
 
         header = [
             'type',
@@ -286,6 +286,7 @@ class DNSZoneManager(SharedHelper):
             'd_exact_match',
             'd_forwarding',
             'd_master',
+            'd_tags',
             'r_id',
             'r_ttl',
             'r_cls',
@@ -305,7 +306,8 @@ class DNSZoneManager(SharedHelper):
                     '1' if zone.active else '0',
                     '1' if zone.exact_match else '0',
                     '1' if zone.forwarding else '0',
-                    '1' if zone.master else '0'
+                    '1' if zone.master else '0',
+                    ','.join(zone.tags)
                 ]
                 writer.writerow(zone_line)
 
