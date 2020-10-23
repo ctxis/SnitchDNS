@@ -158,8 +158,12 @@ class DNSZoneManager(SharedHelper):
         return zones
 
     def get_user_zones_paginated(self, user_id, order_by='id', page=None, per_page=None, search=None, tags=None):
-        if isinstance(tags, list) and len(tags) == 0:
-            tags = None
+        if isinstance(tags, list):
+            # Remove empty elements.
+            tags = list(filter(None, tags))
+
+            if len(tags) == 0:
+                tags = None
         results = self.__get(user_id=user_id, order_by=order_by, page=page, per_page=per_page, search=search, tags=tags)
 
         zones = []
