@@ -44,7 +44,7 @@
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
                 <td style="width: 100%">
                     {% if is_zone %}
-                        <a href="{{ url_for('logs.index', domain=result.domain) }}">{{ result.domain }}</a>
+                        <a href="{{ url_for('dns.zone_view', dns_zone_id=result.dns_zone_id) }}">{{ result.domain }}</a>
                     {% else %}
                         {{ result.domain }}
                     {% endif %}
