@@ -1,12 +1,15 @@
 from sqlalchemy import and_, func, desc
 from app.lib.dns.instances.search_params import SearchParams
 from app import db
-from app.lib.models.dns import DNSQueryLogModel, DNSZoneModel
+from app.lib.models.dns import DNSQueryLogModel, DNSZoneModel, DNSZoneTagModel
 from flask_login import current_user
 import datetime
 
 
 class SearchManager:
+    def __init__(self, tag_manager):
+        self.tag_manager = tag_manager
+
     def search_from_request(self, request, paginate=True, method='get'):
         params = SearchParams(request=request, method=method)
         return {
@@ -59,6 +62,12 @@ class SearchManager:
         if search_params.blocked in [0, 1]:
             query = query.filter(DNSQueryLogModel.blocked == bool(search_params.blocked))
 
+        if len(search_params.tags) > 0:
+            user_id = None if current_user.admin else current_user.id
+            tag_ids = self.tag_manager.get_tag_ids(search_params.tags, user_id=user_id)
+            query = query.outerjoin(DNSZoneTagModel, DNSZoneTagModel.dns_zone_id == DNSQueryLogModel.dns_zone_id)
+            query = query.filter(DNSZoneTagModel.tag_id.in_(tag_ids))
+
         date_from = search_params.full_date_from
         date_to = search_params.full_date_to
         if isinstance(date_from, datetime.datetime):
@@ -79,7 +88,8 @@ class SearchManager:
         filters = {
             'classes': [],
             'types': [],
-            'users': {}
+            'users': {},
+            'tags': []
         }
 
         sql = "SELECT cls FROM dns_query_log GROUP BY cls ORDER BY cls"
@@ -96,5 +106,11 @@ class SearchManager:
         results = db.session.execute(sql)
         for result in results:
             filters['users'][result.id] = result.username
+
+        user_id = None if current_user.admin else current_user.id
+        tags = self.tag_manager.all(user_id=user_id, order_column='name', order_by='asc')
+        for tag in tags:
+            if tag.name not in filters['tags']:
+                filters['tags'].append(tag.name)
 
         return filters

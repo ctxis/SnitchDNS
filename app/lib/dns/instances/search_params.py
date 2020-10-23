@@ -23,6 +23,8 @@ class SearchParams:
         self.__per_page = None
         self.__user_id = None
         self.__blocked = None
+        self.__tags = None
+        self.__advanced = None
 
         self.__load()
 
@@ -40,7 +42,9 @@ class SearchParams:
         self.time_to = self.__get_param('time_to', '')
         self.page = self.__get_param('page', 1, type='int')
         self.per_page = self.__get_param('per_page', 50, type='int')
-        self.user_id = self.__get_param('user_id', -1, 'int')
+        self.user_id = self.__get_param('user_id', -1, type='int')
+        self.tags = self.__get_param('tags', [], type='list')
+        self.advanced = self.__get_param('advanced', 0, type='int')
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
@@ -55,13 +59,18 @@ class SearchParams:
         if self.page <= 0:
             self.page = 1
 
+        self.tags = list(filter(None, self.tags))
+
     def __get_param(self, name, default, type='str'):
         if self.__request is None:
             return default
 
         value = default
         if self.__method in ['get', 'post']:
-            value = self.__request.args.get(name, default) if self.__method == 'get' else self.__request.form.get(name, default)
+            if self.__method == 'get':
+                value = self.__request.args.getlist(name) if type == 'list' else self.__request.args.get(name, value)
+            elif self.__method == 'post':
+                value = self.__request.form.getlist(name) if type == 'list' else self.__request.form.get(name, value)
         elif self.__method == 'dict':
             value = self.__request[name] if name in self.__request else default
 
@@ -85,6 +94,8 @@ class SearchParams:
         params.append('time_from=' + quote_plus(self.time_from)) if len(self.time_from) > 0 else False
         params.append('date_to=' + quote_plus(self.date_to)) if len(self.date_to) > 0 else False
         params.append('time_to=' + quote_plus(self.time_to)) if len(self.time_to) > 0 else False
+        params.append('tags=' + '&tags='.join(self.tags)) if len(self.tags) > 0 else False
+        params.append('advanced=' + quote_plus(str(self.advanced))) if self.advanced == 1 else False
         params.append('page=')  # Must be last.
 
         return "&".join(params)
@@ -218,6 +229,22 @@ class SearchParams:
     @blocked.setter
     def blocked(self, value):
         self.__blocked = value
+
+    @property
+    def tags(self):
+        return self.__tags
+
+    @tags.setter
+    def tags(self, value):
+        self.__tags = value
+
+    @property
+    def advanced(self):
+        return self.__advanced
+
+    @advanced.setter
+    def advanced(self, value):
+        self.__advanced = value
 
     def get(self, name):
         return getattr(self, name) if self.__is_property(name) else None

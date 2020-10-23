@@ -112,18 +112,34 @@
                         </div>
                     </div>
                     <div class="col ml-0 pl-0">
-                        {% if current_user.admin %}
-                        <div class="input-group">
-                            <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
-                            <select class="custom-select" name="user_id">
-                                <option value="-1"></option>
-                                <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
-                                {% for user_id, username in filters.users.items() %}
-                                <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Tags</span></div>
+                                    <select class="custom-select" name="tags" id="tags" multiple="multiple">
+                                        {% for tag in filters.tags %}
+                                        <option value="{{ tag }}" {{ 'selected' if tag in params.tags }}>{{ tag }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {% if current_user.admin %}
+                            <div class="col ml-0 pl-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
+                                    <select class="custom-select" name="user_id">
+                                        <option value="-1"></option>
+                                        <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
+                                        {% for user_id, username in filters.users.items() %}
+                                        <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
+
                     </div>
                 </div>
                 <div class="row">
@@ -158,6 +174,10 @@
         $('#time_to').datetimepicker({
             format: 'HH:mm',
             date: '{{ params.full_date_to }}'
+        });
+
+        $('#tags').select2({
+            tags: true
         });
 
         $('.toggle-advanced').click(function() {
