@@ -11,11 +11,14 @@ class BaseInstance:
         if not self.id:
             self.item.created_at = datetime.datetime.now()
             db.session.add(self.item)
-        db.session.commit()
+        self.commit()
         db.session.refresh(self.item)
 
     def delete(self):
         db.session.delete(self.item)
+        self.commit()
+
+    def commit(self):
         db.session.commit()
 
     @property

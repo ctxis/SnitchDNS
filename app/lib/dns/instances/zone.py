@@ -1,4 +1,5 @@
 from app.lib.base.instance.base_instance import BaseInstance
+from app.lib.models.dns import DNSZoneTagModel
 
 
 class DNSZone(BaseInstance):
@@ -123,3 +124,8 @@ class DNSZone(BaseInstance):
     @tags.setter
     def tags(self, value):
         self.__tags = value
+
+    def delete_tags(self):
+        DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == self.id).delete()
+        self.tags = []
+        self.commit()

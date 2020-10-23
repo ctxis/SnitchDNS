@@ -88,10 +88,9 @@ class DNSZoneManager(SharedHelper):
             self.notifications.logs.delete(subscription_id=subscription.id)
             subscription.delete()
 
-        self.delete_tags(zone.id)
-
         self.dns_logs.delete(dns_zone_id=zone.id)
 
+        zone.delete_tags()
         zone.delete()
 
         return True
@@ -348,7 +347,7 @@ class DNSZoneManager(SharedHelper):
             tag_mapping[name] = self.tag_manager.save(zone.user_id, name).id
 
         # Delete all assigned zone tags.
-        DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == zone.id).delete()
+        zone.delete_tags()
 
         # Add fresh batch.
         for name, id in tag_mapping.items():
@@ -358,7 +357,3 @@ class DNSZoneManager(SharedHelper):
             item.save()
 
         return zone
-
-    def delete_tags(self, dns_zone_id):
-        DNSZoneTagModel.query.filter(DNSZoneTagModel.dns_zone_id == dns_zone_id).delete()
-        return True
