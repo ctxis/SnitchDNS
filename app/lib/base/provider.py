@@ -22,6 +22,7 @@ from app.lib.log.manager import LoggingManager
 from app.lib.dns.restriction_manager import RestrictionManager
 from app.lib.dns.import_manager import DNSImportManager
 from app.lib.dns.tag_manager import TagManager
+from app.lib.dns.alias_manager import AliasManager
 from flask import current_app
 import os
 
@@ -196,3 +197,6 @@ class Provider:
 
     def tags(self):
         return TagManager()
+
+    def aliases(self):
+        return AliasManager()

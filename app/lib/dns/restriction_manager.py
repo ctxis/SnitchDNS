@@ -1,11 +1,11 @@
-import ipaddress
 from sqlalchemy import asc, desc
+from app.lib.dns.helpers.shared import SharedHelper
 from app.lib.models.dns import DNSZoneRestrictionModel
 from app.lib.dns.instances.restriction import DNSZoneRestriction
 from app.lib.dns.collections.restrictions import RestrictionCollection
 
 
-class RestrictionManager:
+class RestrictionManager(SharedHelper):
     def __get(self, id=None, zone_id=None, ip_range=None, type=None, enabled=None, order_by=None, sort_order=None):
         query = DNSZoneRestrictionModel.query
 
@@ -63,28 +63,6 @@ class RestrictionManager:
         restriction.save()
         return restriction
 
-    def is_valid_ip_or_range(self, ip_range):
-        if '/' in ip_range:
-            ip, bits = ip_range.split('/')
-            if not self.__is_valid_ip_address(ip):
-                return False
-            elif not bits.isdigit():
-                return False
-            bits = int(bits)
-            if bits < 8 or bits > 30:
-                return False
-            return True
-        else:
-            return self.__is_valid_ip_address(ip_range)
-
-    def __is_valid_ip_address(self, ip):
-        try:
-            obj = ipaddress.ip_address(ip)
-        except ValueError:
-            return False
-
-        return True
-
     def allow(self, zone_id, ip):
         # If there are no rules, allow.
         restrictions = self.get_zone_restrictions(zone_id, enabled=True)
@@ -122,13 +100,7 @@ class RestrictionManager:
 
         return allow
 
-    def ip_in_range(self, ip, ip_range):
-        if ip_range == '0.0.0.0':
-            return True
-        elif '/' in ip_range:
-            return ipaddress.ip_address(ip) in ipaddress.ip_network(ip_range)
-        else:
-            return str(ip) == str(ip_range)
+
 
     def find(self, zone_id=None, ip_range=None, type=None, enabled=None):
         results = self.__get(zone_id=zone_id, ip_range=ip_range, type=type, enabled=enabled)

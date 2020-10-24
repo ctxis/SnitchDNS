@@ -1,0 +1,52 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3"></div>
+    <div class="col">
+
+        <h3>
+            <div class="row">
+                <div class="col">Aliases</div>
+                <div class="col text-right">
+                    <a href="{{ url_for('dns.alias_edit', alias_id=0) }}" class="btn btn-sm btn-primary"><i class="fas fa-plus fa-fw"></i> create</a>
+                </div>
+            </div>
+        </h3>
+
+
+        {% if aliases|length == 0 %}
+        <div class="alert alert-info text-center">No aliases created yet.</div>
+        {% else %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th style="width: 100%;">Name</th>
+                <th>IP</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for alias in aliases %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ alias.name }}</td>
+                <td>{{ alias.ip }}</td>
+                <td style="white-space: nowrap;">
+                    <a href="{{ url_for('dns.alias_edit', alias_id=alias.id) }}" title="edit alias"><i class="fas fa-edit"></i></a>
+                    <form action="{{ url_for('dns.alias_delete', alias_id=alias.id) }}" method="post" class="d-inline ml-1" id="delete-alias-form-{{ alias.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <a href="#" class="confirm-delete text-danger" title="delete alias"><i class="fas fa-trash"></i></a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <div class="col-3"></div>
+</div>
+
+{% endblock %}

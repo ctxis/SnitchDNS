@@ -44,7 +44,7 @@ class TagManager:
             item.name = name
             item.save()
         else:
-            item = item[0]
+            item = self.__load(item[0])
 
         return item
 

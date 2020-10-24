@@ -1,5 +1,6 @@
 import os
 import csv
+import ipaddress
 from app.lib.base.environment import EnvironmentManager
 
 
@@ -82,3 +83,33 @@ class SharedHelper:
             header = next(reader)
 
         return header
+
+    def is_valid_ip_or_range(self, ip_range):
+        if '/' in ip_range:
+            ip, bits = ip_range.split('/')
+            if not self.__is_valid_ip_address(ip):
+                return False
+            elif not bits.isdigit():
+                return False
+            bits = int(bits)
+            if bits < 8 or bits > 30:
+                return False
+            return True
+        else:
+            return self.__is_valid_ip_address(ip_range)
+
+    def __is_valid_ip_address(self, ip):
+        try:
+            obj = ipaddress.ip_address(ip)
+        except ValueError:
+            return False
+
+        return True
+
+    def ip_in_range(self, ip, ip_range):
+        if ip_range == '0.0.0.0':
+            return True
+        elif '/' in ip_range:
+            return ipaddress.ip_address(ip) in ipaddress.ip_network(ip_range)
+        else:
+            return str(ip) == str(ip_range)
