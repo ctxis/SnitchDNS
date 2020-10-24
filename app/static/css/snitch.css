@@ -19,11 +19,6 @@
     border: 32px solid white;
 }
 
-.zone-edit-badge {
-    top: -10px;
-    font-size: 0.5em;
-}
-
 /* Fix for select2 foreground colour on dark themes. */
 .select2-container {
     color: black;
