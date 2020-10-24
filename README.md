@@ -11,6 +11,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * [Screenshots](docs/general/screenshots.md)
 * [Limitations](#limitations)
 * [Contributing](#contributing)
+* [Security](#security)
 * [Credits](#credits)
 
 ## Basic Features
@@ -87,9 +88,17 @@ For screenshots [see here](docs/general/screenshots.md)
 
 ## Contributing
 
-As we maintain an internal tracker as well, before contributing please create an issue to discuss before implementing any features/changes.
+If you wish to contribute pull requests, feature requests, and bug reports - feel free to raise an issue (especially before you start writing code). 
+
+## Security
+
+If you identify any security vulnerabilities within SnitchDNS, for the time being please contact me on twitter - [@sadreck](https://twitter.com/sadreck)
 
 ## Credits
 
+**UI**
 * Theme from [Bootswatch](https://bootswatch.com/)
 * Images from [Freepik](http://www.freepik.com/)
+
+**Development**
+* Lambros Zannettos - For his help with writing the Dockerfile.
