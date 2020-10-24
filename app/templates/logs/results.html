@@ -40,6 +40,7 @@
             <tbody>
             {% for result in results.items %}
                 {% set is_zone = zone_exists(full_domain=result.domain) %}
+                {% set has_alias = (result.source_ip in aliases) %}
             <tr>
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
                 <td style="width: 100%">
@@ -49,7 +50,7 @@
                         {{ result.domain }}
                     {% endif %}
                 </td>
-                <td>{{ result.source_ip }}</td>
+                <td title="{{ result.source_ip }}">{{ aliases[result.source_ip] if has_alias else result.source_ip }}</td>
                 <td class="text-right">{{ result.type }}</td>
                 <td class="text-center">
                     {% set class = 'success' if result.forwarded else 'danger' %}
@@ -79,10 +80,14 @@
                         {% if result.dns_zone_id == 0 and is_zone == False %}
                         <form action="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <a href="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" class="submit-on-click dropdown-item"><i class="fas fa-plus-square fa-fw"></i> <span class="ml-1">create zone</span></a>
+                            <a href="#" class="submit-on-click dropdown-item"><i class="fas fa-plus-square fa-fw"></i> <span class="ml-1">create zone</span></a>
                         </form>
                         {% else %}
                         <a href="{{ url_for('dns.zone_view', dns_zone_id=result.dns_zone_id) }}" class="submit-on-click dropdown-item"><i class="fas fa-external-link-alt fa-fw"></i> <span class="ml-1">view zone</span></a>
+                        {% endif %}
+
+                        {% if not has_alias %}
+                        <a href="{{ url_for('dns.alias_edit', alias_id=0, ip=result.source_ip) }}" class="dropdown-item"><i class="fas fa-plus-square fa-fw"></i> <span class="ml-1">create alias</span></a>
                         {% endif %}
 
                         <form action="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" method="post">

@@ -47,6 +47,11 @@ def alias_edit(alias_id):
     provider = Provider()
     aliases = provider.aliases()
 
+    autofill_ip = request.args.get('ip', '').strip()
+    if len(autofill_ip) > 0 and not aliases.is_valid_ip_or_range(autofill_ip):
+        flash('Invalid IP address', 'error')
+        return redirect(url_for('dns.alias_index'))
+
     user_id = None if current_user.admin else current_user.id
     if alias_id > 0:
         if not aliases.can_access(alias_id, user_id):
@@ -60,7 +65,8 @@ def alias_edit(alias_id):
     return render_template(
         'dns/aliases/edit.html',
         alias_id=alias_id,
-        alias=alias
+        alias=alias,
+        autofill_ip=autofill_ip
     )
 
 

@@ -24,10 +24,13 @@ def index():
     search = provider.search()
     results = search.search_from_request(request)
 
+    aliases = provider.aliases()
+
     return render_template(
         'home/index.html',
         results=results['results'],
         params=results['params'],
         page_url='home.index',
-        zone_count=zones.count(user_id=current_user.id)
+        zone_count=zones.count(user_id=current_user.id),
+        aliases=aliases.get_dict(None if current_user.admin else current_user.id)
     )

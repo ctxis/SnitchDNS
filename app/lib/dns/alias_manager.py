@@ -90,3 +90,10 @@ class AliasManager(SharedHelper):
 
         self.__load(results[0]).delete()
         return True
+
+    def get_dict(self, user_id):
+        results = self.__get(user_id=user_id)
+        data = {}
+        for result in results:
+            data[result.ip] = result.name
+        return data

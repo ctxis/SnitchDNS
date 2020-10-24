@@ -12,6 +12,7 @@ bp = Blueprint('logs', __name__, url_prefix='/logs')
 def index():
     provider = Provider()
     search = provider.search()
+    aliases = provider.aliases()
 
     results = search.search_from_request(request)
     advanced = int(request.args.get('advanced', 0)) == 1
@@ -22,7 +23,8 @@ def index():
         params=results['params'],
         filters=results['filters'],
         page_url='logs.index',
-        advanced=advanced
+        advanced=advanced,
+        aliases=aliases.get_dict(None if current_user.admin else current_user.id)
     )
 
 
