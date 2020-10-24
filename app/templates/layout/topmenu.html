@@ -12,16 +12,20 @@
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logs.index') }}"><i class="fas fa-clipboard-list"></i> Logs</a>
+                    <a class="nav-link" href="{{ url_for('logs.index') }}"><i class="fas fa-clipboard-list"></i> <span class="ml-1">Logs</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog"></i> <span class="ml-1">Manage</span></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for('dns.index') }}"><i class="fas fa-globe"></i> <span class="ml-1">Zones</span></a>
+                        <a class="dropdown-item" href="{{ url_for('dns.tags_index') }}"><i class="fas fa-tags"></i> <span class="ml-1">Tags</span></a>
+                        <a class="dropdown-item" href="{{ url_for('dns.index') }}"><i class="fas fa-signature"></i> <span class="ml-1">Aliases</span></a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('config.index') }}"><i class="fas fa-cogs"></i> <span class="ml-1">Settings</span></a>
+                    </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('dns.index') }}"><i class="fas fa-globe"></i> Manage</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('config.index') }}"><i class="fas fa-cogs"></i> Settings</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Logout {{ current_user.full_name }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Logout {{ current_user.full_name }}"><i class="fas fa-sign-out-alt"></i> <span class="ml-1">Logout</span></a>
                 </li>
                 {% endif %}
             </ul>

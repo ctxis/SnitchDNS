@@ -1,0 +1,53 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-3"></div>
+    <div class="col">
+
+        <h3>
+            <div class="row">
+                <div class="col">Zone Tags</div>
+                <div class="col text-right">
+                    <a href="{{ url_for('dns.tags_edit', tag_id=0) }}" class="btn btn-sm btn-primary"><i class="fas fa-plus fa-fw"></i> create</a>
+                </div>
+            </div>
+        </h3>
+
+
+        {% if tags|length == 0 %}
+        <div class="alert alert-info text-center">No tags created yet.</div>
+        {% else %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th style="width: 100%;">Name</th>
+                <th class="text-right">Domains</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tag in tags %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ tag.name }}</td>
+                <td class="text-right">{{ tag_domains(tag.id) }}</td>
+                <td style="white-space: nowrap;">
+                    <a href="{{ url_for('dns.tags_edit', tag_id=tag.id) }}" title="edit tag"><i class="fas fa-edit"></i></a>
+                    <a href="{{ url_for('dns.index', tags=tag.name) }}" title="view tagged domains"><i class="fas fa-globe"></i></a>
+                    <form action="{{ url_for('dns.tags_delete', tag_id=tag.id) }}" method="post" class="d-inline ml-1" id="delete-tag-form-{{ tag.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <a href="#" class="confirm-delete text-danger" title="delete tag"><i class="fas fa-trash"></i></a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <div class="col-3"></div>
+</div>
+
+{% endblock %}

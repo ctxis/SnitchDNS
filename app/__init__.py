@@ -129,7 +129,15 @@ def create_app(config_class=None):
         def zone_exists(id=None, full_domain=None):
             return Provider().dns_zones().exists(dns_zone_id=id, full_domain=full_domain)
 
-        return dict(setting_get=setting_get, is_daemon_running=is_daemon_running, zone_exists=zone_exists)
+        def tag_domains(tag_id):
+            return Provider().dns_zones().tag_count(tag_id)
+
+        return dict(
+            setting_get=setting_get,
+            is_daemon_running=is_daemon_running,
+            zone_exists=zone_exists,
+            tag_domains=tag_domains
+        )
 
     @app.errorhandler(404)
     @login_required

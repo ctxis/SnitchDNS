@@ -7,6 +7,7 @@ from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.zone_tag import DNSZoneTag
 from app.lib.dns.helpers.shared import SharedHelper
 from sqlalchemy import func
+from app import db
 
 
 class DNSZoneManager(SharedHelper):
@@ -383,3 +384,11 @@ class DNSZoneManager(SharedHelper):
             item.save()
 
         return zone
+
+    def tag_count(self, tag_id):
+        return DNSZoneTagModel.query.filter(DNSZoneTagModel.tag_id == tag_id).count()
+
+    def tag_delete(self, tag_id):
+        DNSZoneTagModel.query.filter(DNSZoneTagModel.tag_id == tag_id).delete()
+        db.session.commit()
+        return True

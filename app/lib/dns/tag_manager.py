@@ -48,8 +48,17 @@ class TagManager:
 
         return item
 
-    def get(self, tag_id):
-        result = self.__get(id=tag_id)
+    def update(self, tag_id, name):
+        tag = self.get(tag_id)
+        if not tag:
+            return False
+
+        tag.name = name
+        tag.save()
+        return tag
+
+    def get(self, tag_id, user_id=None):
+        result = self.__get(id=tag_id, user_id=user_id)
         if len(result) == 0:
             return False
 
@@ -69,3 +78,14 @@ class TagManager:
             ids.append(result.id)
 
         return ids
+
+    def can_access(self, tag_id, user_id):
+        return len(self.__get(id=tag_id, user_id=user_id)) > 0
+
+    def delete(self, tag_id, user_id=None):
+        results = self.__get(id=tag_id, user_id=user_id)
+        if not results:
+            return False
+
+        self.__load(results[0]).delete()
+        return True
