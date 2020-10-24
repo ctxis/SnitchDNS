@@ -73,7 +73,8 @@
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a href="{{ url_for('logs.index', domain=result.domain) }}" class="dropdown-item"> <i class="fas fa-filter fa-fw"></i> <span class="ml-1">filter</span></a>
+                        <a href="{{ url_for('logs.index', domain=result.domain) }}" class="dropdown-item"> <i class="fas fa-filter fa-fw"></i> <span class="ml-1">filter by domain</span></a>
+                        <a href="{{ url_for('logs.index', source_ip=result.source_ip) }}" class="dropdown-item"> <i class="fas fa-filter fa-fw"></i> <span class="ml-1">filter by IP</span></a>
 
                         {% if result.dns_zone_id == 0 and is_zone == False %}
                         <form action="{{ url_for('dns.zone_create_from_log', query_log_id=result.id) }}" method="post">
