@@ -28,7 +28,7 @@ def index():
     )
 
 
-@bp.route('/export', methods=['POST'])
+@bp.route('/export/', methods=['POST'])
 @login_required
 def export():
     provider = Provider()
@@ -42,7 +42,7 @@ def export():
     save_results_as = users.get_user_data_path(current_user.id, filename=filename)
 
     # Perform the search.
-    results = search.search_from_request(request, paginate=False, method='post')
+    results = search.search_from_request(request, paginate=False, method='get')
     rows = results['results']
 
     # Export to disk.
