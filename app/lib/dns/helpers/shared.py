@@ -75,3 +75,10 @@ class SharedHelper:
             rows.append(row)
 
         return rows
+
+    def _load_csv_header(self, csvfile):
+        with open(csvfile, 'r') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+
+        return header

@@ -3,6 +3,9 @@ import os
 
 
 class DNSImportManager(SharedHelper):
+    IMPORT_TYPE_ZONE = 1
+    IMPORT_TYPE_RECORD = 2
+
     @property
     def last_error(self):
         return self.__last_error
@@ -15,8 +18,35 @@ class DNSImportManager(SharedHelper):
         self.__last_error = ''
         self.__dns_zones = dns_zones
         self.__dns_records = dns_records
+        self.__zone_headers = ['domain', 'active', 'exact_match', 'forwarding', 'master', 'tags']
+        self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data']
 
-    def review(self, csvfile, user_id):
+
+    def identify(self, csvfile):
+        self.last_error = ''
+        if not os.path.isfile(csvfile):
+            self.last_error = 'CSV file does not exist'
+            return False
+
+        header = self._load_csv_header(csvfile)
+        zone_header_count = 0
+        record_header_count = 0
+        for column in header:
+            if column in self.__zone_headers:
+                zone_header_count += 1
+
+            if column in self.__record_headers:
+                record_header_count += 1
+
+        if zone_header_count == len(self.__zone_headers):
+            return self.IMPORT_TYPE_ZONE
+        elif record_header_count == len(self.__record_headers):
+            return self.IMPORT_TYPE_RECORD
+
+        self.last_error = 'If you are uploading a ZONE file these are the required columns: {0}. If you are uploading a RECORD file then the required columns are: {1}.'.format(', '.join(self.__zone_headers), ', '.join(self.__record_headers))
+        return False
+
+    def review(self, csvfile, type, user_id):
         self.last_error = ''
         if not os.path.isfile(csvfile):
             self.last_error = 'CSV file does not exist'
@@ -27,34 +57,30 @@ class DNSImportManager(SharedHelper):
             self.last_error = 'CSV is empty'
             return False
 
-        missing_columns = self.__get_missing_columns(lines[0])
-        if len(missing_columns) > 0:
-            self.last_error = 'Missing CSV columns: {0}'.format(", ".join(missing_columns))
-            return False
-
         all_errors = []
-        zone_rows, record_rows, errors = self.__categorise_rows(lines)
-        all_errors += errors
+        if type == self.IMPORT_TYPE_ZONE:
+            rows = self.__categorise_rows(lines, type)
+            rows, errors = self.__process_zones(rows, user_id)
+        elif type == self.IMPORT_TYPE_RECORD:
+            rows = self.__categorise_rows(lines, type)
+            rows, errors = self.__process_records(rows, user_id)
 
-        zones, errors = self.__process_zones(zone_rows, user_id)
-        all_errors += errors
-
-        records, errors = self.__process_records(record_rows, zones, user_id)
         all_errors += errors
 
         # Sort errors per row number.
         all_errors = sorted(all_errors, key=lambda k: k['row'])
 
         return {
-            'zones': zones,
-            'records': records,
+            'data': rows,
             'errors': all_errors
         }
 
-    def run(self, zones, records, user_id):
+    def run(self, data, type, user_id):
         errors = []
-        self.__import_zones(zones, user_id, errors)
-        self.__import_records(records, user_id, errors)
+        if type == self.IMPORT_TYPE_ZONE:
+            self.__import_zones(data, user_id, errors)
+        elif type == self.IMPORT_TYPE_RECORD:
+            self.__import_records(data, user_id, errors)
 
         return errors if len(errors) > 0 else True
 
@@ -79,6 +105,8 @@ class DNSImportManager(SharedHelper):
                     user_id,
                     zone_to_import['master']
                 )
+
+            self.__dns_zones.save_tags(zone, zone_to_import['tags'])
 
             if isinstance(zone, list):
                 # It means it's all errors.
@@ -118,6 +146,11 @@ class DNSImportManager(SharedHelper):
             exact_match = True if zone['exact_match'] in ['1', 'yes', 'true'] else False
             forwarding = True if zone['forwarding'] in ['1', 'yes', 'true'] else False
             master = True if zone['master'] in ['1', 'yes', 'true'] else False
+            tags = zone['tags'].split(',')
+            # Trim each element.
+            map(str.strip, tags)
+            # Remove empty elements.
+            tags = list(filter(None, tags))
 
             existing_zone = self.__dns_zones.find(zone['domain'], user_id=user_id)
             zone_id = existing_zone.id if existing_zone else 0
@@ -128,12 +161,13 @@ class DNSImportManager(SharedHelper):
                 'active': active,
                 'exact_match': exact_match,
                 'forwarding': forwarding,
-                'master': master
+                'master': master,
+                'tags': tags
             })
 
         return items, errors
 
-    def __process_records(self, records, zones, user_id):
+    def __process_records(self, records, user_id):
         errors = []
         items = []
 
@@ -141,7 +175,7 @@ class DNSImportManager(SharedHelper):
             record_errors = []
 
             active = True if record['active'] in ['1', 'yes', 'true'] else False
-            zone_id = self.__process_record_zone(record, zones, user_id, record_errors)
+            zone_id = self.__process_record_zone(record, user_id, record_errors)
             record_id = self.__process_record_id(record, zone_id, user_id, record_errors)
             ttl = self.__process_record_ttl(record, record_errors)
             cls = self.__process_record_cls(record, record_errors)
@@ -191,21 +225,13 @@ class DNSImportManager(SharedHelper):
 
         return record_id
 
-    def __process_record_zone(self, record, zones, user_id, errors):
+    def __process_record_zone(self, record, user_id, errors):
         zone_id = 0
         zone = self.__dns_zones.find(record['domain'], user_id=user_id)
         if zone:
             zone_id = zone.id
         else:
-            # If the zone isn't found, try to find it in the 'zones' list in case it's an imported one.
-            zone_exists = False
-            for zone_to_import in zones:
-                if zone_to_import['domain'] == record['domain']:
-                    zone_exists = True
-                    break
-
-            if not zone_exists:
-                errors.append({'row': record['row'], 'error': 'Zone not found: {0}'.format(record['domain'])})
+            errors.append({'row': record['row'], 'error': 'Zone not found: {0}'.format(record['domain'])})
 
         return zone_id
 
@@ -280,46 +306,32 @@ class DNSImportManager(SharedHelper):
             data[property_name] = value
         return data
 
-    def __categorise_rows(self, rows):
-        zones = []
-        records = []
-        errors = []
+    def __categorise_rows(self, rows, type):
+        data = []
         for i, row in enumerate(rows):
             # Error row is +1 because the first row is the header which was removed.
             actual_row = i + 1
 
-            if row['type'].lower() == 'zone':
-                zones.append({
+            if type == self.IMPORT_TYPE_ZONE:
+                data.append({
                     'row': actual_row,
                     'domain': row['domain'].strip().lower(),
-                    'active': row['d_active'].strip().lower(),
-                    'exact_match': row['d_exact_match'].strip().lower(),
-                    'forwarding': row['d_forwarding'].strip().lower(),
-                    'master': row['d_master'].strip().lower()
+                    'active': row['active'].strip().lower(),
+                    'exact_match': row['exact_match'].strip().lower(),
+                    'forwarding': row['forwarding'].strip().lower(),
+                    'master': row['master'].strip().lower(),
+                    'tags': row['tags'].strip()
                 })
-            elif row['type'].lower() == 'record':
-                records.append({
+            elif type == self.IMPORT_TYPE_RECORD:
+                data.append({
                     'row': actual_row,
                     'domain': row['domain'].strip().lower(),
-                    'id': row['r_id'].strip(),
-                    'ttl': row['r_ttl'].strip().lower(),
-                    'cls': row['r_cls'].strip().upper(),
-                    'type': row['r_type'].strip().upper(),
-                    'active': row['r_active'].strip().lower(),
-                    'data': row['r_data'].strip()
+                    'id': row['id'].strip(),
+                    'ttl': row['ttl'].strip().lower(),
+                    'cls': row['cls'].strip().upper(),
+                    'type': row['type'].strip().upper(),
+                    'active': row['active'].strip().lower(),
+                    'data': row['data'].strip()
                 })
-            else:
-                errors.append({'row': actual_row, 'error': "Unknown row type: '{0}'".format(row['type'])})
 
-        return zones, records, errors
-
-    def __get_missing_columns(self, row):
-        required_columns = ['type', 'domain',
-                            'd_active', 'd_exact_match', 'd_forwarding', 'd_master',
-                            'r_id', 'r_ttl', 'r_cls', 'r_type', 'r_active', 'r_data']
-        missing_columns = []
-        for column in required_columns:
-            if not column in row:
-                missing_columns.append(column)
-
-        return missing_columns
+        return data

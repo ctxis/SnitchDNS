@@ -32,7 +32,7 @@ def zones_import_upload():
         flash('No file uploaded', 'error')
         return redirect(url_for('dns.zones_import'))
 
-    file.save(import_manager.get_user_data_path(current_user.id, 'import.csv'))
+    file.save(import_manager.get_user_data_path(current_user.id, filename='import.csv'))
 
     return redirect(url_for('dns.zones_import_review'))
 
@@ -44,21 +44,26 @@ def zones_import_review():
     provider = Provider()
     import_manager = provider.dns_import()
 
-    file = import_manager.get_user_data_path(current_user.id, 'import.csv')
+    file = import_manager.get_user_data_path(current_user.id, filename='import.csv')
     if not os.path.isfile(file):
         flash('No file uploaded', 'error')
         return redirect(url_for('dns.zones_import'))
 
-    data = import_manager.review(file, current_user.id)
+    import_type = import_manager.identify(file)
+    if import_type is False:
+        flash("Error: {0}".format(import_manager.last_error), 'error')
+        return redirect(url_for('dns.zones_import'))
+
+    data = import_manager.review(file, import_type, current_user.id)
     if not data:
         flash("Error: {0}".format(import_manager.last_error), 'error')
         return redirect(url_for('dns.zones_import'))
 
     return render_template(
         'dns/import/review.html',
-        zones=data['zones'],
-        records=data['records'],
-        errors=data['errors']
+        data=data['data'],
+        errors=data['errors'],
+        type=import_type
     )
 
 
@@ -69,12 +74,17 @@ def zones_import_run():
     provider = Provider()
     import_manager = provider.dns_import()
 
-    file = import_manager.get_user_data_path(current_user.id, 'import.csv')
+    file = import_manager.get_user_data_path(current_user.id, filename='import.csv')
     if not os.path.isfile(file):
         flash('No file uploaded', 'error')
         return redirect(url_for('dns.zones_import'))
 
-    data = import_manager.review(file, current_user.id)
+    import_type = import_manager.identify(file)
+    if import_type is False:
+        flash("Error: {0}".format(import_manager.last_error), 'error')
+        return redirect(url_for('dns.zones_import'))
+
+    data = import_manager.review(file, import_type, current_user.id)
     if not data:
         flash("Error: {0}".format(import_manager.last_error), 'error')
         return redirect(url_for('dns.zones_import'))
@@ -82,7 +92,7 @@ def zones_import_run():
         flash("Please fix all the uploaded file's errors before importing it", 'error')
         return redirect(url_for('dns.zones_import_review'))
 
-    result = import_manager.run(data['zones'], data['records'], current_user.id)
+    result = import_manager.run(data['data'], import_type, current_user.id)
     if result is True:
         # Delete file after process.
         os.remove(file)

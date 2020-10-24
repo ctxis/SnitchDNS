@@ -34,90 +34,95 @@
                 </div>
             </div>
 
-            {% if zones|length > 0 %}
-            <h4 class="text-info">{{ zones|length }} Zone(s) to Import</h4>
-            <table class="table table-sm table-striped">
-                <thead>
-                <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-center">Action</th>
-                    <th>Domain</th>
-                    <th class="text-center">Active</th>
-                    <th class="text-center" style="white-space: nowrap;">Exact Match</th>
-                    <th class="text-center">Forwarding</th>
-                    <th class="text-center">Master</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for zone in zones %}
-                <tr>
-                    <td class="text-center">{{ loop.index }}</td>
-                    <td class="text-center">{{ 'Create' if zone.id == 0 else 'Update' }}</td>
-                    <td style="width: 100%;">{{ zone.domain }}</td>
-                    <td class="text-center">
-                        {% set class = 'success' if zone.active else 'danger' %}
-                        {% set icon = 'check' if zone.active else 'times' %}
-                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                    </td>
-                    <td class="text-center">
-                        {% set class = 'success' if zone.exact_match else 'danger' %}
-                        {% set icon = 'check' if zone.exact_match else 'times' %}
-                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                    </td>
-                    <td class="text-center">
-                        {% set class = 'success' if zone.forwarding else 'danger' %}
-                        {% set icon = 'check' if zone.forwarding else 'times' %}
-                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                    </td>
-                    <td class="text-center">
-                        {% set class = 'success' if zone.master else 'danger' %}
-                        {% set icon = 'check' if zone.master else 'times' %}
-                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
+            {% if data|length > 0 %}
 
-            {% if records|length > 0 %}
-            <h4 class="text-info">{{ records|length }} Record(s) to Import</h4>
-            <table class="table table-sm table-striped">
-                <thead>
-                <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-center">Action</th>
-                    <th>Domain</th>
-                    <th class="text-center">Active</th>
-                    <th>Type</th>
-                    <th>Class</th>
-                    <th class="text-right">TTL</th>
-                    <th>Properties</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in records %}
-                <tr>
-                    <td class="text-center">{{ loop.index }}</td>
-                    <td class="text-center">{{ 'Create' if record.record_id == 0 else 'Update' }}</td>
-                    <td style="width: 100%;">{{ record.domain }}</td>
-                    <td class="text-center">
-                        {% set class = 'success' if record.active else 'danger' %}
-                        {% set icon = 'check' if record.active else 'times' %}
-                        <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                    </td>
-                    <td>{{ record.type }}</td>
-                    <td>{{ record.cls }}</td>
-                    <td class="text-right">{{ record.ttl }}</td>
-                    <td style="white-space: nowrap;">
-                        {% for name, value in record.data.items() %}
-                        <div>{{ name }}: {{value}}</div>
+                {% if type == 1 %}
+                    <h4 class="text-info">{{ data|length }} Zone(s) to Import</h4>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Action</th>
+                            <th>Domain</th>
+                            <th class="text-center">Active</th>
+                            <th class="text-center" style="white-space: nowrap;">Exact Match</th>
+                            <th class="text-center">Forwarding</th>
+                            <th class="text-center">Master</th>
+                            <th>Tags</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for zone in data %}
+                        <tr>
+                            <td class="text-center">{{ loop.index }}</td>
+                            <td class="text-center">{{ 'Create' if zone.id == 0 else 'Update' }}</td>
+                            <td style="width: 100%;">{{ zone.domain }}</td>
+                            <td class="text-center">
+                                {% set class = 'success' if zone.active else 'danger' %}
+                                {% set icon = 'check' if zone.active else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td class="text-center">
+                                {% set class = 'success' if zone.exact_match else 'danger' %}
+                                {% set icon = 'check' if zone.exact_match else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td class="text-center">
+                                {% set class = 'success' if zone.forwarding else 'danger' %}
+                                {% set icon = 'check' if zone.forwarding else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td class="text-center">
+                                {% set class = 'success' if zone.master else 'danger' %}
+                                {% set icon = 'check' if zone.master else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td style="white-space: nowrap">
+                                {{ ', '.join(zone.tags) }}
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                        </tbody>
+                    </table>
+                {% elif type == 2 %}
+                    <h4 class="text-info">{{ data|length }} Record(s) to Import</h4>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th class="text-center">Action</th>
+                            <th>Domain</th>
+                            <th class="text-center">Active</th>
+                            <th>Type</th>
+                            <th>Class</th>
+                            <th class="text-right">TTL</th>
+                            <th>Properties</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for record in data %}
+                        <tr>
+                            <td class="text-center">{{ loop.index }}</td>
+                            <td class="text-center">{{ 'Create' if record.record_id == 0 else 'Update' }}</td>
+                            <td style="width: 100%;">{{ record.domain }}</td>
+                            <td class="text-center">
+                                {% set class = 'success' if record.active else 'danger' %}
+                                {% set icon = 'check' if record.active else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td>{{ record.type }}</td>
+                            <td>{{ record.cls }}</td>
+                            <td class="text-right">{{ record.ttl }}</td>
+                            <td style="white-space: nowrap;">
+                                {% for name, value in record.data.items() %}
+                                <div>{{ name }}: {{value}}</div>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             {% endif %}
         {% endif %}
     </div>
