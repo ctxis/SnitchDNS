@@ -48,12 +48,12 @@ class SearchParams:
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
-        elif len(self.time_from) > 0:
+        elif len(self.time_from) > 0 and len(self.time_from) != 8:
             self.time_from += ':00'
 
         if len(self.date_to) > 0 and len(self.time_to) == 0:
             self.time_to = '23:59:59'
-        elif len(self.time_to) > 0:
+        elif len(self.time_to) > 0 and len(self.time_to) != 8:
             self.time_to += ':59'
 
         if self.page <= 0:
