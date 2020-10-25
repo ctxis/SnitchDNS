@@ -12,9 +12,13 @@ def main(bind_ip, bind_port):
     forward_dns_enabled = settings.get('forward_dns_enabled', False, type=bool)
     forward_dns_address = settings.get('forward_dns_address', [], type=list)
 
+    csv_location = ''
+    if settings.get('csv_logging_enabled', False, type=bool):
+        csv_location = settings.get('csv_logging_file', '', type=str)
+
     from app.lib.daemon.cli import DNSDaemonCLI
     cli = DNSDaemonCLI()
-    return cli.daemon(bind_ip, bind_port, forward_dns_enabled, forward_dns_address)
+    return cli.daemon(bind_ip, bind_port, forward_dns_enabled, forward_dns_address, csv_location)
 
 
 @click.command('snitch_start', help='SnitchDNS Start Daemon')

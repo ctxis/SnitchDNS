@@ -1,8 +1,21 @@
 from twisted.names.server import DNSServerFactory
 from twisted.names import dns
+import threading
+import time
+import csv
+
+csv_logging_lock = threading.Lock()
 
 
 class DatabaseDNSFactory(DNSServerFactory):
+    @property
+    def csv_location(self):
+        return self.__csv_location
+
+    @csv_location.setter
+    def csv_location(self, value):
+        self.__csv_location = value
+
     @property
     def app(self):
         return self.__app
@@ -72,6 +85,11 @@ class DatabaseDNSFactory(DNSServerFactory):
                         log.blocked = True
                         log.save()
 
+            # Create a thread to write the output to a CSV file.
+            if len(self.csv_location) > 0:
+                thread = threading.Thread(target=self.log_to_csv, args=(log,))
+                thread.start()
+
         return super(DatabaseDNSFactory, self).sendReply(protocol, message, address)
 
     def __find_snitch_record(self, answers):
@@ -82,3 +100,27 @@ class DatabaseDNSFactory(DNSServerFactory):
                 break
 
         return index
+
+    def log_to_csv(self, log):
+        # Taken from https://gist.github.com/rahulrajaram/5934d2b786ed2c29dc418fafaa2830ad
+        while csv_logging_lock.locked():
+            time.sleep(0.01)
+            continue
+
+        csv_logging_lock.acquire()
+        with open(self.csv_location, 'a') as f:
+            writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+            writer.writerow([
+                log.id,
+                log.source_ip,
+                log.domain,
+                log.cls,
+                log.type,
+                1 if log.found else 0,
+                1 if log.forwarded else 0,
+                1 if log.blocked else 0,
+                log.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        csv_logging_lock.release()
+
+        return True

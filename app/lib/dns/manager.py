@@ -1,4 +1,5 @@
 import ipaddress
+import os
 
 
 class DNSManager:
@@ -47,3 +48,6 @@ class DNSManager:
         if records is False:
             return []
         return records if len(records) > 0 else []
+
+    def is_file_writable(self, path):
+        return os.access(path, os.W_OK) if os.path.isfile(path) else os.access(os.path.dirname(path), os.W_OK)

@@ -79,6 +79,28 @@
                 </div>
             </div>
 
+            <h4 class="mt-4">DNS CSV Logging</h4>
+            <div class="form-group row">
+                <div class="col">
+                    <label for="csv_logging_enabled">Enable CSV Logging</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="csv_logging_enabled" type="checkbox" class="custom-control-input" id="csv_logging_enabled" value="1" {{ 'checked' if setting_get('csv_logging_enabled', False) == True }}>
+                        <label class="custom-control-label" for="csv_logging_enabled"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="csv_logging_file">CSV Output Location</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-right" name="csv_logging_file" id="csv_logging_file" value="{{ setting_get('csv_logging_file', '') }}" placeholder="/var/log/snitch/log.csv">
+                </div>
+            </div>
+
             <div class="form-group">
                 <button type="submit" class="btn btn-block btn-primary">save</button>
                 <div class="small text-warning text-center">For any changes to this page to be applied, the DNS Daemon has to be restarted.</div>

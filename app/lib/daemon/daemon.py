@@ -11,11 +11,12 @@ import logging
 
 
 class SnitchDaemon:
-    def __init__(self, host, port, forwarding_enabled, forwarders):
+    def __init__(self, host, port, forwarding_enabled, forwarders, csv_location):
         self.__host = host
         self.__port = port
         self.__forwarding_enabled = forwarding_enabled
         self.__forwarders = forwarders
+        self.__csv_location = csv_location
 
     def start(self):
         app_for_context = create_app()
@@ -29,6 +30,7 @@ class SnitchDaemon:
         factory.app = app_for_context
         factory.logging = dns_logging
         factory.restrictions = Provider().dns_restrictions()
+        factory.csv_location = self.__csv_location
 
         observer = log.PythonLoggingObserver()
         observer.start()

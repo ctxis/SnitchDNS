@@ -33,6 +33,10 @@ def dns_save():
     forward_dns_address = request.form['forward_dns_address'].strip()
     forward_dns_enabled = True if int(request.form.get('forward_dns_enabled', 0)) == 1 else False
 
+    # DNS CSV Logging
+    csv_logging_file = request.form['csv_logging_file'].strip()
+    csv_logging_enabled = True if int(request.form.get('csv_logging_enabled', 0)) == 1 else False
+
     # DNS Daemon Validation
     if not dns.is_valid_ip_address(dns_daemon_bind_ip):
         flash('Invalid IP Address', 'error')
@@ -52,6 +56,15 @@ def dns_save():
             if dns.is_valid_ip_address(item):
                 forwarders.append(item)
 
+    # DNS CSV Logging Validation
+    if csv_logging_enabled:
+        if len(csv_logging_file) == 0:
+            flash('Please enter a CSV output location', 'error')
+            return redirect(url_for('config.dns'))
+        elif not dns.is_file_writable(csv_logging_file):
+            flash('CSV output location is not writable', 'error')
+            return redirect(url_for('config.dns'))
+
     # Save Base Domain
     settings.save('dns_base_domain', dns_base_domain)
 
@@ -63,6 +76,10 @@ def dns_save():
     # Save Forwarding
     settings.save('forward_dns_address', forwarders)
     settings.save('forward_dns_enabled', forward_dns_enabled)
+
+    # Save Logging
+    settings.save('csv_logging_file', csv_logging_file)
+    settings.save('csv_logging_enabled', csv_logging_enabled)
 
     flash('Settings saved - Please restart the DNS Daemon.', 'success')
     return redirect(url_for('config.dns'))
