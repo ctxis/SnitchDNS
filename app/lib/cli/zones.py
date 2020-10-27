@@ -1,5 +1,6 @@
 import click
 import tabulate
+import os
 from flask.cli import with_appcontext
 from app.lib.base.provider import Provider
 
@@ -18,7 +19,7 @@ def cli_zones_list():
 
     results = zones.all()
 
-    headers = ['id', 'user', 'domain', 'active', 'exact match', 'forwarding']
+    headers = ['id', 'user', 'domain', 'active', 'exact match', 'forwarding', 'tags']
     table = []
     for result in results:
         table.append([
@@ -28,6 +29,7 @@ def cli_zones_list():
             result.active,
             result.exact_match,
             result.forwarding,
+            ', '.join(result.tags)
         ])
 
     print(tabulate.tabulate(table, headers))
@@ -99,4 +101,42 @@ def cli_zones_update(domain, active, exact_match, forwarding):
     zone.save()
 
     print("Zone updated")
+    return True
+
+
+@main.command('export')
+@click.option('--output', required=True, help='CSV File', type=click.STRING)
+@click.option('--user_id', required=False, default=None, help='User ID to export zones for', type=click.INT)
+@click.option('--search', required=False, default=None, help='Filter zones using a search query', type=click.STRING)
+@click.option('--tags', required=False, default=None, help='Filter by tags (comma separated)', type=click.STRING)
+@click.option('--include-records', is_flag=True, help='If set a second file will be generated that will include the records for the exported domains')
+@with_appcontext
+def cli_zones_export(output, user_id, search, tags, include_records):
+    provider = Provider()
+    zones = provider.dns_zones()
+
+    tags = tags.split(',') if tags is not None else None
+
+    result = zones.export(user_id=user_id, search=search, tags=tags, export_zones=True, export_records=include_records)
+    if not result:
+        print("Could not export data")
+        return False
+
+    os.rename(result['zones'], output)
+    print("Zone export saved as: {0}".format(output))
+    if include_records:
+        path = os.path.dirname(output)
+        file = os.path.basename(output).split('.')
+        if len(file) > 1:
+            extension = file[-1]
+            del file[-1]
+            file.append('records')
+            file.append(extension)
+        else:
+            file.append('records')
+
+        save_records_as = os.path.join(path, '.'.join(file))
+        os.rename(result['records'], save_records_as)
+        print("Record export saved as: {0}".format(save_records_as))
+
     return True

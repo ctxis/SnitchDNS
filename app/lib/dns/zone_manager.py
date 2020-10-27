@@ -2,6 +2,7 @@ import re
 import os
 import csv
 import zipfile
+import time
 from app.lib.models.dns import DNSZoneModel, DNSZoneTagModel
 from app.lib.dns.instances.zone import DNSZone
 from app.lib.dns.instances.zone_tag import DNSZoneTag
@@ -291,17 +292,7 @@ class DNSZoneManager(SharedHelper):
         zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
         return zone
 
-    def export(self, user_id, folder, save_as, overwrite=False, create_path=False, search=None, tags=None):
-        if not self._prepare_path(folder, overwrite, create_path):
-            return False
-
-        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags, raw=True)
-
-        # Set the CSV locations.
-        csv_zones = os.path.join(folder, 'zones.csv')
-        csv_records = os.path.join(folder, 'records.csv')
-
-        # First we export the zones.
+    def export_zones(self, zones, output):
         zone_header = [
             'domain',
             'active',
@@ -311,7 +302,7 @@ class DNSZoneManager(SharedHelper):
             'tags'
         ]
 
-        with open(csv_zones, 'w') as f:
+        with open(output, 'w') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_ALL)
             writer.writerow(zone_header)
 
@@ -326,7 +317,9 @@ class DNSZoneManager(SharedHelper):
                 ]
                 writer.writerow(line)
 
-        # Now we export the records.
+        return True
+
+    def export_records(self, zones, output):
         record_header = [
             'domain',
             'id',
@@ -337,7 +330,7 @@ class DNSZoneManager(SharedHelper):
             'data'
         ]
 
-        with open(csv_records, 'w') as f:
+        with open(output, 'w') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_ALL)
             writer.writerow(record_header)
 
@@ -359,12 +352,43 @@ class DNSZoneManager(SharedHelper):
                     ]
                     writer.writerow(line)
 
-        # And finally we compress into a zip file.
-        with zipfile.ZipFile(save_as, 'w', zipfile.ZIP_DEFLATED) as zip:
-            zip.write(csv_zones, 'zones.csv')
-            zip.write(csv_records, 'records.csv')
+        return True
 
-        return os.path.isfile(save_as)
+    def export(self, user_id=None, working_folder=None, export_zones=False, export_records=False, compress_export=False, search=None, tags=None):
+        if working_folder is None:
+            working_folder = self.get_user_data_path(user_id if user_id is not None else 0, folder=str(int(time.time())))
+
+        if not self._prepare_path(working_folder, True, True):
+            return False
+        elif export_zones is False and export_records is False:
+            # Why are you even here?
+            return False
+
+        file_zones = os.path.join(working_folder, 'zones.csv')
+        file_records = os.path.join(working_folder, 'records.csv')
+        save_as = os.path.join(working_folder, 'export.zip')
+
+        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags, raw=True)
+        if export_zones:
+            if not self.export_zones(zones, file_zones):
+                return False
+
+        if export_records:
+            if not self.export_records(zones, file_records):
+                return False
+
+        if compress_export:
+            with zipfile.ZipFile(save_as, 'w', zipfile.ZIP_DEFLATED) as zip:
+                if export_zones:
+                    zip.write(file_zones, 'zones.csv')
+                if export_records:
+                    zip.write(file_records, 'records.csv')
+
+        return {
+            'zones': file_zones if export_zones else '',
+            'records': file_records if export_records else '',
+            'zip': save_as if compress_export else ''
+        }
 
     def save_tags(self, zone, tags):
         # Create tags.

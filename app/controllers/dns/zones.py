@@ -260,19 +260,14 @@ def zone_create_from_log(query_log_id):
 def zones_export():
     provider = Provider()
     zones = provider.dns_zones()
-    users = provider.users()
 
     search = request.form['search'].strip()
     search_tags = request.form['tags'].strip().split(',')
-    download_filename = "snitch_export.zip"
 
-    # Prepare names and variables.
-    temp_folder = users.get_user_data_path(current_user.id, folder=str(int(time.time())))
-    save_as = os.path.join(temp_folder, download_filename)
-
-    if not zones.export(current_user.id, temp_folder, save_as, create_path=True, search=search, tags=search_tags):
-        flash('Could not generate CSV file.', 'error')
+    result = zones.export(user_id=current_user.id, export_zones=True, export_records=True, compress_export=True, search=search, tags=search_tags)
+    if not result:
+        flash('Could not generate export file.', 'error')
         return redirect(url_for('dns.index'))
 
     # And download.
-    return send_file(save_as, attachment_filename=download_filename, as_attachment=True)
+    return send_file(result['zip'], attachment_filename='snitch_export.zip', as_attachment=True)
