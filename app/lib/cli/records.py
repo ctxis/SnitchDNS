@@ -204,3 +204,47 @@ def cli_records_update(domain, id, type, cls, ttl, active, property):
 
     print("Record updated")
     return True
+
+
+@main.command('import')
+@click.option('--file', required=True, help='CSV file to import', type=click.STRING)
+@click.option('--user_id', required=True, help='User ID to import records for', type=click.INT)
+@with_appcontext
+def cli_records_import(file, user_id):
+    provider = Provider()
+    import_manager = provider.dns_import()
+    users = provider.users()
+
+    user = users.get_user(user_id)
+    if not user:
+        print("Could not find user with ID: {0}".format(user_id))
+        return False
+
+    import_type = import_manager.identify(file)
+    if import_type != import_manager.IMPORT_TYPE_RECORD:
+        print("Invalid import file: {0}".format(import_manager.last_error))
+        return False
+
+    print("Reviewing file...")
+    data = import_manager.review(file, import_type, user.id)
+    if not data:
+        print("Could not load file: {0}".format(import_manager.last_error))
+        return False
+
+    if len(data['errors']) > 0:
+        errors = []
+        for error in data['errors']:
+            errors.append([error['row'], error['error']])
+        print(tabulate.tabulate(errors, ['row', 'error']))
+        return False
+
+    print("Running import - this may take a while")
+    result = import_manager.run(data['data'], import_type, user.id)
+    if result:
+        print("Import finished")
+        return True
+
+    for error in result:
+        print(error)
+
+    return False

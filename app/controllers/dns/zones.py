@@ -3,8 +3,6 @@ from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request, send_file
 from app.lib.base.provider import Provider
 from app.lib.base.decorators import must_have_base_domain
-import time
-import os
 
 
 @bp.route('/', methods=['GET'])

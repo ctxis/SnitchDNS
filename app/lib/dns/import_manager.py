@@ -21,7 +21,6 @@ class DNSImportManager(SharedHelper):
         self.__zone_headers = ['domain', 'active', 'exact_match', 'forwarding', 'master', 'tags']
         self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data']
 
-
     def identify(self, csvfile):
         self.last_error = ''
         if not os.path.isfile(csvfile):
