@@ -2,6 +2,7 @@ from app.lib.dns.helpers.shared import SharedHelper
 import os
 import click
 import datetime
+import json
 from app import db
 
 
@@ -90,7 +91,7 @@ class DNSImportManager(SharedHelper):
         if type == self.IMPORT_TYPE_ZONE:
             self.__import_zones(data, user_id, progressbar=progressbar)
         elif type == self.IMPORT_TYPE_RECORD:
-            self.__import_records(data, user_id, errors)
+            self.__import_records(data, user_id, errors, progressbar=progressbar)
 
         return errors if len(errors) > 0 else True
 
@@ -179,25 +180,43 @@ class DNSImportManager(SharedHelper):
 
         return True
 
-    def __import_records(self, records, user_id, errors):
-        for record_to_import in records:
-            # First, get the zone.
-            zone = self.__dns_zones.find(record_to_import['domain'], user_id=user_id)
-            if not zone:
-                # At this point all zones should exist.
-                errors.append('Could not find zone: {0}'.format(record_to_import['domain']))
-                continue
+    def __import_records(self, records, user_id, errors, progressbar=False, batch_size = 100):
+        if progressbar:
+            print("Importing records...")
 
-            if record_to_import['record_id'] > 0:
-                record = self.__dns_records.get(record_to_import['record_id'], dns_zone_id=zone.id)
-                if not record:
+        domain_mapping = self.__get_domain_mapping(user_id)
+
+        bar = click.progressbar(records) if progressbar else records
+        count = 0
+        with bar as records:
+            for record_to_import in records:
+                count += 1
+                # First, get the zone.
+                zone_id = domain_mapping[record_to_import['domain']] if record_to_import['domain'] in domain_mapping else None
+                if not zone_id:
                     # At this point all zones should exist.
-                    errors.append('Could not find record {0} zone: {1}'.format(record_to_import['record_id'], record_to_import['domain']))
+                    errors.append('Could not find zone: {0}'.format(record_to_import['domain']))
                     continue
-            else:
-                record = self.__dns_records.create()
 
-            self.__dns_records.save(record, zone.id, record_to_import['ttl'], record_to_import['cls'], record_to_import['type'], record_to_import['data'], record_to_import['active'])
+                data = json.dumps(record_to_import['data']) if isinstance(record_to_import['data'], dict) else record_to_import['data']
+
+                self.__record_update_or_create(
+                    zone_id,
+                    record_to_import['ttl'],
+                    record_to_import['cls'],
+                    record_to_import['type'],
+                    record_to_import['active'],
+                    data,
+                    id=record_to_import['record_id'],
+                    autocommit=False
+                )
+
+                if count % batch_size == 0:
+                    count = 0
+                    db.session.commit()
+
+        if count > 0:
+            db.session.commit()
 
         return True
 
@@ -460,6 +479,32 @@ class DNSImportManager(SharedHelper):
             params['id'] = id
 
             sql = "UPDATE dns_zones SET domain = :domain, base_domain = :base_domain, full_domain = :full_domain, active = :active, exact_match = :exact_match, forwarding = :forwarding, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
+
+        result = db.session.execute(sql, params)
+        if autocommit:
+            db.session.commit()
+
+        return True
+
+    def __record_update_or_create(self, zone_id, ttl, cls, type, active, data, id=None, autocommit=True):
+        params = {
+            'zone_id': zone_id,
+            'ttl': ttl,
+            'cls': cls,
+            'type': type,
+            'active': active,
+            'data': data,
+            'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        if (id is None) or (id == 0):
+            params['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            sql = "INSERT INTO dns_records (dns_zone_id, ttl, cls, type, data, active, updated_at, created_at) " \
+                  "VALUES(:zone_id, :ttl, :cls, :type, :data, :active, :updated_at, :created_at)"
+        else:
+            params['id'] = id
+
+            sql = "UPDATE dns_records SET dns_zone_id = :zone_id, ttl = :ttl, cls = :cls, type = :type, data = :data, active = :active, updated_at = :updated_at, created_at = :created_at WHERE id = :id"
 
         result = db.session.execute(sql, params)
         if autocommit:
