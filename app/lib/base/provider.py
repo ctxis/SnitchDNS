@@ -67,7 +67,8 @@ class Provider:
     def dns_import(self):
         return DNSImportManager(
             self.dns_zones(),
-            self.dns_records()
+            self.dns_records(),
+            self.users()
         )
 
     def search(self):

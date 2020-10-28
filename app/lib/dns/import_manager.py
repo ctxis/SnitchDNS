@@ -1,5 +1,6 @@
 from app.lib.dns.helpers.shared import SharedHelper
 import os
+from app import db
 
 
 class DNSImportManager(SharedHelper):
@@ -14,12 +15,13 @@ class DNSImportManager(SharedHelper):
     def last_error(self, value):
         self.__last_error = value
 
-    def __init__(self, dns_zones, dns_records):
+    def __init__(self, dns_zones, dns_records, users):
         self.__last_error = ''
         self.__dns_zones = dns_zones
         self.__dns_records = dns_records
         self.__zone_headers = ['domain', 'active', 'exact_match', 'forwarding', 'master', 'tags']
         self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data']
+        self.__users = users
 
     def identify(self, csvfile):
         self.last_error = ''
@@ -56,10 +58,17 @@ class DNSImportManager(SharedHelper):
             self.last_error = 'CSV is empty'
             return False
 
+        user = self.__users.get_user(user_id)
+        if not user:
+            self.last_error = 'Could not find user with ID {0}'.format(user_id)
+            return False
+
         all_errors = []
+        errors = []
+        rows = []
         if type == self.IMPORT_TYPE_ZONE:
             rows = self.__categorise_rows(lines, type)
-            rows, errors = self.__process_zones(rows, user_id)
+            rows, errors = self.__process_zones(rows, user)
         elif type == self.IMPORT_TYPE_RECORD:
             rows = self.__categorise_rows(lines, type)
             rows, errors = self.__process_records(rows, user_id)
@@ -136,9 +145,11 @@ class DNSImportManager(SharedHelper):
 
         return True
 
-    def __process_zones(self, zones, user_id):
+    def __process_zones(self, zones, user):
         errors = []
         items = []
+
+        domain_mapping = self.__get_domain_mapping(user.id)
 
         for zone in zones:
             active = True if zone['active'] in ['1', 'yes', 'true'] else False
@@ -151,18 +162,18 @@ class DNSImportManager(SharedHelper):
             # Remove empty elements.
             tags = list(filter(None, tags))
 
-            existing_zone = self.__dns_zones.find(zone['domain'], user_id=user_id)
-            zone_id = existing_zone.id if existing_zone else 0
-
-            items.append({
-                'id': zone_id,
-                'domain': zone['domain'],
+            domain = {
+                'id': domain_mapping[zone['domain']] if zone['domain'] in domain_mapping else 0,
+                'domain': zone['domain'].rstrip('.'),
                 'active': active,
                 'exact_match': exact_match,
                 'forwarding': forwarding,
                 'master': master,
-                'tags': tags
-            })
+                'tags': tags,
+                'base_domain': self.__dns_zones.get_base_domain(user.admin, user.username).rstrip('.')
+            }
+            domain['full_domain'] = domain['domain'] + domain['base_domain']
+            items.append(domain)
 
         return items, errors
 
@@ -334,3 +345,14 @@ class DNSImportManager(SharedHelper):
                 })
 
         return data
+
+    def __get_domain_mapping(self, user_id):
+        result = db.session.execute(
+            "SELECT id, full_domain FROM dns_zones WHERE user_id = :user_id",
+            {'user_id': user_id}
+        )
+        mapping = {}
+        for row in result:
+            mapping[row[1]] = row[0]
+
+        return mapping
