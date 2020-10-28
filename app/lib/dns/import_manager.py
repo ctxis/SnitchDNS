@@ -143,9 +143,15 @@ class DNSImportManager(SharedHelper):
 
         domain_mapping = self.__get_domain_mapping(user_id)
         bar = click.progressbar(zone_iterator_2) if progressbar else zone_iterator_2
+        zone_ids = []
         with bar as zones:
             for zone_to_import in zones:
                 zone_to_import['id'] = domain_mapping[zone_to_import['domain']] if zone_to_import['domain'] in domain_mapping else 0
+                zone_ids.append(zone_to_import['id'])
+
+        if progressbar:
+            print("Clearing existing tags...")
+        self.__zone_clear_tags(zone_ids, progressbar=progressbar)
 
         if progressbar:
             print("Importing tags...")
@@ -467,7 +473,6 @@ class DNSImportManager(SharedHelper):
         return True
 
     def __zone_save_tags(self, zone_id, tags, autocommit=True):
-        db.session.execute("DELETE FROM dns_zone_tags WHERE dns_zone_id = :zone_id", {'zone_id': zone_id})
         for name, id in tags.items():
             params = {
                 'dns_zone_id': zone_id,
@@ -482,3 +487,29 @@ class DNSImportManager(SharedHelper):
             db.session.commit()
 
         return True
+
+    def __zone_clear_tags(self, zone_ids, batch_size=100, progressbar=False):
+        batches = list(self.__chunks(zone_ids, batch_size))
+
+        bar = click.progressbar(batches) if progressbar else batches
+
+        with bar as batches:
+            for batch in batches:
+                i = 0
+                params = {}
+                for id in batch:
+                    i += 1
+                    params['param' + str(i)] = id
+
+                bind = [':' + v for v in params.keys()]
+
+                sql = "DELETE FROM dns_zone_tags WHERE dns_zone_id IN({0})".format(', '.join(bind))
+                db.session.execute(sql, params)
+                db.session.commit()
+
+        return True
+
+    def __chunks(self, data, size):
+        # From https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+        for i in range(0, len(data), size):
+            yield data[i:i + size]
