@@ -1,8 +1,8 @@
 from app.lib.dns.helpers.shared import SharedHelper
 import os
-import click
 import datetime
 import json
+import progressbar
 from app import db
 
 
@@ -50,7 +50,7 @@ class DNSImportManager(SharedHelper):
         self.last_error = 'If you are uploading a ZONE file these are the required columns: {0}. If you are uploading a RECORD file then the required columns are: {1}.'.format(', '.join(self.__zone_headers), ', '.join(self.__record_headers))
         return False
 
-    def review(self, csvfile, type, user_id):
+    def review(self, csvfile, type, user_id, show_progressbar=False):
         self.last_error = ''
         if not os.path.isfile(csvfile):
             self.last_error = 'CSV file does not exist'
@@ -71,10 +71,10 @@ class DNSImportManager(SharedHelper):
         rows = []
         if type == self.IMPORT_TYPE_ZONE:
             rows = self.__categorise_rows(lines, type)
-            rows, errors = self.__process_zones(rows, user)
+            rows, errors = self.__process_zones(rows, user, show_progressbar=show_progressbar)
         elif type == self.IMPORT_TYPE_RECORD:
             rows = self.__categorise_rows(lines, type)
-            rows, errors = self.__process_records(rows, user)
+            rows, errors = self.__process_records(rows, user, show_progressbar=show_progressbar)
 
         all_errors += errors
 
@@ -86,147 +86,183 @@ class DNSImportManager(SharedHelper):
             'errors': all_errors
         }
 
-    def run(self, data, type, user_id, progressbar=False):
+    def run(self, data, type, user_id, show_progressbar=False):
         errors = []
         if type == self.IMPORT_TYPE_ZONE:
-            self.__import_zones(data, user_id, progressbar=progressbar)
+            self.__import_zones(data, user_id, show_progressbar=show_progressbar)
         elif type == self.IMPORT_TYPE_RECORD:
-            self.__import_records(data, user_id, errors, progressbar=progressbar)
+            self.__import_records(data, user_id, errors, show_progressbar=show_progressbar)
 
         return errors if len(errors) > 0 else True
 
-    def __import_zones(self, zones, user_id, progressbar=False, batch_size=100):
+    def __import_zones(self, zones, user_id, show_progressbar=False, batch_size=100):
         """
         This function has been heavily optimised as when I tried to import 250k domains its ETA was 1.5h, which isn't
         very practical. The main assumption made here is that when this function is called, all validation checks will
         have ready been completed.
         """
 
-        if progressbar:
-            print("Importing zones...")
-
-        # Why you gotta be like this python.
-        zone_iterator_1 = list(zones)
-        zone_iterator_2 = list(zones)
-        zone_iterator_3 = list(zones)
+        widget = [
+            progressbar.FormatLabel(''),
+            ' ',
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar('#'),
+            ' ',
+            progressbar.RotatingMarker(),
+            ' ',
+            progressbar.ETA()
+        ]
 
         count = 0
-        bar = click.progressbar(zone_iterator_1) if progressbar else zone_iterator_1
         unique_tags = []
-        with bar as zones:
-            for zone_to_import in zones:
-                count += 1
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Importing zones')
+            bar = progressbar.ProgressBar(max_value=len(zones), widgets=widget)
 
-                self.__zone_update_or_create(
-                    zone_to_import['domain'],
-                    zone_to_import['base_domain'],
-                    zone_to_import['full_domain'],
-                    zone_to_import['active'],
-                    zone_to_import['exact_match'],
-                    zone_to_import['forwarding'],
-                    zone_to_import['master'],
-                    user_id,
-                    id=zone_to_import['id'],
-                    autocommit=False
-                )
+        # with bar as zones:
+        for zone_to_import in list(zones):
+            count += 1
+            bar.update(count) if show_progressbar else False
 
-                if count % batch_size == 0:
-                    count = 0
-                    db.session.commit()
+            self.__zone_update_or_create(
+                zone_to_import['domain'],
+                zone_to_import['base_domain'],
+                zone_to_import['full_domain'],
+                zone_to_import['active'],
+                zone_to_import['exact_match'],
+                zone_to_import['forwarding'],
+                zone_to_import['master'],
+                user_id,
+                id=zone_to_import['id'],
+                autocommit=False
+            )
 
-                unique_tags = list(set(unique_tags + zone_to_import['tags']))
+            if count % batch_size == 0:
+                db.session.commit()
 
-        if count > 0:
-            db.session.commit()
+            unique_tags = list(set(unique_tags + zone_to_import['tags']))
 
-        if progressbar:
-            print("Re-mapping zones...")
+        db.session.commit()
+
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Re-mapping zones')
+            bar = progressbar.ProgressBar(max_value=len(zones), widgets=widget)
 
         domain_mapping = self.__get_domain_mapping(user_id)
-        bar = click.progressbar(zone_iterator_2) if progressbar else zone_iterator_2
         zone_ids = []
-        with bar as zones:
-            for zone_to_import in zones:
-                zone_to_import['id'] = domain_mapping[zone_to_import['domain']] if zone_to_import['domain'] in domain_mapping else 0
-                zone_ids.append(zone_to_import['id'])
+        i = 0
+        for zone_to_import in list(zones):
+            i += 1
+            bar.update(i) if show_progressbar else False
 
-        if progressbar:
-            print("Clearing existing tags...")
-        self.__zone_clear_tags(zone_ids, progressbar=progressbar)
+            zone_to_import['id'] = domain_mapping[zone_to_import['domain']] if zone_to_import['domain'] in domain_mapping else 0
+            zone_ids.append(zone_to_import['id'])
 
-        if progressbar:
-            print("Importing tags...")
+        self.__zone_clear_tags(zone_ids, show_progressbar=show_progressbar, widget=widget)
+
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Importing tags')
+            bar = progressbar.ProgressBar(max_value=len(zones), widgets=widget)
 
         self.__tags_create(user_id, unique_tags)
         tag_mapping = self.__get_tag_mapping(user_id)
         count = 0
-        bar = click.progressbar(zone_iterator_3) if progressbar else zone_iterator_3
-        with bar as zones:
-            for zone_to_import in zones:
-                count += 1
+        for zone_to_import in list(zones):
+            count += 1
+            bar.update(count) if show_progressbar else False
 
-                tags = {}
-                for tag in zone_to_import['tags']:
-                    tags[tag] = tag_mapping[tag]
+            tags = {}
+            for tag in zone_to_import['tags']:
+                tags[tag] = tag_mapping[tag]
 
-                self.__zone_save_tags(zone_to_import['id'], tags, autocommit=False)
+            self.__zone_save_tags(zone_to_import['id'], tags, autocommit=False)
 
-                if count % batch_size == 0:
-                    count = 0
-                    db.session.commit()
+            if count % batch_size == 0:
+                db.session.commit()
 
-        if count > 0:
-            db.session.commit()
+        db.session.commit()
 
         return True
 
-    def __import_records(self, records, user_id, errors, progressbar=False, batch_size = 100):
-        if progressbar:
-            print("Importing records...")
-
+    def __import_records(self, records, user_id, errors, show_progressbar=False, batch_size = 100):
         domain_mapping = self.__get_domain_mapping(user_id)
 
-        bar = click.progressbar(records) if progressbar else records
+        widget = [
+            progressbar.FormatLabel(''),
+            ' ',
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar('#'),
+            ' ',
+            progressbar.RotatingMarker(),
+            ' ',
+            progressbar.ETA()
+        ]
+
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Importing records')
+            bar = progressbar.ProgressBar(max_value=len(records), widgets=widget)
+
         count = 0
-        with bar as records:
-            for record_to_import in records:
-                count += 1
-                # First, get the zone.
-                zone_id = domain_mapping[record_to_import['domain']] if record_to_import['domain'] in domain_mapping else None
-                if not zone_id:
-                    # At this point all zones should exist.
-                    errors.append('Could not find zone: {0}'.format(record_to_import['domain']))
-                    continue
+        for record_to_import in records:
+            count += 1
+            bar.update(count) if show_progressbar else False
 
-                data = json.dumps(record_to_import['data']) if isinstance(record_to_import['data'], dict) else record_to_import['data']
+            # First, get the zone.
+            zone_id = domain_mapping[record_to_import['domain']] if record_to_import['domain'] in domain_mapping else None
+            if not zone_id:
+                # At this point all zones should exist.
+                errors.append('Could not find zone: {0}'.format(record_to_import['domain']))
+                continue
 
-                self.__record_update_or_create(
-                    zone_id,
-                    record_to_import['ttl'],
-                    record_to_import['cls'],
-                    record_to_import['type'],
-                    record_to_import['active'],
-                    data,
-                    id=record_to_import['record_id'],
-                    autocommit=False
-                )
+            data = json.dumps(record_to_import['data']) if isinstance(record_to_import['data'], dict) else record_to_import['data']
 
-                if count % batch_size == 0:
-                    count = 0
-                    db.session.commit()
+            self.__record_update_or_create(
+                zone_id,
+                record_to_import['ttl'],
+                record_to_import['cls'],
+                record_to_import['type'],
+                record_to_import['active'],
+                data,
+                id=record_to_import['record_id'],
+                autocommit=False
+            )
 
-        if count > 0:
-            db.session.commit()
+            if count % batch_size == 0:
+                db.session.commit()
+
+        db.session.commit()
 
         return True
 
-    def __process_zones(self, zones, user):
+    def __process_zones(self, zones, user, show_progressbar=False):
         errors = []
         items = []
 
+        widget = [
+            progressbar.FormatLabel(''),
+            ' ',
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar('#'),
+            ' ',
+            progressbar.RotatingMarker(),
+            ' ',
+            progressbar.ETA()
+        ]
+
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Processing zones')
+            bar = progressbar.ProgressBar(max_value=len(zones), widgets=widget)
+
         domain_mapping = self.__get_domain_mapping(user.id)
 
+        count = 0
         for zone in zones:
+            count += 1
+            bar.update(count) if show_progressbar else False
+
             active = True if zone['active'] in ['1', 'yes', 'true'] else False
             exact_match = True if zone['exact_match'] in ['1', 'yes', 'true'] else False
             forwarding = True if zone['forwarding'] in ['1', 'yes', 'true'] else False
@@ -252,14 +288,34 @@ class DNSImportManager(SharedHelper):
 
         return items, errors
 
-    def __process_records(self, records, user):
+    def __process_records(self, records, user, show_progressbar=False):
         errors = []
         items = []
+
+        widget = [
+            progressbar.FormatLabel(''),
+            ' ',
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar('#'),
+            ' ',
+            progressbar.RotatingMarker(),
+            ' ',
+            progressbar.ETA()
+        ]
+
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Processing records')
+            bar = progressbar.ProgressBar(max_value=len(records), widgets=widget)
 
         domain_mapping = self.__get_domain_mapping(user.id)
         domain_mapping_reverse = self.__get_domain_mapping(user.id, reverse=True)
 
+        count = 0
         for record in records:
+            count += 1
+            bar.update(count) if show_progressbar else False
+
             record_errors = []
 
             active = True if record['active'] in ['1', 'yes', 'true'] else False
@@ -548,24 +604,29 @@ class DNSImportManager(SharedHelper):
 
         return True
 
-    def __zone_clear_tags(self, zone_ids, batch_size=100, progressbar=False):
+    def __zone_clear_tags(self, zone_ids, batch_size=100, show_progressbar=False, widget=None):
         batches = list(self.__chunks(zone_ids, batch_size))
 
-        bar = click.progressbar(batches) if progressbar else batches
+        if show_progressbar:
+            widget[0] = progressbar.FormatLabel('Removing existing tags')
+            bar = progressbar.ProgressBar(max_value=len(batches), widgets=widget)
 
-        with bar as batches:
-            for batch in batches:
-                i = 0
-                params = {}
-                for id in batch:
-                    i += 1
-                    params['param' + str(i)] = id
+        count = 0
+        for batch in batches:
+            count += 1
+            bar.update(count) if show_progressbar else False
 
-                bind = [':' + v for v in params.keys()]
+            i = 0
+            params = {}
+            for id in batch:
+                i += 1
+                params['param' + str(i)] = id
 
-                sql = "DELETE FROM dns_zone_tags WHERE dns_zone_id IN({0})".format(', '.join(bind))
-                db.session.execute(sql, params)
-                db.session.commit()
+            bind = [':' + v for v in params.keys()]
+
+            sql = "DELETE FROM dns_zone_tags WHERE dns_zone_id IN({0})".format(', '.join(bind))
+            db.session.execute(sql, params)
+            db.session.commit()
 
         return True
 

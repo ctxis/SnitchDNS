@@ -161,8 +161,7 @@ def cli_zones_import(file, user_id):
         print("Invalid import file: {0}".format(import_manager.last_error))
         return False
 
-    print("Reviewing file...")
-    data = import_manager.review(file, import_type, user.id)
+    data = import_manager.review(file, import_type, user.id, show_progressbar=True)
     if not data:
         print("Could not load file: {0}".format(import_manager.last_error))
         return False
@@ -174,10 +173,8 @@ def cli_zones_import(file, user_id):
         print(tabulate.tabulate(errors, ['row', 'error']))
         return False
 
-    print("Running import - this may take a while")
-    result = import_manager.run(data['data'], import_type, user.id, progressbar=True)
+    result = import_manager.run(data['data'], import_type, user.id, show_progressbar=True)
     if result:
-        print("Import finished")
         return True
 
     for error in result:
