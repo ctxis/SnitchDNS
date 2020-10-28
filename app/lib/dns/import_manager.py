@@ -73,7 +73,7 @@ class DNSImportManager(SharedHelper):
             rows, errors = self.__process_zones(rows, user)
         elif type == self.IMPORT_TYPE_RECORD:
             rows = self.__categorise_rows(lines, type)
-            rows, errors = self.__process_records(rows, user_id)
+            rows, errors = self.__process_records(rows, user)
 
         all_errors += errors
 
@@ -233,16 +233,19 @@ class DNSImportManager(SharedHelper):
 
         return items, errors
 
-    def __process_records(self, records, user_id):
+    def __process_records(self, records, user):
         errors = []
         items = []
+
+        domain_mapping = self.__get_domain_mapping(user.id)
+        domain_mapping_reverse = self.__get_domain_mapping(user.id, reverse=True)
 
         for record in records:
             record_errors = []
 
             active = True if record['active'] in ['1', 'yes', 'true'] else False
-            zone_id = self.__process_record_zone(record, user_id, record_errors)
-            record_id = self.__process_record_id(record, zone_id, user_id, record_errors)
+            zone_id = self.__process_record_zone(record, record_errors, domain_mapping)
+            record_id = self.__process_record_id(record, zone_id, record_errors, domain_mapping_reverse)
             ttl = self.__process_record_ttl(record, record_errors)
             cls = self.__process_record_cls(record, record_errors)
             type = self.__process_record_type(record, record_errors)
@@ -266,7 +269,9 @@ class DNSImportManager(SharedHelper):
 
         return items, errors
 
-    def __process_record_id(self, record, zone_id, user_id, errors):
+    def __process_record_id(self, record, zone_id, errors, domain_mapping):
+        zone_id = zone_id if zone_id > 0 else None
+
         record_id = 0
         if len(record['id']) > 0:
             if not record['id'].isdigit():
@@ -274,32 +279,39 @@ class DNSImportManager(SharedHelper):
                 return 0
             record_id = int(record['id'])
 
-        existing_record = self.__dns_records.get(record_id)
-        if not existing_record:
-            # Record not found - treat as new.
-            return 0
+        if record_id > 0:
+            record_exists = self.__record_exists(record_id, dns_zone_id=zone_id)
+            if not record_exists:
+                # Record not found - treat as new.
+                return 0
 
         if zone_id > 0:
-            zone = self.__dns_zones.get(zone_id, user_id=user_id)
-            if not zone:
+            domain = domain_mapping[zone_id] if zone_id in domain_mapping else None
+            if not domain:
                 errors.append({'row': record['row'], 'error': 'Zone {0} not found'.format(record['domain'])})
                 return 0
 
-            if record['domain'] != zone.full_domain:
-                errors.append({'row': record['row'], 'error': 'Record {0} does not belong to zone {1}'.format(existing_record.id, zone_id)})
+            if record['domain'] != domain:
+                errors.append({'row': record['row'], 'error': 'Record {0} does not belong to zone {1}'.format(record_id, zone_id)})
                 return 0
 
         return record_id
 
-    def __process_record_zone(self, record, user_id, errors):
-        zone_id = 0
-        zone = self.__dns_zones.find(record['domain'], user_id=user_id)
-        if zone:
-            zone_id = zone.id
-        else:
+    def __process_record_zone(self, record, errors, domain_mapping):
+        zone_id = domain_mapping[record['domain']] if record['domain'] in domain_mapping else 0
+        if zone_id == 0:
             errors.append({'row': record['row'], 'error': 'Zone not found: {0}'.format(record['domain'])})
 
         return zone_id
+
+    def __record_exists(self, dns_record_id, dns_zone_id=None):
+        params = {'id': dns_record_id}
+        sql = "SELECT COUNT(id) AS c FROM dns_records WHERE id = :id"
+        if dns_zone_id is not None:
+            params['dns_zone_id'] = dns_zone_id
+            sql += " AND dns_zone_id = :dns_zone_id"
+        result = db.session.execute(sql, params).first()
+        return result[0] > 0 if result is not None else False
 
     def __process_record_ttl(self, record, errors):
         ttl = 0
@@ -402,14 +414,17 @@ class DNSImportManager(SharedHelper):
 
         return data
 
-    def __get_domain_mapping(self, user_id):
+    def __get_domain_mapping(self, user_id, reverse=False):
         result = db.session.execute(
             "SELECT id, full_domain FROM dns_zones WHERE user_id = :user_id",
             {'user_id': user_id}
         )
         mapping = {}
         for row in result:
-            mapping[row[1]] = row[0]
+            if reverse:
+                mapping[row[0]] = row[1]
+            else:
+                mapping[row[1]] = row[0]
 
         return mapping
 
