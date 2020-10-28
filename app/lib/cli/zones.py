@@ -175,7 +175,7 @@ def cli_zones_import(file, user_id):
         return False
 
     print("Running import - this may take a while")
-    result = import_manager.run(data['data'], import_type, user.id)
+    result = import_manager.run(data['data'], import_type, user.id, progressbar=True)
     if result:
         print("Import finished")
         return True

@@ -1,5 +1,7 @@
 from app.lib.dns.helpers.shared import SharedHelper
 import os
+import click
+import datetime
 from app import db
 
 
@@ -83,43 +85,91 @@ class DNSImportManager(SharedHelper):
             'errors': all_errors
         }
 
-    def run(self, data, type, user_id):
+    def run(self, data, type, user_id, progressbar=False):
         errors = []
         if type == self.IMPORT_TYPE_ZONE:
-            self.__import_zones(data, user_id, errors)
+            self.__import_zones(data, user_id, progressbar=progressbar)
         elif type == self.IMPORT_TYPE_RECORD:
             self.__import_records(data, user_id, errors)
 
         return errors if len(errors) > 0 else True
 
-    def __import_zones(self, zones, user_id, errors):
-        for zone_to_import in zones:
-            if zone_to_import['id'] > 0:
-                zone = self.__dns_zones.update(
-                    zone_to_import['id'],
+    def __import_zones(self, zones, user_id, progressbar=False, batch_size=100):
+        """
+        This function has been heavily optimised as when I tried to import 250k domains its ETA was 1.5h, which isn't
+        very practical. The main assumption made here is that when this function is called, all validation checks will
+        have ready been completed.
+        """
+
+        if progressbar:
+            print("Importing zones...")
+
+        # Why you gotta be like this python.
+        zone_iterator_1 = list(zones)
+        zone_iterator_2 = list(zones)
+        zone_iterator_3 = list(zones)
+
+        count = 0
+        bar = click.progressbar(zone_iterator_1) if progressbar else zone_iterator_1
+        unique_tags = []
+        with bar as zones:
+            for zone_to_import in zones:
+                count += 1
+
+                self.__zone_update_or_create(
                     zone_to_import['domain'],
+                    zone_to_import['base_domain'],
+                    zone_to_import['full_domain'],
                     zone_to_import['active'],
                     zone_to_import['exact_match'],
                     zone_to_import['forwarding'],
+                    zone_to_import['master'],
                     user_id,
-                    zone_to_import['master']
-                )
-            else:
-                zone = self.__dns_zones.new(
-                    zone_to_import['domain'],
-                    zone_to_import['active'],
-                    zone_to_import['exact_match'],
-                    zone_to_import['forwarding'],
-                    user_id,
-                    zone_to_import['master']
+                    id=zone_to_import['id'],
+                    autocommit=False
                 )
 
-            self.__dns_zones.save_tags(zone, zone_to_import['tags'])
+                if count % batch_size == 0:
+                    count = 0
+                    db.session.commit()
 
-            if isinstance(zone, list):
-                # It means it's all errors.
-                errors += zone
-                continue
+                unique_tags = list(set(unique_tags + zone_to_import['tags']))
+
+        if count > 0:
+            db.session.commit()
+
+        if progressbar:
+            print("Re-mapping zones...")
+
+        domain_mapping = self.__get_domain_mapping(user_id)
+        bar = click.progressbar(zone_iterator_2) if progressbar else zone_iterator_2
+        with bar as zones:
+            for zone_to_import in zones:
+                zone_to_import['id'] = domain_mapping[zone_to_import['domain']] if zone_to_import['domain'] in domain_mapping else 0
+
+        if progressbar:
+            print("Importing tags...")
+
+        self.__tags_create(user_id, unique_tags)
+        tag_mapping = self.__get_tag_mapping(user_id)
+        count = 0
+        bar = click.progressbar(zone_iterator_3) if progressbar else zone_iterator_3
+        with bar as zones:
+            for zone_to_import in zones:
+                count += 1
+
+                tags = {}
+                for tag in zone_to_import['tags']:
+                    tags[tag] = tag_mapping[tag]
+
+                self.__zone_save_tags(zone_to_import['id'], tags, autocommit=False)
+
+                if count % batch_size == 0:
+                    count = 0
+                    db.session.commit()
+
+        if count > 0:
+            db.session.commit()
 
         return True
 
@@ -356,3 +406,79 @@ class DNSImportManager(SharedHelper):
             mapping[row[1]] = row[0]
 
         return mapping
+
+    def __get_tag_mapping(self, user_id):
+        result = db.session.execute(
+            "SELECT id, name FROM tags WHERE user_id = :user_id",
+            {'user_id': user_id}
+        )
+        mapping = {}
+        for row in result:
+            mapping[row[1]] = row[0]
+
+        return mapping
+
+    def __zone_update_or_create(self, domain, base_domain, full_domain, active, exact_match, forwarding, master, user_id, id=None, autocommit=True):
+        params = {
+            'domain': domain,
+            'base_domain': base_domain,
+            'full_domain': full_domain,
+            'active': active,
+            'exact_match': exact_match,
+            'forwarding': forwarding,
+            'master': master,
+            'user_id': user_id,
+            'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        if (id is None) or (id == 0):
+            params['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            sql = "INSERT INTO dns_zones (domain, base_domain, full_domain, active, exact_match, forwarding, master, user_id, updated_at, created_at)" \
+                  "VALUES(:domain, :base_domain, :full_domain, :active, :exact_match, :forwarding, :master, :user_id, :updated_at, :created_at)"
+        else:
+            params['id'] = id
+
+            sql = "UPDATE dns_zones SET domain = :domain, base_domain = :base_domain, full_domain = :full_domain, active = :active, exact_match = :exact_match, forwarding = :forwarding, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
+
+        result = db.session.execute(sql, params)
+        if autocommit:
+            db.session.commit()
+
+        return True
+
+    def __tags_create(self, user_id, tags):
+        for tag in tags:
+            name = tag.strip().lower()
+            result = db.session.execute(
+                "SELECT id FROM tags WHERE name = :name AND user_id = :user_id",
+                {'name': name, 'user_id': user_id}
+            ).first()
+            if result is None:
+                params = {
+                    'user_id': user_id,
+                    'name': tag,
+                    'created_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                sql = "INSERT INTO tags (user_id, name, created_at, updated_at) VALUES(:user_id, :name, :created_at, :updated_at)"
+                db.session.execute(sql, params)
+
+        db.session.commit()
+        return True
+
+    def __zone_save_tags(self, zone_id, tags, autocommit=True):
+        db.session.execute("DELETE FROM dns_zone_tags WHERE dns_zone_id = :zone_id", {'zone_id': zone_id})
+        for name, id in tags.items():
+            params = {
+                'dns_zone_id': zone_id,
+                'tag_id': id,
+                'created_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            sql = "INSERT INTO dns_zone_tags (dns_zone_id, tag_id, created_at, updated_at) VALUES(:dns_zone_id, :tag_id, :created_at, :updated_at)"
+            db.session.execute(sql, params)
+
+        if autocommit:
+            db.session.commit()
+
+        return True
