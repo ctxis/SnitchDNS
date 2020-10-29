@@ -47,14 +47,14 @@ paths:
             required:
               - domain
               - active
-              - exact_match
+              - catch_all
               - master
             properties:
               domain:
                 type: string
               active:
                 type: boolean
-              exact_match:
+              catch_all:
                 type: boolean
               master:
                 type: boolean
@@ -115,14 +115,14 @@ paths:
             required:
               - domain
               - active
-              - exact_match
+              - catch_all
               - master
             properties:
               domain:
                 type: string
               active:
                 type: boolean
-              exact_match:
+              catch_all:
                 type: boolean
               master:
                 type: boolean
@@ -514,9 +514,9 @@ definitions:
       active:
         type: boolean
         description: Whether the zone is active.
-      exact_match:
+      catch_all:
         type: boolean
-        description: Whether the domain has to be matched exactly in order to return a result.
+        description: Whether the domain has to be matched exactly in order to return a result, or if it will be a catch-all one.
       master:
         type: boolean
         description: Whether the domain is a master domain (affects only low-privileged users)

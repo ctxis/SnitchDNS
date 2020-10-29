@@ -3,6 +3,6 @@ class Zone:
         self.id = 0
         self.user_id = 0
         self.active = False
-        self.exact_match = False
+        self.catch_all = False
         self.master = False
         self.domain = ''

@@ -35,7 +35,7 @@
                         {% set text = 'enabled' if zone.active else 'disabled' %}
                         <span class="badge badge-pill badge-{{ class }}">status: {{ text }}</span>
 
-                        {% set text = 'exact' if zone.exact_match else 'catch-all' %}
+                        {% set text = 'catch-all' if zone.catch_all else 'exact' %}
                         <span class="badge badge-pill badge-primary">matching: {{ text }}</span>
 
                         {% set class = 'success' if zone.forwarding else 'warning' %}

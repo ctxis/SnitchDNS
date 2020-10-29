@@ -30,12 +30,12 @@ class DNSZone(BaseInstance):
         self.item.active = value
 
     @property
-    def exact_match(self):
-        return self.item.exact_match
+    def catch_all(self):
+        return self.item.catch_all
 
-    @exact_match.setter
-    def exact_match(self, value):
-        self.item.exact_match = value
+    @catch_all.setter
+    def catch_all(self, value):
+        self.item.catch_all = value
 
     @property
     def user_id(self):

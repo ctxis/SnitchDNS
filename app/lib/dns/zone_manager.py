@@ -21,7 +21,7 @@ class DNSZoneManager(SharedHelper):
         self.dns_restrictions = dns_restrictions
         self.tag_manager = tag_manager
 
-    def __get(self, id=None, user_id=None, domain=None, active=None, exact_match=None, master=None, order_by='id',
+    def __get(self, id=None, user_id=None, domain=None, active=None, catch_all=None, master=None, order_by='id',
               page=None, per_page=None, search=None, tags=None):
         query = DNSZoneModel.query
 
@@ -34,8 +34,8 @@ class DNSZoneManager(SharedHelper):
         if active is not None:
             query = query.filter(DNSZoneModel.active == active)
 
-        if exact_match is not None:
-            query = query.filter(DNSZoneModel.exact_match == exact_match)
+        if catch_all is not None:
+            query = query.filter(DNSZoneModel.catch_all == catch_all)
 
         if user_id is not None:
             query = query.filter(DNSZoneModel.user_id == user_id)
@@ -124,11 +124,11 @@ class DNSZoneManager(SharedHelper):
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, active, exact_match, master, forwarding, update_old_logs=False):
+    def save(self, zone, user_id, domain, active, catch_all, master, forwarding, update_old_logs=False):
         zone.user_id = user_id
         zone.domain = domain.lower()
         zone.active = active
-        zone.exact_match = exact_match
+        zone.catch_all = catch_all
         zone.master = master
         zone.forwarding = forwarding
         zone.save()
@@ -225,7 +225,7 @@ class DNSZoneManager(SharedHelper):
     def exists(self, dns_zone_id=None, domain=None):
         return len(self.__get(id=dns_zone_id, domain=domain)) > 0
 
-    def new(self, domain, active, exact_match, forwarding, user_id, master=False, update_old_logs=False):
+    def new(self, domain, active, catch_all, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0:
@@ -250,7 +250,7 @@ class DNSZoneManager(SharedHelper):
             errors.append('Could not get zone')
             return errors
 
-        zone = self.save(zone, user.id, domain, active, exact_match, master, forwarding)
+        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding)
         if not zone:
             errors.append('Could not save zone')
             return errors
@@ -260,7 +260,7 @@ class DNSZoneManager(SharedHelper):
 
         return zone
 
-    def update(self, zone_id, domain, active, exact_match, forwarding, user_id, master=False, update_old_logs=False):
+    def update(self, zone_id, domain, active, catch_all, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0:
@@ -285,14 +285,14 @@ class DNSZoneManager(SharedHelper):
             errors.append('This domain already exists.')
             return errors
 
-        zone = self.save(zone, user.id, domain, active, exact_match, master, forwarding, update_old_logs=update_old_logs)
+        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding, update_old_logs=update_old_logs)
         return zone
 
     def export_zones(self, zones, output):
         zone_header = [
             'domain',
             'active',
-            'exact_match',
+            'catch_all',
             'forwarding',
             'master',
             'tags'
@@ -306,7 +306,7 @@ class DNSZoneManager(SharedHelper):
                 line = [
                     self._sanitise_csv_value(zone.domain),
                     '1' if zone.active else '0',
-                    '1' if zone.exact_match else '0',
+                    '1' if zone.catch_all else '0',
                     '1' if zone.forwarding else '0',
                     '1' if zone.master else '0',
                     ','.join(self.__load_tags(zone.id))

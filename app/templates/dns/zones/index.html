@@ -83,7 +83,7 @@
                 <th>User</th>
                 {% endif %}
                 <th class="text-center">Active</th>
-                <th class="text-center" style="white-space: nowrap;">Exact Match</th>
+                <th class="text-center" style="white-space: nowrap;">Catch-All</th>
                 <th class="text-center">Records</th>
                 <th class="text-center">Matches</th>
                 <th class="text-center">Forwarding</th>
@@ -115,8 +115,8 @@
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">
-                    {% set class = 'success' if zone.exact_match else 'danger' %}
-                    {% set icon = 'check' if zone.exact_match else 'times' %}
+                    {% set class = 'success' if zone.catch_all else 'danger' %}
+                    {% set icon = 'check' if zone.catch_all else 'times' %}
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">{{ zone.record_count }}</td>

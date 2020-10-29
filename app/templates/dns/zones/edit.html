@@ -16,13 +16,13 @@
                         {% else %}
                         <label for="domain">Domain</label>
                         <div class="input-group">
-                            {% if (current_user.admin == False and dns_zone_id == 0) or (zone.domain|length > 0) %}
+                            {% if current_user.admin == True %}
+                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
+                            {% else %}
                             <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain|replace('.' + user_domain, '') if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                             <div class="input-group-append">
                                 <span class="input-group-text">.{{ user_domain }}</span>
                             </div>
-                            {% else %}
-                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                             {% endif %}
                         </div>
                         {% endif %}
@@ -42,15 +42,15 @@
 
                     <div class="form-group row py-0 my-0">
                         <div class="col">
-                            <label for="exact_match">
-                                Exact Match
-                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="The incoming DNS must match the full domain in order to get a response. Fallback matches will be ignored." data-original-title="Exact Match"><i class="fas fa-question-circle ml-1"></i></a>
+                            <label for="catch_all">
+                                Catch-All
+                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="All subdomains for this zone will match this domain, if no other match is found. If disabled, the incoming DNS must match the full domain in order to get a response. Fallback matches will be ignored." data-original-title="Catch-All"><i class="fas fa-question-circle ml-1"></i></a>
                             </label>
                         </div>
                         <div class="col text-right">
                             <div class="custom-control custom-switch">
-                                <input name="exact_match" type="checkbox" class="custom-control-input" id="exact_match" value="1" {{ 'checked' if (dns_zone_id == 0) or (dns_zone_id > 0 and zone.exact_match) }}>
-                                <label class="custom-control-label" for="exact_match"></label>
+                                <input name="catch_all" type="checkbox" class="custom-control-input" id="catch_all" value="1" {{ 'checked' if zone.catch_all }}>
+                                <label class="custom-control-label" for="catch_all"></label>
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                         <div class="col">
                             <label for="forwarding">
                                 Unmatched Record Forwarding
-                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="Example: If Record A is matched but Record AAAA isn't, determine whether to forward the AAAA request to an external DNS Server (if DNS Forwarding is enabled)" data-original-title="Exact Match"><i class="fas fa-question-circle ml-1"></i></a>
+                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="Example: If Record A is matched but Record AAAA isn't, determine whether to forward the AAAA request to an external DNS Server (if DNS Forwarding is enabled)" data-original-title="Catch-All"><i class="fas fa-question-circle ml-1"></i></a>
                             </label>
                         </div>
                         <div class="col text-right">

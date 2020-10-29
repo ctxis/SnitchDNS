@@ -19,7 +19,7 @@ def cli_zones_list():
 
     results = zones.all()
 
-    headers = ['id', 'user', 'domain', 'active', 'exact match', 'forwarding', 'tags']
+    headers = ['id', 'user', 'domain', 'active', 'catch-all', 'forwarding', 'tags']
     table = []
     for result in results:
         table.append([
@@ -27,7 +27,7 @@ def cli_zones_list():
             result.user_id,
             result.domain,
             result.active,
-            result.exact_match,
+            result.catch_all,
             result.forwarding,
             ', '.join(result.tags)
         ])
@@ -57,14 +57,14 @@ def cli_zones_delete(domain):
 @click.option('--domain', required=True, help='Domain', type=click.STRING)
 @click.option('--user_id', required=True, help='User ID to own the domain', type=click.INT)
 @click.option('--active', is_flag=True, help='Domain will be active')
-@click.option('--exact_match', is_flag=True, help='Domain will have to be exact match to respond to queries')
+@click.option('--catch_all', is_flag=True, help='Domain will be catch-all')
 @click.option('--forwarding', is_flag=True, help='Unmatched records will be forwarded (if forwarding is enabled)')
 @with_appcontext
-def cli_zones_add(domain, user_id, active, exact_match, forwarding):
+def cli_zones_add(domain, user_id, active, catch_all, forwarding):
     provider = Provider()
     zones = provider.dns_zones()
 
-    zone = zones.new(domain, active, exact_match, forwarding, user_id)
+    zone = zones.new(domain, active, catch_all, forwarding, user_id)
     if isinstance(zone, list):
         for error in zone:
             print(error)
@@ -77,10 +77,10 @@ def cli_zones_add(domain, user_id, active, exact_match, forwarding):
 @main.command('update')
 @click.option('--domain', required=True, help='Domain', type=click.STRING)
 @click.option('--active', required=False, default=None, help='Domain will be active', type=click.Choice(['yes', 'no', 'true', 'false']))
-@click.option('--exact_match', required=False, default=None, help='Domain will have to be exact match to respond to queries', type=click.Choice(['yes', 'no', 'true', 'false']))
+@click.option('--catch_all', required=False, default=None, help='Domain will be catch-all', type=click.Choice(['yes', 'no', 'true', 'false']))
 @click.option('--forwarding', required=False, default=None, help='Unmatched records will be forwarded (if forwarding is enabled)', type=click.Choice(['yes', 'no', 'true', 'false']))
 @with_appcontext
-def cli_zones_update(domain, active, exact_match, forwarding):
+def cli_zones_update(domain, active, catch_all, forwarding):
     provider = Provider()
     zones = provider.dns_zones()
 
@@ -92,8 +92,8 @@ def cli_zones_update(domain, active, exact_match, forwarding):
     if active is not None:
         zone.active = (active in ['yes', 'true'])
 
-    if exact_match is not None:
-        zone.exact_match = (exact_match in ['yes', 'true'])
+    if catch_all is not None:
+        zone.catch_all = (catch_all in ['yes', 'true'])
 
     if forwarding is not None:
         zone.forwarding = (forwarding in ['yes', 'true'])

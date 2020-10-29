@@ -30,7 +30,7 @@ class ApiZones(ApiBase):
         return self.send_valid_response(self.__load_zone(zone))
 
     def create(self, user_id, username):
-        required_fields = ['domain', 'active', 'exact_match', 'master', 'forwarding']
+        required_fields = ['domain', 'active', 'catch_all', 'master', 'forwarding']
         data = self.get_json(required_fields)
         if data is False:
             return self.send_error_response(
@@ -43,7 +43,7 @@ class ApiZones(ApiBase):
             return self.send_error_response(5001, 'Domain cannot be empty.', '')
 
         data['active'] = True if data['active'] else False
-        data['exact_match'] = True if data['exact_match'] else False
+        data['catch_all'] = True if data['catch_all'] else False
         data['master'] = True if data['master'] else False
         data['forwarding'] = True if data['forwarding'] else False
 
@@ -56,7 +56,7 @@ class ApiZones(ApiBase):
             return self.send_error_response(5003, 'Domain already exists', '')
 
         zone = zones.create()
-        zone = zones.save(zone, user_id, data['domain'], data['active'], data['exact_match'], data['master'], data['forwarding'])
+        zone = zones.save(zone, user_id, data['domain'], data['active'], data['catch_all'], data['master'], data['forwarding'])
         if not zone:
             return self.send_error_response(5002, 'Could not create domain.', '')
 
@@ -92,17 +92,17 @@ class ApiZones(ApiBase):
         else:
             data['active'] = zone.active
 
-        if 'exact_match' in data:
-            data['exact_match'] = True if data['exact_match'] else False
+        if 'catch_all' in data:
+            data['catch_all'] = True if data['catch_all'] else False
         else:
-            data['exact_match'] = zone.exact_match
+            data['catch_all'] = zone.catch_all
 
         if 'forwarding' in data:
             data['forwarding'] = True if data['forwarding'] else False
         else:
             data['forwarding'] = zone.forwarding
 
-        zone = zones.save(zone, zone.user_id, data['domain'], data['active'], data['exact_match'], zone.master, data['forwarding'])
+        zone = zones.save(zone, zone.user_id, data['domain'], data['active'], data['catch_all'], zone.master, data['forwarding'])
 
         return self.one(zone_id, user_id)
 
@@ -125,7 +125,7 @@ class ApiZones(ApiBase):
         zone.id = item.id
         zone.user_id = item.user_id
         zone.active = item.active
-        zone.exact_match = item.exact_match
+        zone.catch_all = item.catch_all
         zone.master = item.master
 
         return zone

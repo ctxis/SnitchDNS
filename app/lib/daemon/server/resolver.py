@@ -139,7 +139,7 @@ class DatabaseDNSResolver:
         else:
             redir_domain = records[0].property('name', '')
             if len(redir_domain) > 0:
-                redir_zone = self.__dns_manager.find_zone(redir_domain, '', validate_exact_match=False)
+                redir_zone = self.__dns_manager.find_zone(redir_domain, '', validate_catch_all=False)
                 if redir_zone:
                     # We have an entry for this domain. Lookup the requested record there.
                     redir_records = self.__dns_manager.find_all_records(redir_zone, cls, type, active=True)
