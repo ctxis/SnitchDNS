@@ -2,12 +2,10 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 
 
 @bp.route('/tags', methods=['GET'])
 @login_required
-@must_have_base_domain
 def tags_index():
     provider = Provider()
     tags = provider.tags()
@@ -22,7 +20,6 @@ def tags_index():
 
 @bp.route('/tags/<int:tag_id>/delete', methods=['POST'])
 @login_required
-@must_have_base_domain
 def tags_delete(tag_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -45,7 +42,6 @@ def tags_delete(tag_id):
 
 @bp.route('/tags/<int:tag_id>/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def tags_edit(tag_id):
     provider = Provider()
     tags = provider.tags()
@@ -69,7 +65,6 @@ def tags_edit(tag_id):
 
 @bp.route('/tags/<int:tag_id>/edit/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def tags_edit_save(tag_id):
     provider = Provider()
     tags = provider.tags()

@@ -34,7 +34,7 @@
             </thead>
             <tbody>
             {% for result in results.items %}
-                {% set is_zone = zone_exists(full_domain=result.domain) %}
+                {% set is_zone = zone_exists(domain=result.domain) %}
                 {% set has_alias = (result.source_ip in aliases) %}
             <tr>
                 <td>{{ loop.index + (params.per_page * (params.page - 1)) }}</td>
@@ -78,7 +78,7 @@
                             <a href="#" class="submit-on-click dropdown-item"><i class="fas fa-plus-square fa-fw"></i> <span class="ml-1">create zone</span></a>
                         </form>
                         {% else %}
-                        <a href="{{ url_for('dns.zone_view', dns_zone_id=result.dns_zone_id) }}" class="submit-on-click dropdown-item"><i class="fas fa-external-link-alt fa-fw"></i> <span class="ml-1">view zone</span></a>
+                        <a href="{{ url_for('dns.zone_view', dns_zone_id=result.dns_zone_id) }}" class="dropdown-item"><i class="fas fa-external-link-alt fa-fw"></i> <span class="ml-1">view zone</span></a>
                         {% endif %}
 
                         {% if not has_alias %}

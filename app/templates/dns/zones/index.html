@@ -96,7 +96,7 @@
                 <td>{{ loop.index + (per_page * (page - 1)) }}</td>
                 <td>
                     <div>
-                        <a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.full_domain }}</a>
+                        <a href="{{ url_for('dns.zone_view', dns_zone_id=zone.id) }}" class="text-info">{{ zone.domain }}</a>
                     </div>
                     {% if zone.tags|length > 0 %}
                     <div class="mt-1" title="tags">
@@ -128,7 +128,7 @@
                 </td>
                 <td class="text-right" style="white-space: nowrap;">
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}" title="edit zone"><i class="fas fa-edit"></i></a>
-                    <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
+                    <a href="{{ url_for('logs.index', domain='%' ~ zone.domain, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
                     {% if zone.master == False %}
                     <form action="{{ url_for('dns.zone_delete', dns_zone_id=zone.id) }}" method="post" class="d-inline ml-1" id="delete-zone-form-{{ zone.id }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

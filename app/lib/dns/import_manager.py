@@ -127,8 +127,6 @@ class DNSImportManager(SharedHelper):
 
             self.__zone_update_or_create(
                 zone_to_import['domain'],
-                zone_to_import['base_domain'],
-                zone_to_import['full_domain'],
                 zone_to_import['active'],
                 zone_to_import['exact_match'],
                 zone_to_import['forwarding'],
@@ -275,15 +273,13 @@ class DNSImportManager(SharedHelper):
 
             domain = {
                 'id': domain_mapping[zone['domain']] if zone['domain'] in domain_mapping else 0,
-                'domain': zone['domain'].rstrip('.'),
+                'domain': zone['domain'],
                 'active': active,
                 'exact_match': exact_match,
                 'forwarding': forwarding,
                 'master': master,
-                'tags': tags,
-                'base_domain': self.__dns_zones.get_base_domain(user.admin, user.username).rstrip('.')
+                'tags': tags
             }
-            domain['full_domain'] = domain['domain'] + domain['base_domain']
             items.append(domain)
 
         return items, errors
@@ -491,7 +487,7 @@ class DNSImportManager(SharedHelper):
 
     def __get_domain_mapping(self, user_id, reverse=False):
         result = db.session.execute(
-            "SELECT id, full_domain FROM dns_zones WHERE user_id = :user_id",
+            "SELECT id, domain FROM dns_zones WHERE user_id = :user_id",
             {'user_id': user_id}
         )
         mapping = {}
@@ -514,11 +510,9 @@ class DNSImportManager(SharedHelper):
 
         return mapping
 
-    def __zone_update_or_create(self, domain, base_domain, full_domain, active, exact_match, forwarding, master, user_id, id=None, autocommit=True):
+    def __zone_update_or_create(self, domain, active, exact_match, forwarding, master, user_id, id=None, autocommit=True):
         params = {
             'domain': domain,
-            'base_domain': base_domain,
-            'full_domain': full_domain,
             'active': active,
             'exact_match': exact_match,
             'forwarding': forwarding,
@@ -529,12 +523,12 @@ class DNSImportManager(SharedHelper):
         if (id is None) or (id == 0):
             params['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            sql = "INSERT INTO dns_zones (domain, base_domain, full_domain, active, exact_match, forwarding, master, user_id, updated_at, created_at)" \
-                  "VALUES(:domain, :base_domain, :full_domain, :active, :exact_match, :forwarding, :master, :user_id, :updated_at, :created_at)"
+            sql = "INSERT INTO dns_zones (domain, active, exact_match, forwarding, master, user_id, updated_at, created_at)" \
+                  "VALUES(:domain, :active, :exact_match, :forwarding, :master, :user_id, :updated_at, :created_at)"
         else:
             params['id'] = id
 
-            sql = "UPDATE dns_zones SET domain = :domain, base_domain = :base_domain, full_domain = :full_domain, active = :active, exact_match = :exact_match, forwarding = :forwarding, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
+            sql = "UPDATE dns_zones SET domain = :domain, active = :active, exact_match = :exact_match, forwarding = :forwarding, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
 
         result = db.session.execute(sql, params)
         if autocommit:

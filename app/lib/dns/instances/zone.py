@@ -22,14 +22,6 @@ class DNSZone(BaseInstance):
         self.item.domain = value
 
     @property
-    def base_domain(self):
-        return self.item.base_domain
-
-    @base_domain.setter
-    def base_domain(self, value):
-        self.item.base_domain = value
-
-    @property
     def active(self):
         return self.item.active
 
@@ -60,14 +52,6 @@ class DNSZone(BaseInstance):
     @master.setter
     def master(self, value):
         self.item.master = value
-
-    @property
-    def full_domain(self):
-        return self.item.full_domain
-
-    @full_domain.setter
-    def full_domain(self, value):
-        self.item.full_domain = value
 
     @property
     def record_count(self):

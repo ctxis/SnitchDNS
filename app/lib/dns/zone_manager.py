@@ -21,8 +21,8 @@ class DNSZoneManager(SharedHelper):
         self.dns_restrictions = dns_restrictions
         self.tag_manager = tag_manager
 
-    def __get(self, id=None, user_id=None, domain=None, base_domain=None, full_domain=None, active=None,
-              exact_match=None, master=None, order_by='id', page=None, per_page=None, search=None, tags=None):
+    def __get(self, id=None, user_id=None, domain=None, active=None, exact_match=None, master=None, order_by='id',
+              page=None, per_page=None, search=None, tags=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -40,17 +40,11 @@ class DNSZoneManager(SharedHelper):
         if user_id is not None:
             query = query.filter(DNSZoneModel.user_id == user_id)
 
-        if full_domain is not None:
-            query = query.filter(func.lower(DNSZoneModel.full_domain) == full_domain.lower())
-
-        if base_domain is not None:
-            query = query.filter(func.lower(DNSZoneModel.base_domain) == base_domain.lower())
-
         if master is not None:
             query = query.filter(DNSZoneModel.master == master)
 
         if (search is not None) and (len(search) > 0):
-            query = query.filter(DNSZoneModel.full_domain.ilike("%{0}%".format(search)))
+            query = query.filter(DNSZoneModel.domain.ilike("%{0}%".format(search)))
 
         if tags is not None:
             tags = list(filter(None, tags))
@@ -61,8 +55,8 @@ class DNSZoneManager(SharedHelper):
 
         if order_by == 'user_id':
             query = query.order_by(DNSZoneModel.user_id)
-        elif order_by == 'full_domain':
-            query = query.order_by(DNSZoneModel.full_domain)
+        elif order_by == 'domain':
+            query = query.order_by(DNSZoneModel.domain)
         else:
             query = query.order_by(DNSZoneModel.id)
 
@@ -96,7 +90,7 @@ class DNSZoneManager(SharedHelper):
         if delete_old_logs:
             self.dns_logs.delete(dns_zone_id=zone.id)
         elif update_old_logs:
-            self.dns_logs.update_old_logs(zone.full_domain, 0)
+            self.dns_logs.update_old_logs(zone.domain, 0)
 
         zone.delete_tags()
         zone.delete()
@@ -130,11 +124,9 @@ class DNSZoneManager(SharedHelper):
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, base_domain, active, exact_match, master, forwarding, update_old_logs=False):
+    def save(self, zone, user_id, domain, active, exact_match, master, forwarding, update_old_logs=False):
         zone.user_id = user_id
-        zone.domain = self.__fix_domain(domain)
-        zone.base_domain = self.__fix_domain(base_domain)
-        zone.full_domain = zone.domain + zone.base_domain
+        zone.domain = domain.lower()
         zone.active = active
         zone.exact_match = exact_match
         zone.master = master
@@ -142,7 +134,7 @@ class DNSZoneManager(SharedHelper):
         zone.save()
 
         if update_old_logs:
-            self.dns_logs.update_old_logs(zone.full_domain, zone.id)
+            self.dns_logs.update_old_logs(zone.domain, zone.id)
 
         return zone
 
@@ -187,8 +179,8 @@ class DNSZoneManager(SharedHelper):
             'zones': zones
         }
 
-    def find(self, full_domain, user_id=None):
-        results = self.__get(full_domain=full_domain, user_id=user_id)
+    def find(self, domain, user_id=None):
+        results = self.__get(domain=domain, user_id=user_id)
         if len(results) == 0:
             return False
 
@@ -199,10 +191,9 @@ class DNSZoneManager(SharedHelper):
         return self.settings.get('dns_base_domain', '')
 
     def get_user_base_domain(self, username):
-        dns_base_domain = self.__fix_domain(self.base_domain).lstrip('.')
         # Keep only letters, digits, underscore.
         username = self.__clean_username(username)
-        return '.' + username + '.' + dns_base_domain
+        return username + '.' + self.base_domain
 
     def get_base_domain(self, is_admin, username):
         return '' if is_admin else self.get_user_base_domain(username)
@@ -210,11 +201,10 @@ class DNSZoneManager(SharedHelper):
     def __clean_username(self, username):
         return re.sub(r'\W+', '', username)
 
-    def has_duplicate(self, dns_zone_id, domain, base_domain):
+    def has_duplicate(self, dns_zone_id, domain):
         return DNSZoneModel.query.filter(
             DNSZoneModel.id != dns_zone_id,
-            DNSZoneModel.domain == domain,
-            DNSZoneModel.base_domain == base_domain
+            DNSZoneModel.domain == domain
         ).count() > 0
 
     def can_access(self, dns_zone_id, user_id):
@@ -227,13 +217,13 @@ class DNSZoneManager(SharedHelper):
             return False
 
         zone = self.create()
-        return self.save(zone, user.id, self.__clean_username(user.username), '.' + self.base_domain, True, False, True, False)
+        return self.save(zone, user.id, self.get_user_base_domain(user.username), True, False, True, False)
 
     def count(self, user_id=None):
         return len(self.__get(user_id=user_id))
 
-    def exists(self, dns_zone_id=None, full_domain=None):
-        return len(self.__get(id=dns_zone_id, full_domain=full_domain)) > 0
+    def exists(self, dns_zone_id=None, domain=None):
+        return len(self.__get(id=dns_zone_id, domain=domain)) > 0
 
     def new(self, domain, active, exact_match, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
@@ -248,7 +238,10 @@ class DNSZoneManager(SharedHelper):
             return errors
 
         base_domain = self.get_base_domain(user.admin, user.username)
-        if self.has_duplicate(0, domain, base_domain):
+        if len(base_domain) > 0:
+            domain = domain + '.' + base_domain
+
+        if self.has_duplicate(0, domain):
             errors.append('This domain already exists.')
             return errors
 
@@ -257,17 +250,17 @@ class DNSZoneManager(SharedHelper):
             errors.append('Could not get zone')
             return errors
 
-        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
+        zone = self.save(zone, user.id, domain, active, exact_match, master, forwarding)
         if not zone:
             errors.append('Could not save zone')
             return errors
 
         if update_old_logs:
-            self.dns_logs.update_old_logs(zone.full_domain, zone.id)
+            self.dns_logs.update_old_logs(zone.domain, zone.id)
 
         return zone
 
-    def update(self, zone_id, domain, active, exact_match, forwarding, user_id, master=False):
+    def update(self, zone_id, domain, active, exact_match, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0:
@@ -285,11 +278,14 @@ class DNSZoneManager(SharedHelper):
             return errors
 
         base_domain = self.get_base_domain(user.admin, user.username)
-        if self.has_duplicate(zone.id, domain, base_domain):
+        if len(base_domain) > 0:
+            domain = domain + '.' + base_domain
+
+        if self.has_duplicate(zone.id, domain):
             errors.append('This domain already exists.')
             return errors
 
-        zone = self.save(zone, user.id, domain, base_domain, active, exact_match, master, forwarding)
+        zone = self.save(zone, user.id, domain, active, exact_match, master, forwarding, update_old_logs=update_old_logs)
         return zone
 
     def export_zones(self, zones, output):
@@ -308,7 +304,7 @@ class DNSZoneManager(SharedHelper):
 
             for zone in zones:
                 line = [
-                    self._sanitise_csv_value(zone.full_domain),
+                    self._sanitise_csv_value(zone.domain),
                     '1' if zone.active else '0',
                     '1' if zone.exact_match else '0',
                     '1' if zone.forwarding else '0',
@@ -342,7 +338,7 @@ class DNSZoneManager(SharedHelper):
                         properties.append("{0}={1}".format(name, value))
 
                     line = [
-                        self._sanitise_csv_value(zone.full_domain),
+                        self._sanitise_csv_value(zone.domain),
                         record.id,
                         record.ttl,
                         record.cls,
@@ -368,7 +364,7 @@ class DNSZoneManager(SharedHelper):
         file_records = os.path.join(working_folder, 'records.csv')
         save_as = os.path.join(working_folder, 'export.zip')
 
-        zones = self.get_user_zones(user_id, order_by='full_domain', search=search, tags=tags, raw=True)
+        zones = self.get_user_zones(user_id, order_by='domain', search=search, tags=tags, raw=True)
         if export_zones:
             if not self.export_zones(zones, file_zones):
                 return False

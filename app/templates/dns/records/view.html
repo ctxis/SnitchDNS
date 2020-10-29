@@ -49,7 +49,7 @@
             <a title="edit conditional responses" href="{{ url_for('dns.record_conditions_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-code-branch"></i></a>
             {% endif %}
             <a href="{{ url_for('dns.record_edit', dns_zone_id=zone.id, dns_record_id=record.id) }}"><i class="fas fa-edit"></i></a>
-            <a href="{{ url_for('logs.index', domain='%' ~ zone.full_domain, type=record.type, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
+            <a href="{{ url_for('logs.index', domain='%' ~ zone.domain, type=record.type, user_id=zone.user_id) }}" class="ml-1" title="view logs"><i class="fas fa-clipboard-list"></i></a>
             <form action="{{ url_for('dns.record_delete', dns_zone_id=zone.id, dns_record_id=record.id) }}" method="post" class="d-inline ml-1" id="delete-record-form-{{ record.id }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <a href="#" class="confirm-delete text-danger"><i class="fas fa-trash"></i></a>

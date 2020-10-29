@@ -124,6 +124,6 @@ class DNSLogManager(SharedHelper):
         db.session.commit()
         return True
 
-    def update_old_logs(self, full_domain, dns_zone_id, dns_record_id=0):
-        DNSQueryLogModel.query.filter(DNSQueryLogModel.domain == full_domain.lower()).update(dict(dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
+    def update_old_logs(self, domain, dns_zone_id, dns_record_id=0):
+        DNSQueryLogModel.query.filter(DNSQueryLogModel.domain == domain.lower()).update(dict(dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
         db.session.commit()

@@ -2,12 +2,10 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 
 
 @bp.route('/<int:dns_zone_id>/restrictions', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_restrictions(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -31,7 +29,6 @@ def zone_restrictions(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/restrictions/<int:restriction_id>/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_restrictions_edit(dns_zone_id, restriction_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -59,7 +56,6 @@ def zone_restrictions_edit(dns_zone_id, restriction_id):
 
 @bp.route('/<int:dns_zone_id>/restrictions/<int:restriction_id>/edit', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_restrictions_edit_save(dns_zone_id, restriction_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -98,7 +94,6 @@ def zone_restrictions_edit_save(dns_zone_id, restriction_id):
 
 @bp.route('/<int:dns_zone_id>/restrictions/<int:restriction_id>/delete', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_restrictions_delete(dns_zone_id, restriction_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -125,7 +120,6 @@ def zone_restrictions_delete(dns_zone_id, restriction_id):
 
 @bp.route('/block/log/<int:query_log_id>', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_restriction_create_from_log(query_log_id):
     provider = Provider()
     logging = provider.dns_logs()

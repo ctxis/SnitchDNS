@@ -7,15 +7,17 @@
         <h3 class="mb-0">
             <div class="row">
                 <div class="col">
-                    {{ zone.full_domain }}
+                    {{ zone.domain }}
                 </div>
                 <div class="col-3 text-right">
                     <a class="btn btn-sm btn-primary" title="edit zone" href="{{ url_for('dns.zone_edit', dns_zone_id=zone.id) }}"><i class="fas fa-edit fa-fw"></i> edit</a>
 
+                    {% if zone.master == False %}
                     <form action="{{ url_for('dns.zone_delete', dns_zone_id=zone.id) }}" method="post" class="d-inline ml-1" id="delete-zone-form-{{ zone.id }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <a href="#" class="confirm-delete btn btn-sm btn-danger" title="delete zone"><i class="fas fa-trash fa-fw"></i> delete</a>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </h3>

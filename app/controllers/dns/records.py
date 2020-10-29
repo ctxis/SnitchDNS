@@ -2,12 +2,10 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def record_edit(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -49,7 +47,6 @@ def record_edit(dns_zone_id, dns_record_id):
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/edit/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def record_edit_save(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -110,7 +107,6 @@ def record_edit_save(dns_zone_id, dns_record_id):
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/delete', methods=['POST'])
 @login_required
-@must_have_base_domain
 def record_delete(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -167,7 +163,6 @@ def gather_record_data(record_type):
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/conditions/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def record_conditions_edit(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -212,7 +207,6 @@ def record_conditions_edit(dns_zone_id, dns_record_id):
 
 @bp.route('/<int:dns_zone_id>/record/<int:dns_record_id>/conditions/edit/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def record_conditions_edit_save(dns_zone_id, dns_record_id):
     provider = Provider()
     zones = provider.dns_zones()

@@ -38,7 +38,7 @@ class DNSManager:
         # 'exact match' but the original query could be for 'greeting.hi.bye.contextis.com'
         # The 'validate_exact_match' was added to add the option to skip this check to make CNAME responses easier.
         if zone.exact_match and validate_exact_match:
-            if zone.full_domain != original_domain:
+            if zone.domain != original_domain:
                 return False
 
         return zone

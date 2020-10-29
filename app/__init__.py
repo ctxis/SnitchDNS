@@ -126,8 +126,8 @@ def create_app(config_class=None):
         def is_daemon_running():
             return Provider().daemon().is_running()
 
-        def zone_exists(id=None, full_domain=None):
-            return Provider().dns_zones().exists(dns_zone_id=id, full_domain=full_domain)
+        def zone_exists(id=None, domain=None):
+            return Provider().dns_zones().exists(dns_zone_id=id, domain=domain)
 
         def tag_domains(tag_id):
             return Provider().dns_zones().tag_count(tag_id)

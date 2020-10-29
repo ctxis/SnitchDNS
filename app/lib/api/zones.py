@@ -52,12 +52,11 @@ class ApiZones(ApiBase):
         users = provider.users()
 
         # Check for duplicate.
-        base_domain = '' if users.is_admin(user_id) else zones.get_user_base_domain(username)
-        if zones.has_duplicate(0, data['domain'], base_domain):
+        if zones.has_duplicate(0, data['domain']):
             return self.send_error_response(5003, 'Domain already exists', '')
 
         zone = zones.create()
-        zone = zones.save(zone, user_id, data['domain'], base_domain, data['active'], data['exact_match'], data['master'], data['forwarding'])
+        zone = zones.save(zone, user_id, data['domain'], data['active'], data['exact_match'], data['master'], data['forwarding'])
         if not zone:
             return self.send_error_response(5002, 'Could not create domain.', '')
 
@@ -79,15 +78,13 @@ class ApiZones(ApiBase):
         if not zone:
             return self.send_access_denied_response()
 
-        base_domain = '' if users.is_admin(user_id) else zones.get_user_base_domain(username)
-
         if ('domain' in data) and zone.master:
             data['domain'] = zone.domain
         elif 'domain' not in data:
             data['domain'] = zone.domain
 
         # Check for duplicates first.
-        if zones.has_duplicate(zone.id, data['domain'], base_domain):
+        if zones.has_duplicate(zone.id, data['domain']):
             return self.send_error_response(5003, 'Domain already exists', '')
 
         if 'active' in data:
@@ -105,7 +102,7 @@ class ApiZones(ApiBase):
         else:
             data['forwarding'] = zone.forwarding
 
-        zone = zones.save(zone, zone.user_id, data['domain'], base_domain, data['active'], data['exact_match'], zone.master, data['forwarding'])
+        zone = zones.save(zone, zone.user_id, data['domain'], data['active'], data['exact_match'], zone.master, data['forwarding'])
 
         return self.one(zone_id, user_id)
 
@@ -130,6 +127,5 @@ class ApiZones(ApiBase):
         zone.active = item.active
         zone.exact_match = item.exact_match
         zone.master = item.master
-        zone.domain = item.full_domain
 
         return zone

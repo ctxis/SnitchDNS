@@ -2,12 +2,10 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 
 
 @bp.route('/aliases', methods=['GET'])
 @login_required
-@must_have_base_domain
 def alias_index():
     provider = Provider()
     aliases = provider.aliases()
@@ -22,7 +20,6 @@ def alias_index():
 
 @bp.route('/aliases/<int:alias_id>/delete', methods=['POST'])
 @login_required
-@must_have_base_domain
 def alias_delete(alias_id):
     provider = Provider()
     aliases = provider.aliases()
@@ -42,7 +39,6 @@ def alias_delete(alias_id):
 
 @bp.route('/aliases/<int:alias_id>/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def alias_edit(alias_id):
     provider = Provider()
     aliases = provider.aliases()
@@ -72,7 +68,6 @@ def alias_edit(alias_id):
 
 @bp.route('/aliases/<int:alias_id>/edit/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def alias_edit_save(alias_id):
     provider = Provider()
     aliases = provider.aliases()

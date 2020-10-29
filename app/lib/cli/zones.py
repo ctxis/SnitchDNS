@@ -25,7 +25,7 @@ def cli_zones_list():
         table.append([
             result.id,
             result.user_id,
-            result.full_domain,
+            result.domain,
             result.active,
             result.exact_match,
             result.forwarding,

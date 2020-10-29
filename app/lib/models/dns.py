@@ -6,8 +6,6 @@ class DNSZoneModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=True, index=True, default=0)
     domain = db.Column(db.String(255), nullable=True, default='', index=True)
-    base_domain = db.Column(db.String(255), nullable=True, default='', index=True)
-    full_domain = db.Column(db.String(255), nullable=True, default='', index=True)
     active = db.Column(db.Boolean, default=True, index=True)
     exact_match = db.Column(db.Boolean, default=True, index=True)
     master = db.Column(db.Boolean, default=False, index=True)

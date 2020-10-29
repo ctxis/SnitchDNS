@@ -2,13 +2,11 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 import re
 
 
 @bp.route('/<int:dns_zone_id>/notifications', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_notifications(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -35,7 +33,6 @@ def zone_notifications(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/notifications/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_notifications_save(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -62,7 +59,6 @@ def zone_notifications_save(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/notifications/<string:item>', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_notifications_settings(dns_zone_id, item):
     provider = Provider()
     zones = provider.dns_zones()
@@ -100,7 +96,6 @@ def zone_notifications_settings(dns_zone_id, item):
 
 @bp.route('/<int:dns_zone_id>/notifications/<string:item>/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_notifications_settings_save(dns_zone_id, item):
     provider = Provider()
     zones = provider.dns_zones()

@@ -58,4 +58,4 @@ class CronManager:
         if not zone:
             return False
 
-        return "Domain {0} has been resolved".format(zone.full_domain)
+        return "Domain {0} has been resolved".format(zone.domain)

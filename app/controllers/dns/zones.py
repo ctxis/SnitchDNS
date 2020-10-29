@@ -2,13 +2,11 @@ from . import bp
 from flask_login import current_user, login_required
 from flask import render_template, redirect, url_for, flash, request, send_file
 from app.lib.base.provider import Provider
-from app.lib.base.decorators import must_have_base_domain
 
 
 @bp.route('/', methods=['GET'])
 @bp.route('/<string:type>', methods=['GET'])
 @login_required
-@must_have_base_domain
 def index(type=''):
     results_per_page = 50
 
@@ -37,7 +35,7 @@ def index(type=''):
 
     return render_template(
         'dns/zones/index.html',
-        zones=zones.get_user_zones_paginated(user_id, order_by='full_domain', page=page, per_page=results_per_page, search=search, tags=search_tags),
+        zones=zones.get_user_zones_paginated(user_id, order_by='domain', page=page, per_page=results_per_page, search=search, tags=search_tags),
         type=type,
         page=page,
         per_page=results_per_page,
@@ -50,7 +48,6 @@ def index(type=''):
 
 @bp.route('/<int:dns_zone_id>/view', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_view(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -76,7 +73,6 @@ def zone_view(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/edit', methods=['GET'])
 @login_required
-@must_have_base_domain
 def zone_edit(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -109,7 +105,6 @@ def zone_edit(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/edit/save', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_edit_save(dns_zone_id):
     dns_zone_id = 0 if dns_zone_id < 0 else dns_zone_id
     return __zone_create() if dns_zone_id == 0 else __zone_update(dns_zone_id)
@@ -117,7 +112,6 @@ def zone_edit_save(dns_zone_id):
 
 @bp.route('/<int:dns_zone_id>/delete', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_delete(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
@@ -183,15 +177,7 @@ def __zone_update(dns_zone_id):
         flash('Could not get zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    if zone.master:
-        domain = zone.domain
-        base_domain = zone.base_domain
-        master = True
-    else:
-        domain = request.form['domain'].strip().lower()
-        base_domain = '' if users.is_admin(zone.user_id) else zones.get_user_base_domain(zone.username)
-        master = False
-
+    domain = request.form['domain'].strip().lower()
     active = True if int(request.form.get('active', 0)) == 1 else False
     exact_match = True if int(request.form.get('exact_match', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
@@ -201,11 +187,11 @@ def __zone_update(dns_zone_id):
         flash('Invalid domain', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    if zones.has_duplicate(dns_zone_id, domain, base_domain):
+    if zones.has_duplicate(dns_zone_id, domain):
         flash('This domain already exists.', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    zone = zones.save(zone, zone.user_id, domain, base_domain, active, exact_match, master, forwarding, update_old_logs=True)
+    zone = zones.update(zone.id, domain, active, exact_match, forwarding, zone.user_id, master=zone.master, update_old_logs=True)
     if not zone:
         flash('Could not save zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
@@ -221,7 +207,6 @@ def __zone_update(dns_zone_id):
 
 @bp.route('/create/log/<int:query_log_id>', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zone_create_from_log(query_log_id):
     provider = Provider()
     logging = provider.dns_logs()
@@ -254,7 +239,6 @@ def zone_create_from_log(query_log_id):
 
 @bp.route('/export', methods=['POST'])
 @login_required
-@must_have_base_domain
 def zones_export():
     provider = Provider()
     zones = provider.dns_zones()

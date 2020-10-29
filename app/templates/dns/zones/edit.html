@@ -16,11 +16,13 @@
                         {% else %}
                         <label for="domain">Domain</label>
                         <div class="input-group">
-                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
-                            {% if (current_user.admin == False and dns_zone_id == 0) or (zone.base_domain|length > 0) %}
+                            {% if (current_user.admin == False and dns_zone_id == 0) or (zone.domain|length > 0) %}
+                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain|replace('.' + user_domain, '') if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                             <div class="input-group-append">
-                                <span class="input-group-text">{{ user_domain }}</span>
+                                <span class="input-group-text">.{{ user_domain }}</span>
                             </div>
+                            {% else %}
+                            <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>
                             {% endif %}
                         </div>
                         {% endif %}
