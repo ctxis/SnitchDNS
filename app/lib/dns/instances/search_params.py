@@ -41,7 +41,7 @@ class SearchParams:
         self.time_from = self.__get_param('time_from', '')
         self.time_to = self.__get_param('time_to', '')
         self.page = self.__get_param('page', 1, type='int')
-        self.per_page = self.__get_param('per_page', 50, type='int')
+        self.per_page = self.__get_param('per_page', 20, type='int')
         self.user_id = self.__get_param('user_id', -1, type='int')
         self.tags = self.__get_param('tags', [], type='list')
         self.advanced = self.__get_param('advanced', 0, type='int')

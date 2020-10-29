@@ -14,6 +14,10 @@ $(document).ready(function() {
 
     $('.confirm-delete').click(function() {
         var formToSubmit = $(this).closest('form').attr('id');
+        var text = $(this).data('text') !== undefined ? $(this).data('text') : '';
+        if (text.length > 0) {
+            $('#delete-confirmation-text').text(text);
+        }
         $('#delete-form-to-submit').val(formToSubmit);
         $('#delete-confirmation-box').modal('show');
         return false;

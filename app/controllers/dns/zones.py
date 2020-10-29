@@ -8,7 +8,7 @@ from app.lib.base.provider import Provider
 @bp.route('/<string:type>', methods=['GET'])
 @login_required
 def index(type=''):
-    results_per_page = 50
+    results_per_page = 20
 
     provider = Provider()
     zones = provider.dns_zones()
@@ -134,6 +134,21 @@ def zone_delete(dns_zone_id):
         return redirect(url_for('dns.index'))
 
     flash('Zone deleted', 'success')
+    return redirect(url_for('dns.index'))
+
+
+@bp.route('/delete', methods=['POST'])
+@login_required
+def zone_group_delete():
+    provider = Provider()
+    zones = provider.dns_zones()
+
+    search = request.form['search'].strip()
+    search_tags = request.form['tags'].strip().split(',')
+
+    zones.group_delete(current_user.id, search=search, tags=search_tags)
+
+    flash('Zone(s) deleted', 'success')
     return redirect(url_for('dns.index'))
 
 

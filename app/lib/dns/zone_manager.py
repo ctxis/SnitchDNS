@@ -70,6 +70,15 @@ class DNSZoneManager(SharedHelper):
         return self.__load(results[0])
 
     def delete(self, dns_zone_id, delete_old_logs=False, update_old_logs=True):
+        #
+        #
+        #
+        #
+        # If you change this function, make sure you update group_delete() further down.
+        #
+        #
+        #
+        #
         zone = self.get(dns_zone_id)
         if not zone:
             return False
@@ -412,3 +421,44 @@ class DNSZoneManager(SharedHelper):
         DNSZoneTagModel.query.filter(DNSZoneTagModel.tag_id == tag_id).delete()
         db.session.commit()
         return True
+
+    def group_delete(self, user_id, search=None, tags=None, batch_size=1000):
+        """
+        This function is heavily optimised, cause object creation is very slow. Effectively it does the same thing as
+        delete() further up, but with raw queries.
+        """
+        # This will only fetch domains that belong to the user, therefore we don't have to do any other checks.
+        zones = self.get_user_zones(user_id, order_by='domain', search=search, tags=tags, raw=True)
+        zone_ids = []
+        for zone in zones:
+            zone_ids.append(zone.id)
+
+        batches = list(self.__chunks(zone_ids, batch_size))
+        for batch in batches:
+            i = 0
+            params = {}
+            for id in batch:
+                i += 1
+                params['param' + str(i)] = id
+
+            bind = [':' + v for v in params.keys()]
+
+            queries = [
+                "DELETE FROM dns_records WHERE dns_zone_id IN({0})".format(', '.join(bind)),
+                "DELETE FROM dns_zone_restrictions WHERE zone_id IN({0})".format(', '.join(bind)),
+                "DELETE FROM notification_subscriptions WHERE zone_id IN({0})".format(', '.join(bind)),
+                "DELETE FROM dns_zone_tags WHERE dns_zone_id IN({0})".format(', '.join(bind)),
+                "DELETE FROM dns_zones WHERE id IN({0})".format(', '.join(bind))
+            ]
+
+            for sql in queries:
+                db.session.execute(sql, params)
+
+        db.session.commit()
+
+        return True
+
+    def __chunks(self, data, size):
+        # From https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+        for i in range(0, len(data), size):
+            yield data[i:i + size]
