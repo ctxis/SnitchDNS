@@ -43,6 +43,7 @@ class SystemManager:
 
     def run_updates(self):
         self.__update_git_hash_version()
+        self.__set_update_url('https://api.github.com/repos/ctxis/SnitchDNS/git/refs/heads/master')
 
     def __update_git_hash_version(self):
         git_binary = self.shell.execute(['which', 'git'])
@@ -71,4 +72,10 @@ class SystemManager:
             last_commit_date = datetime.datetime.fromtimestamp(last_commit_timestamp).strftime('%Y-%m-%d %H:%M')
         self.settings.save('last_commit_date', last_commit_date)
 
+        return True
+
+    def __set_update_url(self, url):
+        update_url = self.settings.get('update_url', None)
+        if update_url is None:
+            self.settings.save('update_url', url)
         return True

@@ -7,7 +7,7 @@
         {% include 'config/includes/sidebar.html' %}
     </div>
     <div class="col-5">
-        <h4>Health Check</h4>
+        <h4 class="mb-3">Health Check</h4>
 
         <ul class="list-group">
             <li class="list-group-item">
@@ -67,9 +67,30 @@
                         </form>
                     </div>
                 </div>
-
             </li>
+
+            {% set update_url = setting_get('update_url', '') %}
+            {% if update_url|length > 0 %}
+            <li class="list-group-item">
+                <div class="clearfix">
+                    <div class="float-left">
+                        <span class="text-info"><i class="fas fa-code-branch fa-fw"></i></span>
+                        <span class="ml-2 update_text_left">Check for updates</span>
+                    </div>
+                    <div class="float-right" id="update_col_right">
+                        <a href="#" class="btn btn-info btn-sm" id="check_for_updates">check</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/snitch/update.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        SnitchDNSUpdate.init("{{ update_url }}", "{{ setting_get('git_hash_version', '') }}");
+    });
+</script>
 {% endblock %}
