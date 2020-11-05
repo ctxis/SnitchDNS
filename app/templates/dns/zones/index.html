@@ -5,27 +5,16 @@
 <div class="row mt-5">
     <div class="col"></div>
     <div class="col-10">
-        <ul class="nav nav-tabs mb-2">
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if type == '' }}" href="{{ url_for('dns.index') }}">Your Zones</a>
-            </li>
-            {% if current_user.admin %}
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if type == 'all' }}" href="{{ url_for('dns.index', type='all') }}">All Zones</a>
-            </li>
-            {% endif %}
-        </ul>
+        <h3 class="mb-4">Zones</h3>
 
         <div class="mb-2">
             <div class="row">
                 <div class="col">
-                {% if type == '' %}
                     <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}" class="btn btn-primary"> <i class="fas fa-plus"></i> <span class="ml-1">new zone</span></a>
-                {% endif %}
                 </div>
 
                 <div class="col-7 mx-0 px-0">
-                    <form method="get" action="{{ url_for('dns.index', type=type) }}">
+                    <form method="get" action="{{ url_for('dns.index') }}">
                         <div class="row">
                             <div class="col px-0 mx-0">
                                 {% if tags|length > 0 %}
@@ -57,9 +46,7 @@
                         <i class="fas fa-ellipsis-h"></i>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        {% if type == '' %}
                         <a href="{{ url_for('dns.zones_import') }}" class="dropdown-item"> <i class="fas fa-file-import"></i> <span class="ml-1">import</span></a>
-                        {% endif %}
                         <form action="{{ url_for('dns.zones_export') }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="tags" value="{{ ','.join(search_tags) }}">
@@ -88,7 +75,7 @@
             <tr>
                 <th>#</th>
                 <th style="width: 100%;">Domain</th>
-                {% if type == 'all' %}
+                {% if current_user.admin %}
                 <th>User</th>
                 {% endif %}
                 <th class="text-center">Active</th>
@@ -115,7 +102,7 @@
                     </div>
                     {% endif %}
                 </td>
-                {% if type == 'all' %}
+                {% if current_user.admin %}
                 <td>{{ zone.username }}</td>
                 {% endif %}
                 <td class="text-center">
@@ -151,7 +138,7 @@
         </table>
 
         {% if zones.results.pages > 1 %}
-            {{ render_pagination(zones.results, url_for('dns.index', type=type), page_url) }}
+            {{ render_pagination(zones.results, url_for('dns.index'), page_url) }}
         {% endif %}
         {% endif %}
     </div>

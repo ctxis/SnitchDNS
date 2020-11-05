@@ -5,9 +5,8 @@ from app.lib.base.provider import Provider
 
 
 @bp.route('/', methods=['GET'])
-@bp.route('/<string:type>', methods=['GET'])
 @login_required
-def index(type=''):
+def index():
     results_per_page = 20
 
     provider = Provider()
@@ -21,14 +20,14 @@ def index(type=''):
     if page <= 0:
         page = 1
 
-    user_id = current_user.id
-    if len(type) > 0:
-        if current_user.admin and (type == 'all'):
-            # This means all domains.
-            user_id = None
-        else:
-            # Return user to the previous page.
-            return redirect(url_for('dns.index'))
+    user_id = None if current_user.admin else current_user.id
+    # if len(type) > 0:
+    #     if current_user.admin and (type == 'all'):
+    #         # This means all domains.
+    #         user_id = None
+    #     else:
+    #         # Return user to the previous page.
+    #         return redirect(url_for('dns.index'))
 
     page_url = 'tags=' + '&tags='.join(search_tags)
     page_url += "&search={0}&page=".format(search)
@@ -36,13 +35,12 @@ def index(type=''):
     return render_template(
         'dns/zones/index.html',
         zones=zones.get_user_zones_paginated(user_id, order_by='domain', page=page, per_page=results_per_page, search=search, tags=search_tags),
-        type=type,
         page=page,
         per_page=results_per_page,
         page_url=page_url,
         search=search,
         search_tags=search_tags,
-        tags=tags.all(user_id=current_user.id, order_by='asc', order_column='name')
+        tags=tags.all(user_id=user_id, order_by='asc', order_column='name')
     )
 
 
