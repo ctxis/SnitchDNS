@@ -34,6 +34,9 @@ $(document).ready(function() {
         var box = $('.error-box-' + boxId);
         if ($(box).hasClass('d-none')) {
             $(box).removeClass('d-none');
+            $('html, body').animate({
+                scrollTop: $(box).offset().top
+            });
         } else {
             $(box).addClass('d-none');
         }
