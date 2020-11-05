@@ -3,7 +3,15 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col">
-        <h1>Search Logs</h1>
+        <h1 class="mb-5">
+            <div>
+                <div class="d-inline">Search Logs</div>
+                <div style="font-size: 0.4em; top: -16px; left: -6px; position: relative;" class="d-inline">
+                    <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="Searches use '=' unless you use the '%' operator<br><br>Search for domain 'example.com' will evaluate to &quot;WHERE domain = 'example.com'&quot;<br><br>Search for domain 'example.%' will evaluate to &quot;WHERE domain LIKE 'example.%'&quot;" data-original-title="Search Help"><i class="fas fa-question-circle ml-1"></i></a>
+                </div>
+            </div>
+        </h1>
+        <!--
         <div class="mb-5">
             <small>
                 <div>Searches use '=' unless you use the '%' operator</div>
@@ -11,6 +19,7 @@
                 <div>Search for domain 'example.%' will evaluate to &quot;WHERE domain LIKE 'example.%'&quot;</div>
             </small>
         </div>
+        -->
 
         <div class="search-form">
             <form action="{{ url_for('logs.index') }}" method="get">
