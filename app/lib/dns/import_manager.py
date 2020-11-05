@@ -255,6 +255,7 @@ class DNSImportManager(SharedHelper):
             bar = progressbar.ProgressBar(max_value=len(zones), widgets=widget)
 
         domain_mapping = self.__get_domain_mapping(user.id)
+        user_base_domain = '.' + self.__dns_zones.get_base_domain(user.admin, user.username)
 
         count = 0
         for zone in zones:
@@ -271,16 +272,23 @@ class DNSImportManager(SharedHelper):
             # Remove empty elements.
             tags = list(filter(None, tags))
 
-            domain = {
-                'id': domain_mapping[zone['domain']] if zone['domain'] in domain_mapping else 0,
-                'domain': zone['domain'],
-                'active': active,
-                'catch_all': catch_all,
-                'forwarding': forwarding,
-                'master': master,
-                'tags': tags
-            }
-            items.append(domain)
+            is_valid = True
+            if not user.admin:
+                if zone['domain'][-len(user_base_domain):] != user_base_domain and user_base_domain != '.' + zone['domain']:
+                    is_valid = False
+                    errors.append({'row': zone['row'], 'error': 'Zone {0} does not match your assigned master domain'.format(zone['domain'])})
+
+            if is_valid:
+                domain = {
+                    'id': domain_mapping[zone['domain']] if zone['domain'] in domain_mapping else 0,
+                    'domain': zone['domain'],
+                    'active': active,
+                    'catch_all': catch_all,
+                    'forwarding': forwarding,
+                    'master': master,
+                    'tags': tags
+                }
+                items.append(domain)
 
         return items, errors
 
