@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="form-group row search-advanced">
-                    <div class="col-6">
+                    <div class="col-5">
                         <div class="row">
                             <div class="col mr-0 pr-0">
                                 <div class="input-group date" id="date_from" data-target-input="nearest">
@@ -87,9 +87,23 @@
                             </select>
                         </div>
                     </div>
+                    {% if current_user.admin %}
+                    <div class="col-3 ml-0 pl-0">
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">User</span></div>
+                            <select class="custom-select" name="user_id">
+                                <option value="-1"></option>
+                                <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
+                                {% for user_id, username in filters.users.items() %}
+                                <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="form-group row search-advanced">
-                    <div class="col-6">
+                    <div class="col-5">
                         <div class="row">
                             <div class="col mr-0 pr-0">
                                 <div class="input-group date" id="date_to" data-target-input="nearest">
@@ -113,7 +127,7 @@
                     </div>
                     <div class="col ml-0 pl-0">
                         <div class="row">
-                            <div class="col">
+                            <div class="col mr-0 pr-0">
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Tags</span></div>
                                     <select class="custom-select" name="tags" id="tags" multiple="multiple">
@@ -123,23 +137,20 @@
                                     </select>
                                 </div>
                             </div>
-
-                            {% if current_user.admin %}
+                            {% if aliases|length > 0 %}
                             <div class="col ml-0 pl-0">
                                 <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Users</span></div>
-                                    <select class="custom-select" name="user_id">
+                                    <div class="input-group-prepend"><span class="input-group-text">Alias</span></div>
+                                    <select class="custom-select" name="alias">
                                         <option value="-1"></option>
-                                        <option value="0" {{ 'selected' if 0 == params.user_id }}>Everyone</option>
-                                        {% for user_id, username in filters.users.items() %}
-                                        <option value="{{ user_id }}" {{ 'selected' if user_id == params.user_id }}>{{ username }}</option>
+                                        {% for ip, alias in aliases.items() %}
+                                        <option value="{{ alias }}" {{ 'selected' if alias == params.alias }}>{{ alias }} - {{ ip }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
                             {% endif %}
                         </div>
-
                     </div>
                 </div>
                 <div class="row">

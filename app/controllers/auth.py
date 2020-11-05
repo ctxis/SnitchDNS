@@ -91,7 +91,6 @@ def login_process():
         session['otp_time'] = int(time.time())
         return redirect(url_for('auth.login_2fa', next=next))
 
-    # If we reach this point it means that our user exists. Check if the user is active.
     user = users.login_session(user)
     login_user(user)
 

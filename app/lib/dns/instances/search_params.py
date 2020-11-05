@@ -25,6 +25,7 @@ class SearchParams:
         self.__blocked = None
         self.__tags = None
         self.__advanced = None
+        self.__alias = None
 
         self.__load()
 
@@ -45,6 +46,7 @@ class SearchParams:
         self.user_id = self.__get_param('user_id', -1, type='int')
         self.tags = self.__get_param('tags', [], type='list')
         self.advanced = self.__get_param('advanced', 0, type='int')
+        self.alias = self.__get_param('alias', '')
 
         if len(self.date_from) > 0 and len(self.time_from) == 0:
             self.time_from = '00:00:00'
@@ -95,6 +97,7 @@ class SearchParams:
         params.append('date_to=' + quote_plus(self.date_to)) if len(self.date_to) > 0 else False
         params.append('time_to=' + quote_plus(self.time_to)) if len(self.time_to) > 0 else False
         params.append('tags=' + '&tags='.join(self.tags)) if len(self.tags) > 0 else False
+        params.append('alias=' + quote_plus(self.alias)) if len(self.alias) > 0 else False
         params.append('advanced=' + quote_plus(str(self.advanced))) if self.advanced == 1 else False
         params.append('page=')  # Must be last.
 
@@ -245,6 +248,14 @@ class SearchParams:
     @advanced.setter
     def advanced(self, value):
         self.__advanced = value
+
+    @property
+    def alias(self):
+        return self.__alias
+
+    @alias.setter
+    def alias(self, value):
+        self.__alias = value
 
     def get(self, name):
         return getattr(self, name) if self.__is_property(name) else None

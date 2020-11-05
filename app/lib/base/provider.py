@@ -72,7 +72,10 @@ class Provider:
         )
 
     def search(self):
-        return SearchManager(self.tags())
+        return SearchManager(
+            self.tags(),
+            self.aliases()
+        )
 
     def password_complexity(self):
         settings = self.settings()

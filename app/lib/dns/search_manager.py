@@ -7,8 +7,9 @@ import datetime
 
 
 class SearchManager:
-    def __init__(self, tag_manager):
-        self.tag_manager = tag_manager
+    def __init__(self, tag_manager, alias_manager):
+        self.__tag_manager = tag_manager
+        self.__alias_manager = alias_manager
 
     def search_from_request(self, request, paginate=True, method='get'):
         params = SearchParams(request=request, method=method)
@@ -64,7 +65,7 @@ class SearchManager:
 
         if len(search_params.tags) > 0:
             user_id = None if current_user.admin else current_user.id
-            tag_ids = self.tag_manager.get_tag_ids(search_params.tags, user_id=user_id)
+            tag_ids = self.__tag_manager.get_tag_ids(search_params.tags, user_id=user_id)
             query = query.outerjoin(DNSZoneTagModel, DNSZoneTagModel.dns_zone_id == DNSQueryLogModel.dns_zone_id)
             query = query.filter(DNSZoneTagModel.tag_id.in_(tag_ids))
 
@@ -75,6 +76,11 @@ class SearchManager:
 
         if isinstance(date_to, datetime.datetime):
             query = query.filter(DNSQueryLogModel.created_at <= date_to)
+
+        if len(search_params.alias) > 0:
+            alias = self.__alias_manager.get(None, name=search_params.alias)
+            if alias:
+                query = query.filter(DNSQueryLogModel.source_ip == alias.ip)
 
         query = query.order_by(desc(DNSQueryLogModel.id))
 
@@ -108,7 +114,7 @@ class SearchManager:
             filters['users'][result.id] = result.username
 
         user_id = None if current_user.admin else current_user.id
-        tags = self.tag_manager.all(user_id=user_id, order_column='name', order_by='asc')
+        tags = self.__tag_manager.all(user_id=user_id, order_column='name', order_by='asc')
         for tag in tags:
             if tag.name not in filters['tags']:
                 filters['tags'].append(tag.name)
