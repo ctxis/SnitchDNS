@@ -11,10 +11,11 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <div class="form-group">
-                        {% if zone.master == True %}
-                        <div class="alert alert-info">This is a master zone - you can only edit the below settings.</div>
-                        {% else %}
                         <label for="domain">Domain</label>
+                        {% if zone.master == True %}
+                        <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain|replace('.' + user_domain, '') if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required readonly>
+                        <div class="text-right font-italic"><small>This is a master zone - you can only edit the below settings.</small></div>
+                        {% else %}
                         <div class="input-group">
                             {% if current_user.admin == True %}
                             <input type="text" name="domain" id="domain" class="form-control" value="{{ zone.domain if dns_zone_id > 0 }}" placeholder="any.domain.you.want.com" required autofocus>

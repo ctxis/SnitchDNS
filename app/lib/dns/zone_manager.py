@@ -272,7 +272,7 @@ class DNSZoneManager(SharedHelper):
     def update(self, zone_id, domain, active, catch_all, forwarding, user_id, master=False, update_old_logs=False):
         errors = []
 
-        if len(domain) == 0:
+        if len(domain) == 0 and master is False:
             errors.append('Invalid domain')
             return errors
 
@@ -286,9 +286,10 @@ class DNSZoneManager(SharedHelper):
             errors.append('Could not load user')
             return errors
 
-        base_domain = self.get_base_domain(user.admin, user.username)
-        if len(base_domain) > 0:
-            domain = domain + '.' + base_domain
+        if not master:
+            base_domain = self.get_base_domain(user.admin, user.username)
+            if len(base_domain) > 0:
+                domain = domain + '.' + base_domain
 
         if self.has_duplicate(zone.id, domain):
             errors.append('This domain already exists.')

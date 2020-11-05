@@ -21,13 +21,6 @@ def index():
         page = 1
 
     user_id = None if current_user.admin else current_user.id
-    # if len(type) > 0:
-    #     if current_user.admin and (type == 'all'):
-    #         # This means all domains.
-    #         user_id = None
-    #     else:
-    #         # Return user to the previous page.
-    #         return redirect(url_for('dns.index'))
 
     page_url = 'tags=' + '&tags='.join(search_tags)
     page_url += "&search={0}&page=".format(search)
@@ -179,7 +172,6 @@ def __zone_create():
 def __zone_update(dns_zone_id):
     provider = Provider()
     zones = provider.dns_zones()
-    users = provider.users()
 
     if not zones.can_access(dns_zone_id, current_user.id):
         flash('Access Denied', 'error')
@@ -190,7 +182,7 @@ def __zone_update(dns_zone_id):
         flash('Could not get zone', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    domain = request.form['domain'].strip().lower()
+    domain = request.form['domain'].strip().lower() if not zone.master else zone.domain
     active = True if int(request.form.get('active', 0)) == 1 else False
     catch_all = True if int(request.form.get('catch_all', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
