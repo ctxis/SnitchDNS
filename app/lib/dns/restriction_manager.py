@@ -100,10 +100,8 @@ class RestrictionManager(SharedHelper):
 
         return allow
 
-
-
-    def find(self, zone_id=None, ip_range=None, type=None, enabled=None):
-        results = self.__get(zone_id=zone_id, ip_range=ip_range, type=type, enabled=enabled)
+    def find(self, id=None, zone_id=None, ip_range=None, type=None, enabled=None):
+        results = self.__get(id=id, zone_id=zone_id, ip_range=ip_range, type=type, enabled=enabled)
         if len(results) == 0:
             return False
         return self.__load(results[0])

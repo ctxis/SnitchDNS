@@ -402,6 +402,151 @@ paths:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
+  /zones/{zone}/restrictions:
+    get:
+      summary: Get all zone IP restrictions
+      tags:
+        - restrictions
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
+        - name: restriction
+          in: body
+          schema:
+            type: object
+            required:
+              - type
+              - enabled
+              - ip_or_range
+            properties:
+              type:
+                type: string
+                description: One of allow, block
+              enabled:
+                type: boolean
+              ip_or_range:
+                type: string
+                description: Either a single IP or a range like 192.168.0.0/24
+      responses:
+        200:
+          description: All zone restrictions.
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/IPRestriction'
+        401:
+          $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Add new restriction
+      tags:
+        - restrictions
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          $ref: '#/definitions/IPRestriction'
+        401:
+          $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /zones/{zone}/restrictions/{id}:
+    get:
+      summary: Retrieve a single IP restriction
+      tags:
+        - restrictions
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
+        - name: id
+          description: Restriction Id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          $ref: '#/definitions/IPRestriction'
+        401:
+          $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    post:
+      summary: Update a single IP restriction
+      tags:
+        - restrictions
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
+        - name: id
+          description: Restriction Id
+          in: path
+          required: true
+          type: string
+        - name: restriction
+          description: Restriction data to update
+          in: body
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              enabled:
+                type: boolean
+              ip_or_range:
+                type: string
+      responses:
+        200:
+          $ref: '#/definitions/IPRestriction'
+        401:
+          $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+    delete:
+      summary: Delete a single IP restriction
+      tags:
+        - restrictions
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
+        - name: id
+          description: Restriction Id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          $ref: '#/definitions/Response'
+        401:
+          $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
   /records/classes:
     get:
       summary: Retrieve all supported record classes
@@ -626,10 +771,6 @@ definitions:
         type: integer
       domain:
         type: string
-      zone_id:
-        type: integer
-      record_id:
-        type: integer
       source_ip:
         type: string
       type:
@@ -644,3 +785,14 @@ definitions:
         type: boolean
       date:
         type: string
+  IPRestriction:
+    type: object
+    properties:
+      id:
+        type: integer
+      ip:
+        type: string
+      type:
+        type: string
+      enabled:
+        type: boolean
