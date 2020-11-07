@@ -101,4 +101,4 @@ If you identify any security vulnerabilities within SnitchDNS, for the time bein
 * Images from [Freepik](http://www.freepik.com/)
 
 **Development**
-* Lambros Zannettos - For his help with writing the Dockerfile.
+* Lambros Zannettos | [@\_C960\_](https://twitter.com/_C960_) - For his help with writing the Dockerfile.
