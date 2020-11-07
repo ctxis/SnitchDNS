@@ -333,7 +333,12 @@ class DNSZoneManager(SharedHelper):
             'cls',
             'type',
             'active',
-            'data'
+            'data',
+            'is_conditional',
+            'conditional_count',
+            'conditional_limit',
+            'conditional_reset',
+            'conditional_data'
         ]
 
         with open(output, 'w') as f:
@@ -344,8 +349,12 @@ class DNSZoneManager(SharedHelper):
                 records = self.dns_records.get_zone_records(zone.id, order_column='type')
                 for record in records:
                     properties = []
+                    conditional_properties = []
                     for name, value in record.properties().items():
                         properties.append("{0}={1}".format(name, value))
+
+                    for name, value in record.conditional_properties().items():
+                        conditional_properties.append("{0}={1}".format(name, value))
 
                     line = [
                         self._sanitise_csv_value(zone.domain),
@@ -354,7 +363,12 @@ class DNSZoneManager(SharedHelper):
                         record.cls,
                         record.type,
                         '1' if record.active else '0',
-                        "\n".join(properties)
+                        "\n".join(properties),
+                        '1' if record.has_conditional_responses else '0',
+                        record.conditional_count,
+                        record.conditional_limit,
+                        '1' if record.conditional_reset else '0',
+                        "\n".join(conditional_properties)
                     ]
                     writer.writerow(line)
 

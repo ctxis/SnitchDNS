@@ -23,7 +23,7 @@ class DNSImportManager(SharedHelper):
         self.__dns_zones = dns_zones
         self.__dns_records = dns_records
         self.__zone_headers = ['domain', 'active', 'catch_all', 'forwarding', 'master', 'tags']
-        self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data']
+        self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data', 'is_conditional', 'conditional_count', 'conditional_limit', 'conditional_reset', 'conditional_data']
         self.__users = users
 
     def identify(self, csvfile):
@@ -215,6 +215,7 @@ class DNSImportManager(SharedHelper):
                 continue
 
             data = json.dumps(record_to_import['data']) if isinstance(record_to_import['data'], dict) else record_to_import['data']
+            conditional_data = json.dumps(record_to_import['conditional_data']) if isinstance(record_to_import['conditional_data'], dict) else record_to_import['conditional_data']
 
             self.__record_update_or_create(
                 zone_id,
@@ -223,6 +224,11 @@ class DNSImportManager(SharedHelper):
                 record_to_import['type'],
                 record_to_import['active'],
                 data,
+                record_to_import['is_conditional'],
+                record_to_import['conditional_count'],
+                record_to_import['conditional_limit'],
+                record_to_import['conditional_reset'],
+                conditional_data,
                 id=record_to_import['record_id'],
                 autocommit=False
             )
@@ -328,9 +334,16 @@ class DNSImportManager(SharedHelper):
             ttl = self.__process_record_ttl(record, record_errors)
             cls = self.__process_record_cls(record, record_errors)
             type = self.__process_record_type(record, record_errors)
+            is_conditional = True if record['is_conditional'] in ['1', 'yes', 'true'] else False
+            conditional_reset = True if record['conditional_reset'] in ['1', 'yes', 'true'] else False
+            conditional_count = self.__process_number(record, record_errors, 'conditional_count')
+            conditional_limit = self.__process_number(record, record_errors, 'conditional_limit')
+
             data = {}
+            conditional_data = {}
             if len(type) > 0:
                 data = self.__process_record_data(record, type, record_errors)
+                conditional_data = self.__process_record_data(record, type, record_errors, is_conditional=True)
 
             if len(record_errors) == 0:
                 items.append({
@@ -341,12 +354,25 @@ class DNSImportManager(SharedHelper):
                     'ttl': ttl,
                     'cls': cls,
                     'type': type,
-                    'data': data
+                    'data': data,
+                    'is_conditional': is_conditional,
+                    'conditional_count': conditional_count,
+                    'conditional_limit': conditional_limit,
+                    'conditional_reset': conditional_reset,
+                    'conditional_data': conditional_data
                 })
             else:
                 errors += record_errors
 
         return items, errors
+
+    def __process_number(self, record, errors, attribute):
+        value = record[attribute]
+        if len(value) == 0 or value.isdigit() is False:
+            errors.append({'row': record['row'], 'error': 'Invalid attribute {0} value: {1}'.format(record[attribute], value)})
+            return 0
+
+        return int(value)
 
     def __process_record_id(self, record, zone_id, errors, domain_mapping):
         zone_id = zone_id if zone_id > 0 else None
@@ -420,8 +446,9 @@ class DNSImportManager(SharedHelper):
 
         return type
 
-    def __properties_to_dict(self, record, errors):
-        rows = record['data'].split("\n")
+    def __properties_to_dict(self, record, errors, is_conditional=False):
+        attribute = 'conditional_data' if is_conditional else 'data'
+        rows = record[attribute].split("\n")
         properties = {}
         for row in rows:
             parts = row.split('=', 1)
@@ -436,8 +463,8 @@ class DNSImportManager(SharedHelper):
 
         return properties
 
-    def __process_record_data(self, record, type, errors):
-        record_properties = self.__properties_to_dict(record, errors)
+    def __process_record_data(self, record, type, errors, is_conditional=False):
+        record_properties = self.__properties_to_dict(record, errors, is_conditional=is_conditional)
         required_properties = self.__dns_records.get_record_type_properties(type, clean=True)
 
         data = {}
@@ -488,7 +515,12 @@ class DNSImportManager(SharedHelper):
                     'cls': row['cls'].strip().upper(),
                     'type': row['type'].strip().upper(),
                     'active': row['active'].strip().lower(),
-                    'data': row['data'].strip()
+                    'data': row['data'].strip(),
+                    'is_conditional': row['is_conditional'].strip().lower(),
+                    'conditional_count': row['conditional_count'].strip().lower(),
+                    'conditional_limit': row['conditional_limit'].strip().lower(),
+                    'conditional_reset': row['conditional_reset'].strip().lower(),
+                    'conditional_data': row['conditional_data'].strip(),
                 })
 
         return data
@@ -544,7 +576,8 @@ class DNSImportManager(SharedHelper):
 
         return True
 
-    def __record_update_or_create(self, zone_id, ttl, cls, type, active, data, id=None, autocommit=True):
+    def __record_update_or_create(self, zone_id, ttl, cls, type, active, data, is_conditional, conditional_count,
+                                  conditional_limit, conditional_reset, conditional_data, id=None, autocommit=True):
         params = {
             'zone_id': zone_id,
             'ttl': ttl,
@@ -552,17 +585,22 @@ class DNSImportManager(SharedHelper):
             'type': type,
             'active': active,
             'data': data,
+            'has_conditional_responses': is_conditional,
+            'conditional_count': conditional_count,
+            'conditional_limit': conditional_limit,
+            'conditional_reset': conditional_reset,
+            'conditional_data': conditional_data,
             'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         if (id is None) or (id == 0):
             params['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            sql = "INSERT INTO dns_records (dns_zone_id, ttl, cls, type, data, active, updated_at, created_at) " \
-                  "VALUES(:zone_id, :ttl, :cls, :type, :data, :active, :updated_at, :created_at)"
+            sql = "INSERT INTO dns_records (dns_zone_id, ttl, cls, type, data, active, has_conditional_responses, conditional_count, conditional_limit, conditional_reset, conditional_data, updated_at, created_at) " \
+                  "VALUES(:zone_id, :ttl, :cls, :type, :data, :active, :has_conditional_responses, :conditional_count, :conditional_limit, :conditional_reset, :conditional_data, :updated_at, :created_at)"
         else:
             params['id'] = id
 
-            sql = "UPDATE dns_records SET dns_zone_id = :zone_id, ttl = :ttl, cls = :cls, type = :type, data = :data, active = :active, updated_at = :updated_at, created_at = :created_at WHERE id = :id"
+            sql = "UPDATE dns_records SET dns_zone_id = :zone_id, ttl = :ttl, cls = :cls, type = :type, data = :data, active = :active, has_conditional_responses = :has_conditional_responses, conditional_count = :conditional_count, conditional_limit = :conditional_limit, conditional_reset = :conditional_reset, conditional_data = :conditional_data, updated_at = :updated_at WHERE id = :id"
 
         result = db.session.execute(sql, params)
         if autocommit:
