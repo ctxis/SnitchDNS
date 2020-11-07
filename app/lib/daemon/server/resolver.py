@@ -48,7 +48,7 @@ class DatabaseDNSResolver:
         answers = []
         lookup_result = ''
 
-        domain = str(query.name.name.decode('utf-8'))
+        domain = str(query.name.name.decode('utf-8')).lower()
         type = str(dns.QUERY_TYPES.get(query.type, None))
         cls = str(dns.QUERY_CLASSES.get(query.cls, None))
 
