@@ -44,6 +44,12 @@ class ApiBase:
 
         return self.toJSON(response), 500
 
+    def send_not_found_response(self):
+        response = Response()
+        response.success = True
+
+        return self.toJSON(response), 404
+
     def toJSON(self, object):
         return json.dumps(object, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
@@ -57,3 +63,6 @@ class ApiBase:
                 return False
 
         return data
+
+    def get_request_param(self, name, default=None, type=None):
+        return request.args.get(name, default=default, type=type)

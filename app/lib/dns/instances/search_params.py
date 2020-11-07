@@ -61,6 +61,8 @@ class SearchParams:
         if self.page <= 0:
             self.page = 1
 
+        if isinstance(self.tags, str):
+            self.tags = self.tags.split(',')
         self.tags = list(filter(None, self.tags))
 
     def __get_param(self, name, default, type='str'):

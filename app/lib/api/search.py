@@ -5,13 +5,14 @@ from app.lib.api.definitions.search_result import SearchResult
 
 
 class ApiSearch(ApiBase):
-    def search(self, request, user_id):
+    def search(self):
         data = {}
-        filters = ['domain', 'source_ip', 'date_from', 'time_from', 'date_to', 'time_to', 'type', 'matched',
-                   'forwarded', 'page', 'per_page', 'user_id', 'blocked']
+        filters = ['domain', 'source_ip', 'type', 'class', 'matched', 'forwarded', 'blocked', 'user_id', 'tags',
+                   'alias', 'date_from', 'time_from', 'date_to', 'time_to', 'page', 'per_page']
         for filter in filters:
-            if filter in request.args:
-                data[filter] = request.args.get(filter)
+            value = self.get_request_param(filter)
+            if value:
+                data[filter] = value
 
         results = Provider().search().search_from_request(data, method='dict')
 
@@ -30,6 +31,8 @@ class ApiSearch(ApiBase):
             search_result.forwarded = result.forwarded
             search_result.blocked = result.blocked
             search_result.date = result.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            search_result.zone_id = result.dns_zone_id
+            search_result.record_id = result.dns_record_id
 
             search.results.append(search_result)
 

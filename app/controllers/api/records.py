@@ -4,34 +4,77 @@ from app.lib.api.records import ApiRecords
 from flask_login import current_user
 
 
-@bp.route('/zones/<int:zone_id>/records', methods=['GET'])
+@bp.route('/zones/<string:zone>/records', methods=['GET'])
 @api_auth
-def zone_records(zone_id):
-    return ApiRecords().all(zone_id, current_user.id)
+def zone_records(zone):
+    user_id = None if current_user.admin else current_user.id
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiRecords().all(user_id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>/records', methods=['POST'])
+@bp.route('/zones/<string:zone>/records', methods=['POST'])
 @api_auth
-def zone_records_create(zone_id):
-    return ApiRecords().create(zone_id, current_user.id)
+def zone_records_create(zone):
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiRecords().create(current_user.id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['GET'])
+@bp.route('/zones/<string:zone>/records/<int:id>', methods=['GET'])
 @api_auth
-def zone_record_by_id(zone_id, record_id):
-    return ApiRecords().one(zone_id, record_id, current_user.id)
+def zone_record_by_id(zone, id):
+    user_id = None if current_user.admin else current_user.id
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiRecords().one(user_id, id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['POST'])
+@bp.route('/zones/<string:zone>/records/<int:id>', methods=['POST'])
 @api_auth
-def zone_records_update(zone_id, record_id):
-    return ApiRecords().update(zone_id, record_id, current_user.id)
+def zone_records_update(zone, id):
+    user_id = None if current_user.admin else current_user.id
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiRecords().update(user_id, id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>/records/<int:record_id>', methods=['DELETE'])
+@bp.route('/zones/<string:zone>/records/<int:id>', methods=['DELETE'])
 @api_auth
-def zone_record_delete(zone_id, record_id):
-    return ApiRecords().delete(zone_id, record_id, current_user.id)
+def zone_record_delete(zone, id):
+    user_id = None if current_user.admin else current_user.id
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiRecords().delete(user_id, id, zone_id=zone_id, domain=domain)
 
 
 @bp.route('/records/classes', methods=['GET'])

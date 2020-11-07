@@ -4,7 +4,6 @@ info:
   version: "1.0.0"
 schemes:
   - https
-  - http
 securityDefinitions:
   APIKeyHeader:
     type: apiKey
@@ -20,35 +19,60 @@ security:
 paths:
   /zones:
     get:
-      summary: Return domains owned by current user.
+      summary: Return all domains the user has access to
       tags:
         - zone
+      parameters:
+        - name: page
+          in: query
+          required: false
+          type: integer
+        - name: per_page
+          in: query
+          required: false
+          type: integer
+        - name: search
+          in: query
+          required: false
+          type: string
+          description: Domains to search for
+        - name: tags
+          in: query
+          required: false
+          type: string
+          description: Comma separated tags to search for
       responses:
         200:
-          description: All zones
+          description: Will return an array with all zones the user can access
           schema:
             type: object
-            items:
-              $ref: '#/definitions/Zone'
+            allOf:
+              - $ref: '#/definitions/Pagination'
+              - properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Zone'
         401:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     post:
-      summary: Create new zone.
+      summary: Create a new zone
       tags:
         - zone
       parameters:
         - in: body
           name: zone
-          description: New zone details
           schema:
             type: object
             required:
               - domain
               - active
               - catch_all
+              - forwarding
               - master
+              - tags
             properties:
               domain:
                 type: string
@@ -56,8 +80,12 @@ paths:
                 type: boolean
               catch_all:
                 type: boolean
+              forwarding:
+                type: boolean
               master:
                 type: boolean
+              tags:
+                type: string
       responses:
         200:
           $ref: '#/definitions/Zone'
@@ -65,58 +93,41 @@ paths:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
-  /zones/all:
+  /zones/{zone}:
     get:
-      summary: Administrrators will retrieve all domains for all users. For non-admin users this endpoint is identical to /zones
-      tags:
-        - zone
-      responses:
-        200:
-          description: All zones
-          schema:
-            type: object
-            items:
-              $ref: '#/definitions/Zone'
-        401:
-          $ref: '#/definitions/Response'
-        500:
-          $ref: '#/definitions/Response'
-  /zones/{id}:
-    get:
-      summary: Get specific zone.
+      summary: Retrieve a specific zone
       parameters:
-        - name: id
-          description: Zone Id
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
+          type: string
       tags:
         - zone
       responses:
         200:
           $ref: '#/definitions/Zone'
         401:
+          $ref: '#/definitions/Response'
+        404:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     post:
-      summary: Update specific zone.
+      summary: Update a zone
+      tags:
+        - zone
       parameters:
-        - name: id
-          description: Zone Id
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
-        - name: zone
-          description: Zone data
+          type: string
+        - name: data
+          description: Zone data to update
           in: body
           schema:
             type: object
-            required:
-              - domain
-              - active
-              - catch_all
-              - master
             properties:
               domain:
                 type: string
@@ -124,77 +135,49 @@ paths:
                 type: boolean
               catch_all:
                 type: boolean
-              master:
+              forwarding:
                 type: boolean
-      tags:
-        - zone
+              tags:
+                type: string
       responses:
         200:
           $ref: '#/definitions/Zone'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     delete:
-      summary: Delete specific zone.
-      parameters:
-        - name: id
-          description: Zone Id
-          in: path
-          required: true
-          type: integer
+      summary: Delete a zone
       tags:
         - zone
+      parameters:
+        - name: zone
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
+          in: path
+          required: true
+          type: string
       responses:
         200:
           $ref: '#/definitions/Response'
         401:
           $ref: '#/definitions/Response'
-        500:
-          $ref: '#/definitions/Response'
-  /records/classes:
-    get:
-      summary: Return all supported classes
-      tags:
-        - record
-      responses:
-        200:
-          description: Supported classes
-          schema:
-            type: array
-            items:
-              type: string
-        401:
-          $ref: '#/definitions/Response'
-        500:
-          $ref: '#/definitions/Response'
-  /records/types:
-    get:
-      summary: Return all supported types
-      tags:
-        - record
-      responses:
-        200:
-          description: Supported types
-          schema:
-            type: array
-            items:
-              type: string
-        401:
+        404:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
   /zones/{zone}/records:
     get:
-      summary: Return all zone records.
+      summary: Get all zone records
       tags:
         - record
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
+          type: string
       responses:
         200:
           description: Zone records
@@ -204,6 +187,8 @@ paths:
               $ref: '#/definitions/Record'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     post:
@@ -212,12 +197,11 @@ paths:
         - record
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
+          type: string
         - name: record
-          description: Record data
           in: body
           schema:
             type: object
@@ -227,6 +211,11 @@ paths:
               - ttl
               - active
               - data
+              - is_conditional
+              - conditional_count
+              - conditional_limit
+              - conditional_reset
+              - conditional_data
             properties:
               class:
                 type: string
@@ -238,25 +227,37 @@ paths:
                 type: boolean
               data:
                 type: object
+              is_conditional:
+                type: boolean
+              conditional_count:
+                type: integer
+              conditional_limit:
+                type: integer
+              conditional_reset:
+                type: boolean
+              conditional_data:
+                type: object
       responses:
         200:
           $ref: '#/definitions/Record'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
-  /zones/{zone}/records/{record}:
+  /zones/{zone}/records/{id}:
     get:
-      summary: Return specific zone record.
+      summary: Retrieve specific zone record
       tags:
         - record
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
-        - name: record
+          type: string
+        - name: id
           description: Record Id
           in: path
           required: true
@@ -266,101 +267,71 @@ paths:
           $ref: '#/definitions/Record'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     post:
-      summary: Update record.
+      summary: Update record
       tags:
         - record
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
-        - name: record
+          type: string
+        - name: id
           description: Record Id
           in: path
           required: true
           type: integer
         - name: data
-          description: Record type data
+          description: Record data to update
           in: body
           schema:
             type: object
-            required:
-              - class
-              - type
-              - ttl
-              - active
-              - data
             properties:
+              active:
+                type: boolean
               class:
                 type: string
               type:
                 type: string
               ttl:
                 type: integer
-              active:
-                type: boolean
               data:
+                type: object
+              is_conditional:
+                type: boolean
+              conditional_count:
+                type: integer
+              conditional_limit:
+                type: integer
+              conditional_reset:
+                type: boolean
+              conditional_data:
                 type: object
       responses:
         200:
           $ref: '#/definitions/Record'
         401:
           $ref: '#/definitions/Response'
-        500:
-          $ref: '#/definitions/Response'
-    delete:
-      summary: Delete specific record.
-      parameters:
-        - name: zone
-          description: Zone Id
-          in: path
-          required: true
-          type: integer
-        - name: record
-          description: Record Id
-          in: path
-          required: true
-          type: integer
-      tags:
-        - record
-      responses:
-        200:
-          $ref: '#/definitions/Response'
-        401:
-          $ref: '#/definitions/Response'
-        500:
-          $ref: '#/definitions/Response'
-  /notifications/providers:
-    get:
-      summary: Return all supported notification providers.
-      tags:
-        - notification
-      responses:
-        200:
-          description: All supported notification providers
-          schema:
-            type: object
-            items:
-              $ref: '#/definitions/NotificationType'
-        401:
+        404:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
   /zones/{zone}/notifications:
     get:
-      summary: Return all subscriptions for the current zone.
+      summary: Retrieve all notification subscriptions enabled for the zone
       tags:
         - notification
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
+          type: string
       responses:
         200:
           description: All zone subscriptions.
@@ -372,18 +343,19 @@ paths:
           $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
-  /zones/{zone}/notifications/{type}:
+  /zones/{zone}/notifications/{provider}:
     get:
-      summary: Return a single subscription
+      summary: Retrieve a specific zone provider
       tags:
         - notification
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
-        - name: type
+          type: string
+        - name: provider
+          description: Name of the provider
           in: path
           required: true
           type: string
@@ -392,19 +364,22 @@ paths:
           $ref: '#/definitions/NotificationSubscription'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
     post:
-      summary: Update a single subscription
+      summary: Update a single notification subscription
       tags:
         - notification
       parameters:
         - name: zone
-          description: Zone Id
+          description: If this parameter is a number it will be treated as the Zone Id, otherwise it will be treated as the domain
           in: path
           required: true
-          type: integer
-        - name: type
+          type: string
+        - name: provider
+          description: Name of the provider
           in: path
           required: true
           type: string
@@ -423,65 +398,107 @@ paths:
           $ref: '#/definitions/NotificationSubscription'
         401:
           $ref: '#/definitions/Response'
+        404:
+          $ref: '#/definitions/Response'
+        500:
+          $ref: '#/definitions/Response'
+  /records/classes:
+    get:
+      summary: Retrieve all supported record classes
+      tags:
+        - record
+      responses:
+        200:
+          description: Supported Record Classes
+          schema:
+            type: array
+            items:
+              type: string
+  /records/types:
+    get:
+      summary: Retrieve all supported record types
+      tags:
+        - record
+      responses:
+        200:
+          description: Supported Record Types
+          schema:
+            type: array
+            items:
+              type: string
+  /notifications/providers:
+    get:
+      summary: Retrieve all supported notification providers
+      tags:
+        - notification
+      responses:
+        200:
+          description: All supported notification providers
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/NotificationProvider'
+        401:
+          $ref: '#/definitions/Response'
         500:
           $ref: '#/definitions/Response'
   /search:
     get:
       summary: Search logs
+      tags:
+        - search
       parameters:
         - name: domain
-          required: false
           in: query
           type: string
         - name: source_ip
-          required: false
-          in: query
-          type: string
-        - name: date_from
-          required: false
-          in: query
-          type: string
-        - name: time_from
-          required: false
-          in: query
-          type: string
-        - name: date_to
-          required: false
-          in: query
-          type: string
-        - name: time_to
-          required: false
           in: query
           type: string
         - name: type
-          required: false
+          in: query
+          type: string
+        - name: class
           in: query
           type: string
         - name: matched
-          required: false
           in: query
           type: boolean
         - name: forwarded
-          required: false
           in: query
           type: boolean
+        - name: blocked
+          in: query
+          type: boolean
+        - name: user_id
+          in: query
+          type: integer
+        - name: tags
+          in: query
+          type: string
+        - name: alias
+          in: query
+          type: string
+        - name: date_from
+          in: query
+          type: string
+        - name: time_from
+          in: query
+          type: string
+        - name: date_to
+          in: query
+          type: string
+        - name: time_to
+          in: query
+          type: string
         - name: page
-          required: false
           in: query
           type: integer
         - name: per_page
-          required: false
           in: query
           type: integer
-        - name: user_id
-          required: false
-          in: query
-          type: integer
-      tags:
-          - search
       responses:
         200:
-          $ref: '#/definitions/Search'
+          $ref: '#/definitions/SearchResult'
         401:
           $ref: '#/definitions/Response'
         500:
@@ -492,128 +509,138 @@ definitions:
     properties:
       success:
         type: boolean
-        description: Action result
+        description: Result
       code:
         type: integer
-        description: Error code, if any.
+        description: Error code, if any
       message:
         type: string
-        description: Short Message
+        description: Short description
       details:
         type: string
-        description: Additional details
+        description: Additional data
+  Pagination:
+    type: object
+    properties:
+      page:
+        type: integer
+      pages:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
   Zone:
     type: object
     properties:
       id:
         type: integer
-        description: Zone Id
       user_id:
         type: integer
-        description: Owner's User Id
       active:
         type: boolean
-        description: Whether the zone is active.
       catch_all:
         type: boolean
-        description: Whether the domain has to be matched exactly in order to return a result, or if it will be a catch-all one.
+      forwarding:
+        type: boolean
       master:
         type: boolean
-        description: Whether the domain is a master domain (affects only low-privileged users)
+        description: For non-admin users a 'master' zone is their unique subdomain. For admins this will always be false.
       domain:
         type: string
-        description: Zone Domain
+      created_at:
+        type: string
+      updated_at:
+        type: string
   Record:
     type: object
     properties:
       id:
         type: integer
-        description: Record Id
       zone_id:
         type: integer
-        description: Zone Id
       active:
         type: boolean
-        description: Whether the record is active.
       cls:
         type: string
-        description: Class
       type:
         type: string
-        description: Record Type
       ttl:
         type: integer
-        description: TTL
       data:
         type: object
-        description: Record Type properties
-  SearchResult:
+      is_conditional:
+        type: boolean
+      conditional_count:
+        type: integer
+      conditional_limit:
+        type: integer
+      conditional_reset:
+        type: boolean
+      conditional_data:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  NotificationProvider:
     type: object
     properties:
       id:
         type: integer
-        description: Database primary key
-      domain:
+      name:
         type: string
-        description: Domain name
-      source_ip:
-        type: string
-        description: Source IP
-      type:
-        type: string
-        description: Record Type
-      matched:
+      enabled:
         type: boolean
-        description: Whether the domain query was matched
-      forwarded:
-        type: boolean
-        description: Whether the query was forwarded
-      date:
-        type: string
-        description: Query date
-  Search:
-    type: object
-    properties:
-      page:
-        type: integer
-        description: Current result page
-      pages:
-        type: integer
-        description: All pages
-      count:
-        type: integer
-        description: Number of results
-      results:
-        type: array
-        items:
-          $ref: '#/definitions/SearchResult'
   NotificationSubscription:
     type: object
     properties:
       zone_id:
         type: integer
-        description: Zone Id
       type_id:
         type: integer
-        description: Notification provider internal Id
       type:
         type: string
-        description: Notification provider internal name
       enabled:
         type: boolean
-        description: Current state of the subscription
       data:
         type: string
         description: Data for the provider. This can be either a list/object/string.
-  NotificationType:
+  SearchResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      pages:
+        type: integer
+      total:
+        type: integer
+      results:
+        type: array
+        items:
+          $ref: '#/definitions/SearchResultItem'
+  SearchResultItem:
     type: object
     properties:
       id:
         type: integer
-        description: Notification Provider Id
-      name:
+      domain:
         type: string
-        description: Notification Provider Name
-      enabled:
+      zone_id:
+        type: integer
+      record_id:
+        type: integer
+      source_ip:
+        type: string
+      type:
+        type: string
+      cls:
+        type: string
+      matched:
         type: boolean
-        description: Current state of the provider
+      forwarded:
+        type: boolean
+      blocked:
+        type: boolean
+      date:
+        type: string

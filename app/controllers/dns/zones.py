@@ -197,8 +197,9 @@ def __zone_update(dns_zone_id):
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
     zone = zones.update(zone.id, domain, active, catch_all, forwarding, zone.user_id, master=zone.master, update_old_logs=True)
-    if not zone:
-        flash('Could not save zone', 'error')
+    if isinstance(zone, list):
+        for error in zone:
+            flash(error, 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
     zone = zones.save_tags(zone, tags)

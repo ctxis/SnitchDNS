@@ -4,5 +4,9 @@ class Zone:
         self.user_id = 0
         self.active = False
         self.catch_all = False
+        self.forwarding = False
         self.master = False
         self.domain = ''
+        self.created_at = ''
+        self.updated_at = ''
+        self.tags = []

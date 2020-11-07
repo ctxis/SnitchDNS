@@ -7,36 +7,56 @@ from flask_login import current_user
 @bp.route('/zones', methods=['GET'])
 @api_auth
 def zones():
-    return ApiZones().all(current_user.id)
+    user_id = None if current_user.admin else current_user.id
+    return ApiZones().all(user_id)
 
 
 @bp.route('/zones', methods=['POST'])
 @api_auth
 def zones_create():
-    return ApiZones().create(current_user.id, current_user.username)
+    return ApiZones().create(current_user.id)
 
 
-@bp.route('/zones/all', methods=['GET'])
+@bp.route('/zones/<string:zone>', methods=['POST'])
 @api_auth
-def zones_all():
-    # Only allow admins to retrieve all. If a low priv user calls this endpoint, return only their zones.
+def zones_update(zone):
     user_id = None if current_user.admin else current_user.id
-    return ApiZones().all(user_id)
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiZones().update(user_id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>', methods=['POST'])
+@bp.route('/zones/<string:zone>', methods=['GET'])
 @api_auth
-def zones_update(zone_id):
-    return ApiZones().update(zone_id, current_user.id, current_user.username)
+def zone_get_one(zone):
+    user_id = None if current_user.admin else current_user.id
+
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
+
+    return ApiZones().one(user_id, zone_id=zone_id, domain=domain)
 
 
-@bp.route('/zones/<int:zone_id>', methods=['GET'])
+@bp.route('/zones/<string:zone>', methods=['DELETE'])
 @api_auth
-def zones_by_id(zone_id):
-    return ApiZones().one(zone_id, current_user.id)
+def zone_delete(zone):
+    user_id = None if current_user.admin else current_user.id
 
+    domain = None
+    zone_id = None
+    if zone.isdigit():
+        zone_id = int(zone)
+    else:
+        domain = zone
 
-@bp.route('/zones/<int:zone_id>', methods=['DELETE'])
-@api_auth
-def zone_delete(zone_id):
-    return ApiZones().delete(zone_id, current_user.id)
+    return ApiZones().delete(user_id, zone_id=zone_id, domain=domain)

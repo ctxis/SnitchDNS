@@ -21,16 +21,13 @@ class ApiNotifications(ApiBase):
 
         return self.send_valid_response(results)
 
-    def all(self, zone_id, user_id):
+    def all(self, user_id, zone_id=None, domain=None):
         provider = Provider()
         zones = provider.dns_zones()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
         results = []
         for name, subscription in zone.notifications.all().items():
@@ -38,17 +35,14 @@ class ApiNotifications(ApiBase):
 
         return self.send_valid_response(results)
 
-    def get(self, zone_id, type_name, user_id):
+    def get(self, user_id, type_name, zone_id=None, domain=None):
         provider = Provider()
         zones = provider.dns_zones()
         notifications = provider.notifications()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
         type = notifications.types.get(name=type_name)
         if not type:
@@ -71,18 +65,15 @@ class ApiNotifications(ApiBase):
 
         return subscription
 
-    def update(self, zone_id, type_name, user_id):
+    def update(self, user_id, type_name, zone_id=None, domain=None):
         provider = Provider()
         zones = provider.dns_zones()
         notifications = provider.notifications()
         logs = provider.dns_logs()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
         type = notifications.types.get(name=type_name)
         if not type:
@@ -116,7 +107,7 @@ class ApiNotifications(ApiBase):
 
         subscription.save()
 
-        return self.get(zone.id, type.name, user_id)
+        return self.get(user_id, type_name, zone_id=zone.id)
 
     def __get_valid_emails(self, recipients):
         if not isinstance(recipients, list):

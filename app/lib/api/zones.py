@@ -8,29 +8,40 @@ class ApiZones(ApiBase):
         provider = Provider()
         zones = provider.dns_zones()
 
-        results = zones.all() if user_id is None else zones.get_user_zones(user_id)
+        page = self.get_request_param('page', 1, int)
+        per_page = self.get_request_param('per_page', 50, int)
+        search = self.get_request_param('search', '', str)
+        tags = self.get_request_param('tags', '', str).split(',')
+
+        results = zones.get_user_zones_paginated(user_id, page=page, per_page=per_page, search=search, tags=tags)
+
+        response = {
+            'page': results['results'].page,
+            'pages': results['results'].pages,
+            'per_page': results['results'].per_page,
+            'total': results['results'].total,
+            'data': []
+        }
 
         data = []
-        for result in results:
+        for result in results['zones']:
             data.append(self.__load_zone(result))
+        response['data'] = data
 
-        return self.send_valid_response(data)
+        return self.send_valid_response(response)
 
-    def one(self, zone_id, user_id):
+    def one(self, user_id, zone_id=None, domain=None):
         provider = Provider()
         zones = provider.dns_zones()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
         return self.send_valid_response(self.__load_zone(zone))
 
-    def create(self, user_id, username):
-        required_fields = ['domain', 'active', 'catch_all', 'master', 'forwarding']
+    def create(self, user_id):
+        required_fields = ['domain', 'active', 'catch_all', 'master', 'forwarding', 'tags']
         data = self.get_json(required_fields)
         if data is False:
             return self.send_error_response(
@@ -46,47 +57,44 @@ class ApiZones(ApiBase):
         data['catch_all'] = True if data['catch_all'] else False
         data['master'] = True if data['master'] else False
         data['forwarding'] = True if data['forwarding'] else False
+        data['tags'] = data['tags'].split(',')
 
         provider = Provider()
         zones = provider.dns_zones()
-        users = provider.users()
 
-        # Check for duplicate.
-        if zones.has_duplicate(0, data['domain']):
-            return self.send_error_response(5003, 'Domain already exists', '')
+        zone = zones.new(data['domain'], data['active'], data['catch_all'], data['forwarding'], user_id, master=data['master'], update_old_logs=True)
+        if isinstance(zone, list):
+            errors = '\n'.join(zone)
+            return self.send_error_response(5003, 'Could not create zone', errors)
 
-        zone = zones.create()
-        zone = zones.save(zone, user_id, data['domain'], data['active'], data['catch_all'], data['master'], data['forwarding'])
+        zone = zones.save_tags(zone, data['tags'])
         if not zone:
-            return self.send_error_response(5002, 'Could not create domain.', '')
+            return self.send_error_response(5002, 'Could not save tags', '')
 
-        return self.one(zone.id, user_id)
+        return self.one(user_id, zone_id=zone.id)
 
-    def update(self, zone_id, user_id, username):
+    def update(self, user_id, zone_id=None, domain=None):
         data = self.get_json([])
         if data is False:
             return self.send_error_response(5004, 'Invalid incoming data', '')
 
         provider = Provider()
         zones = provider.dns_zones()
-        users = provider.users()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
-        if ('domain' in data) and zone.master:
-            data['domain'] = zone.domain
-        elif 'domain' not in data:
+        if 'domain' in data:
+            data['domain'] = data['domain'] if not zone.master else zone.domain
+        else:
             data['domain'] = zone.domain
 
         # Check for duplicates first.
         if zones.has_duplicate(zone.id, data['domain']):
             return self.send_error_response(5003, 'Domain already exists', '')
 
+        # 'master' property is missing on purpose.
         if 'active' in data:
             data['active'] = True if data['active'] else False
         else:
@@ -102,22 +110,31 @@ class ApiZones(ApiBase):
         else:
             data['forwarding'] = zone.forwarding
 
-        zone = zones.save(zone, zone.user_id, data['domain'], data['active'], data['catch_all'], zone.master, data['forwarding'])
+        if 'tags' in data:
+            data['tags'] = data['tags'].split(',')
+        else:
+            data['tags'] = []
 
-        return self.one(zone_id, user_id)
+        zone = zones.update(zone.id, data['domain'], data['active'], data['catch_all'], data['forwarding'], zone.user_id, master=zone.master, update_old_logs=True)
+        if isinstance(zone, list):
+            errors = '\n'.join(zone)
+            return self.send_error_response(5003, 'Could not save zone', errors)
 
-    def delete(self, zone_id, user_id):
+        zone = zones.save_tags(zone, data['tags'])
+        if not zone:
+            return self.send_error_response(5002, 'Could not save tags', '')
+
+        return self.one(user_id, zone_id=zone.id)
+
+    def delete(self, user_id, zone_id=None, domain=None):
         provider = Provider()
         zones = provider.dns_zones()
 
-        if not zones.can_access(zone_id, user_id):
-            return self.send_access_denied_response()
-
-        zone = zones.get(zone_id)
+        zone = zones.get(zone_id, user_id) if zone_id is not None else zones.find(domain, user_id=user_id)
         if not zone:
-            return self.send_access_denied_response()
+            return self.send_not_found_response()
 
-        zones.delete(zone_id)
+        zones.delete(zone.id)
         return self.send_success_response()
 
     def __load_zone(self, item):
@@ -126,6 +143,11 @@ class ApiZones(ApiBase):
         zone.user_id = item.user_id
         zone.active = item.active
         zone.catch_all = item.catch_all
+        zone.forwarding = item.forwarding
         zone.master = item.master
+        zone.domain = item.domain
+        zone.tags = item.tags
+        zone.created_at = str(item.created_at)
+        zone.updated_at = str(item.updated_at)
 
         return zone

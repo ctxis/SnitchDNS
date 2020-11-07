@@ -411,6 +411,9 @@ class DNSZoneManager(SharedHelper):
         }
 
     def save_tags(self, zone, tags):
+        # Remove empty tags.
+        tags = list(filter(None, tags))
+
         # Create tags.
         tag_mapping = {}
         for tag in tags:
