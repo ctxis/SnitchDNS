@@ -11,7 +11,7 @@
         <form action="{{ url_for('config.webpush_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <p><small>To generate a VAPID key please go to: <a href="https://web-push-codelab.glitch.me/">https://web-push-codelab.glitch.me/</a></small></p>
+            <p><small>To generate a VAPID keypair <a href="#" id="vapid-generate-key">click here</a></small></p>
 
             <div class="form-group row">
                 <div class="col">
@@ -50,4 +50,15 @@
     </div>
     <div class="col"></div>
 </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/webpush/vapid.generate.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#vapid-generate-key').click(function() {
+            VAPIDKeyGeneration.generate('#vapid_public', '#vapid_private');
+            return false;
+        });
+    });
+</script>
 {% endblock %}
