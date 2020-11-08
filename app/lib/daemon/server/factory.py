@@ -72,7 +72,7 @@ class DatabaseDNSFactory(DNSServerFactory):
                 zone_id = log.dns_zone_id
                 log.source_ip = str(address[0])
                 log.completed = True
-                log.data = str(message.answers)
+                log.data = "\n".join([str(a.payload) for a in message.answers])
                 log.save()
 
             # We need to check if the IP address is blocked for that specific domain. The reason why this is happening
