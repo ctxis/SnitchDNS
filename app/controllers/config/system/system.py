@@ -13,6 +13,8 @@ def system():
     system = provider.system()
     daemon = provider.daemon()
 
+    system.run_updates()
+
     return render_template(
         'config/system/system.html',
         is_venv=system.is_virtual_environment(),
