@@ -5,7 +5,13 @@
     <div class="col-2"></div>
     <div class="col">
         <h2>Import Zones</h2>
-        <div>With regards to the expected CSV format, please refer to the documentation.</div>
+
+        <form action="{{ url_for('dns.zones_export') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tags" value="snitch-dns-tag-that-should-never-exist-no-really-i-mean-it">
+            <input type="hidden" name="search" value="">
+            <a href="#" class="submit-on-click">For the expected CSV format, please click here.</a>
+        </form>
         <div class="text-warning small">If you are planning to upload a file with thousands of rows, consider using the CLI instead.</div>
 
         <form action="{{ url_for('dns.zones_import_upload') }}" method="post" enctype="multipart/form-data" class="pt-3">
