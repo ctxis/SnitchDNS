@@ -5,7 +5,14 @@
 <div class="row mt-5">
     <div class="col"></div>
     <div class="col-10">
-        <h3 class="mb-4">Zones</h3>
+        {% set text = 'Zones' %}
+        {% if zones.results.total > 0 %}
+            {% set text = text + ' - ' + '{0:,}'.format(zones.results.total) + ' result' %}
+            {% if zones.results.total > 1 %}
+                {% set text = text + 's' %}
+            {% endif %}
+        {% endif %}
+        <h3 class="mb-4">{{ text }}</h3>
 
         <div class="mb-2">
             <div class="row">
@@ -67,7 +74,7 @@
             </div>
         </div>
 
-        {% if zones.results.total == 0 %}
+        {% if zones.results.total == 0 and search_tags|length == 0 and search|length == 0 %}
         <div class="alert alert-info text-center">No zones configured yet.</div>
         {% else %}
         <table class="table table-striped">
