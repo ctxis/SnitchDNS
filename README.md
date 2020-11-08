@@ -29,13 +29,14 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
     * Ability to match any subdomain (no matter the depth) to a specific parent domain, for instance *.hello.example.com.
   * Unmatched Record Forwarding.
     * Functionality to intercept specific queries (ie only `A` and `CNAME`) and forward all other records to a third-party DNS server (ie Google).
+  * Tags and Aliases.
 * IP Rules
   * Configure Allow/Block rules per domain.
 * Notifications. Receive a notification when a domain is resolved, via:
   * E-mail
   * Web Push
-  * Slack Webhooks
-  * Microsoft Teams Webhooks
+  * Slack
+  * Microsoft Teams
 * User Management
   * Multi-User support
     * Each user is given their own subdomain to use.
@@ -44,6 +45,7 @@ Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and m
   * Password Complexity Management
 * Logging
   * All DNS queries are logged, whether they have been matched or not.
+  * CSV Logging for SIEM integration.
 * Swagger 2.0 API
 * Deployment
   * Ansible scripts for Ubuntu 18.04 / 20.04

@@ -1,25 +1,8 @@
 # SnitchDNS Documentation
 
-* [CSV Import](#csv-import)
 * [IP Restrictions](#ip-restrictions)
 * [Bind9 Forwarding](#bind9-forwarding)
 * [Cloud Hosting](#cloud-hosting)
-
-## CSV Import
-
-CSV File Example
-
-```
-"type","domain","d_active","d_exact_match","d_forwarding","d_master","r_id","r_ttl","r_cls","r_type","r_active","r_data"
-"zone","www.example.com","1","1","0","0"
-"record","www.example.com","","","","","1","10","IN","A","1","address=192.168.0.1"
-```
-
-Required fields for a `zone` row: `type, domain, d_active, d_exact_match, d_forwarding, d_master`
-
-Required fields for a `record` row: `type, domain, r_id, r_ttl, r_cls, r_type, r_active, r_data`
-
-`r_id` is the internal primary key of the record ID. If the `r_id` exists for that domain, it will be updated - if not, it will be created.
 
 ## IP Restrictions
 
