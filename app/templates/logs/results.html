@@ -87,10 +87,30 @@
 
                         <form action="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <a href="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" class="submit-on-click dropdown-item"><i class="fas fa-ban"></i> <span class="ml-1">block IP</span></a>
+                            <a href="{{ url_for('dns.zone_restriction_create_from_log', query_log_id=result.id) }}" class="submit-on-click dropdown-item"><i class="fas fa-ban fa-fw"></i> <span class="ml-1">block IP</span></a>
                         </form>
+
+                        <div class="dropdown-divider"></div>
+
+                        <a href="#" class="dropdown-item toggle-log-response" data-id="{{ result.id }}"><i class="fas fa-glasses fa-fw"></i> <span class="ml-1">view response</span></a>
                     </div>
                 </td>
+            </tr>
+            <tr class="d-none log-details-{{ result.id }}">
+                <td></td>
+                <td colspan="7">
+                    {% set text = (result.data|escape).replace("\n", "<br>"|safe) %}
+                    {% if text|length == 0 %}
+                        No data
+                    {% else %}
+                        {{ text }}
+                    {% endif %}
+                </td>
+                <td></td>
+            </tr>
+            <!-- Leave this to maintain the stripping -->
+            <tr class="d-none">
+                <td colspan="9"></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -102,3 +122,21 @@
     </div>
 </div>
 {% endif %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.toggle-log-response').click(function() {
+            var detailRow = $('.log-details-' + $(this).data('id'));
+            if (!detailRow) {
+                return false;
+            }
+
+            if ($(detailRow).hasClass('d-none')) {
+                $(detailRow).removeClass('d-none');
+            } else {
+                $(detailRow).addClass('d-none');
+            }
+            return false;
+        });
+    });
+</script>
