@@ -233,7 +233,7 @@ def zone_create_from_log(query_log_id):
         flash('Zone already exists', 'error')
         return redirect(url_for('dns.zone_view', dns_zone_id=log.dns_zone_id))
 
-    zone = zones.new(log.domain, True, True, False, current_user.id, update_old_logs=True)
+    zone = zones.new(log.domain, True, False, False, current_user.id, update_old_logs=True)
     if isinstance(zone, list):
         for error in zone:
             flash(error, 'error')
