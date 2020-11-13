@@ -314,6 +314,19 @@ sudo iptables -t nat -I PREROUTING --src 0/0 -p tcp --dport 53 -j REDIRECT --to-
 sudo iptables -t nat -I PREROUTING --src 0/0 -p udp --dport 53 -j REDIRECT --to-ports 2024
 ``` 
 
+After you've applied these rules, you need to make them persist after a reboot. Install `iptables-persistent` if you haven't already:
+
+```
+sudo apt install iptables-persistent
+```
+
+And then execute the following commands:
+
+```
+iptables-save > /etc/iptables/rules.v4
+ip6tables-save > /etc/iptables/rules.v6
+```
+
 ## Conclusion
 
 At this point, you should have a working SnitchDNS installation and by visiting the home page you will be prompted to create your first user.
