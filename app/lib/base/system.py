@@ -43,7 +43,7 @@ class SystemManager:
 
     def run_updates(self):
         self.__update_git_hash_version()
-        self.__set_update_url('https://api.github.com/repos/ctxis/SnitchDNS/git/refs/heads/master')
+        self.__set_update_url('https://api.github.com/repos/ctxis/SnitchDNS/contents/app/version.py')
 
     def __update_git_hash_version(self):
         git_binary = self.shell.execute(['which', 'git'])

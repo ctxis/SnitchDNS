@@ -1,10 +1,10 @@
 var SnitchDNSUpdate = {
     updateUrl: '',
-    currentCommit: '',
+    currentVersion: '',
 
-    init: function(updateUrl, currentCommit) {
+    init: function(updateUrl, currentVersion) {
         this.updateUrl = updateUrl;
-        this.currentCommit = currentCommit;
+        this.currentVersion = currentVersion;
         this.bindButton();
     },
 
@@ -22,12 +22,12 @@ var SnitchDNSUpdate = {
             cache: false,
             type: 'get',
             success: function(result) {
-                (result && result.object && result.object.sha)
-                    ? SnitchDNSUpdate.checkVersion(result.object.sha)
-                    : SnitchDNSUpdate.showMessage('Could not fetch latest commit', 'text-danger');
+                (result && result.content)
+                    ? SnitchDNSUpdate.checkVersion(SnitchDNSUpdate.cleanVersion(result.content))
+                    : SnitchDNSUpdate.showMessage('Could not fetch latest version', 'text-danger');
             },
             error: function(result) {
-                SnitchDNSUpdate.showMessage('Could not fetch latest commit', 'text-danger');
+                SnitchDNSUpdate.showMessage('Could not fetch latest version', 'text-danger');
             }
         });
     },
@@ -40,9 +40,16 @@ var SnitchDNSUpdate = {
         }
     },
 
-    checkVersion: function(latestCommit) {
-        latestCommit = latestCommit.substr(0, 7);
-        (latestCommit === SnitchDNSUpdate.currentCommit)
+    cleanVersion: function(version) {
+        return atob(version)
+            .replace('__version__', '')
+            .replace('=', '')
+            .replace(/'/g, '')
+            .trim();
+    },
+
+    checkVersion: function(latestVersion) {
+        (latestVersion === SnitchDNSUpdate.currentVersion)
             ? SnitchDNSUpdate.showMessage('You have the latest and greatest!', '')
             : SnitchDNSUpdate.showMessage('There is a new version!', 'text-info');
     }

@@ -90,7 +90,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/snitch/update.js') }}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        SnitchDNSUpdate.init("{{ update_url }}", "{{ setting_get('git_hash_version', '') }}");
+        SnitchDNSUpdate.init("{{ update_url }}", "{{ config.SNITCHDNS_VERSION }}");
     });
 </script>
 {% endblock %}
