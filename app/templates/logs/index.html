@@ -11,15 +11,6 @@
                 </div>
             </div>
         </h1>
-        <!--
-        <div class="mb-5">
-            <small>
-                <div>Searches use '=' unless you use the '%' operator</div>
-                <div>Search for domain 'example.com' will evaluate to &quot;WHERE domain = 'example.com'&quot;</div>
-                <div>Search for domain 'example.%' will evaluate to &quot;WHERE domain LIKE 'example.%'&quot;</div>
-            </small>
-        </div>
-        -->
 
         <div class="search-form">
             <form action="{{ url_for('logs.index') }}" method="get">
@@ -136,7 +127,7 @@
                     </div>
                     <div class="col ml-0 pl-0">
                         <div class="row">
-                            <div class="col mr-0 pr-0">
+                            <div class="col mr-0">
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Tags</span></div>
                                     <select class="custom-select" name="tags" id="tags" multiple="multiple">
