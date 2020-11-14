@@ -4,8 +4,12 @@
             {% set commit_count = setting_get('git_commit_count', 0)|int %}
             {% set last_commit_date = setting_get('last_commit_date', '') %}
             {% set hash_version = setting_get('git_hash_version', '') %}
+            {% set version = config.SNITCHDNS_VERSION %}
+            {% if hash_version|length > 0 %}
+                {% set version = version + '-' + hash_version %}
+            {% endif %}
 
-            <span title="Commit: {{ hash_version }} | Commit Date: {{ last_commit_date }}">SnitchDNS v{{ commit_count }}</span>
+            <span title="Commits: {{ commit_count }} | Commit Date: {{ last_commit_date }}">SnitchDNS v{{ version }}</span>
         </span>
     </div>
 </footer>

@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_required, current_user
 from flask_crontab import Crontab
 from app.lib.base.environment import EnvironmentManager
+from app import version
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -63,6 +64,8 @@ def create_app(config_class=None):
 
     # And now we override any custom settings from config.py if it exists.
     app.config.from_pyfile('config.py', silent=True)
+
+    app.config['SNITCHDNS_VERSION'] = version.__version__
 
     # If we have passed any object on app creation (ie testing), override here.
     if config_class is not None:
