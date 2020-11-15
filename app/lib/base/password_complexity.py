@@ -42,7 +42,7 @@ class PasswordComplexityManager:
 
     def get_requirement_description(self):
         desc = [
-            "Minimum Length is " + str(self.min_length),
+            "Minimum Length: " + str(self.min_length),
             "Minimum Lowercase: " + str(self.min_lower),
             "Minimum Uppercase: " + str(self.min_upper),
             "Minimum Digits: " + str(self.min_digits),
