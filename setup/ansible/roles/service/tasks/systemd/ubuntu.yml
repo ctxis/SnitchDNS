@@ -1,3 +1,49 @@
+- name: "Creating http config directory"
+  file:
+    path: "{{ var_data_path }}/config/http"
+    state: directory
+    recurse: yes
+    owner: "{{ web.user }}"
+    group: "{{ web.group }}"
+
+- name: "Check for Gunicorn private key"
+  stat:
+    path: "{{ var_data_path }}/config/http/gunicorn.pem"
+  register: ssl_pem
+
+- name: "Check for Gunicorn csr key"
+  stat:
+    path: "{{ var_data_path }}/config/http/gunicorn.csr"
+  register: ssl_csr
+
+- name: "Check for Gunicorn crt key"
+  stat:
+    path: "{{ var_data_path }}/config/http/gunicorn.crt"
+  register: ssl_crt
+
+- name: "Generating Gunicorn private key"
+  when: ssl_pem.stat.exists == False
+  openssl_privatekey:
+    path: "{{ var_data_path }}/config/http/gunicorn.pem"
+    size: 2048
+    mode: "0600"
+
+- name: "Generating Gunicorn csr key"
+  when: ssl_csr.stat.exists == False
+  openssl_csr:
+    path: "{{ var_data_path }}/config/http/gunicorn.csr"
+    privatekey_path: "{{ var_data_path }}/config/http/gunicorn.pem"
+    common_name: "{{ web.domain }}"
+
+- name: "Generating Gunicorn crt key"
+  when: ssl_crt.stat.exists == False
+  openssl_certificate:
+    path: "{{ var_data_path }}/config/http/gunicorn.crt"
+    privatekey_path: "{{ var_data_path }}/config/http/gunicorn.pem"
+    csr_path: "{{ var_data_path }}/config/http/gunicorn.csr"
+    provider: selfsigned
+    mode: "0644"
+
 - name: "Creating config directory"
   file:
     path: "{{ var_data_path }}/config/service"

@@ -18,10 +18,15 @@
     CustomLog ${APACHE_LOG_DIR}/snitch.access.log combined
 
     ProxyPreserveHost On
-    ProxyPass	/	http://{{ web.bind_host }}:{{ web.bind_port }}/
-    ProxyPassReverse	/	http://{{ web.bind_host }}:{{ web.bind_port }}/
+    ProxyPass	/	https://{{ web.bind_host }}:{{ web.bind_port }}/
+    ProxyPassReverse	/	https://{{ web.bind_host }}:{{ web.bind_port }}/
 
     SSLEngine on
+    SSLProxyEngine on
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+    SSLProxyCheckPeerExpire off
 
     SSLCertificateFile	{{ var_data_path }}/config/http/ssl.crt
     SSLCertificateKeyFile {{ var_data_path }}/config/http/ssl.pem

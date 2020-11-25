@@ -15,6 +15,6 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://{{ web.bind_host }}:{{ web.bind_port }}/;
+        proxy_pass https://{{ web.bind_host }}:{{ web.bind_port }}/;
     }
 }

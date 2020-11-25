@@ -13,7 +13,7 @@ WorkingDirectory={{ snitch.destination }}
 EnvironmentFile=/etc/environment
 EnvironmentFile={{ var_data_path }}/config/env/snitch.conf
 Environment="PATH={{ snitch.destination }}/venv/bin:$PATH"
-ExecStart={{ snitch.destination }}/venv/bin/gunicorn --workers 3 --bind {{ web.bind_host }}:{{ web.bind_port }} -m 007 wsgi:app
+ExecStart={{ snitch.destination }}/venv/bin/gunicorn --workers 3 --bind {{ web.bind_host }}:{{ web.bind_port }} --certfile={{ var_data_path }}/config/http/gunicorn.crt --keyfile={{ var_data_path }}/config/http/gunicorn.pem -m 007 wsgi:app
 ExecStartPost={{ snitch.destination }}/venv/bin/python3 -m flask snitch_start
 
 [Install]

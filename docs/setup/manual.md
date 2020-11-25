@@ -159,6 +159,20 @@ sudo -u www-data /bin/bash
 
 ## Setup System Service
 
+### Create Gunicorn SSL Certificates
+
+It's a good habit to have everything running over TLS, even locally - also it helps if you run SnitchDNS over an SSH Tunnel.
+
+```
+mkdir -p ./data/config/http/
+```
+
+And create the certificate:
+
+```
+openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout ./data/config/http/gunicorn.pem -out ./data/config/http/gunicorn.crt
+```
+
 ### Create Service File
 
 These instructions apply for `systemd`. Under your `./data` directory, create the following structure and file:
