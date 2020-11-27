@@ -4,15 +4,38 @@ SnitchDNS is database driven (basic) DNS server built using [Twisted](https://gi
 
 Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and more.
 
-* [Basic Feature](#basic-features)
-* [Use Cases](#use-cases)
 * [Installation](#installation)
+  * [The Manual Way](docs/setup/manual.md)
+  * [The Ansible Way](docs/setup/ansible.md)
+  * [The Docker Way](docs/setup/docker.md)
 * [Documentation](#documentation)
   * [Screenshots](docs/general/screenshots.md)
+* [Basic Features](#basic-features)
+* [Use Cases](#use-cases)
 * [Limitations](#limitations)
 * [Contributing](#contributing)
 * [Security](#security)
 * [Credits](#credits)
+
+## Dependencies
+
+* Python 3.6+
+
+## Installation
+
+Please make sure you install using `git` rather than by downloading the repo manually.
+
+* [The Manual Way](docs/setup/manual.md)
+* [The Ansible Way](docs/setup/ansible.md)
+* [The Docker Way](docs/setup/docker.md)
+
+## Documentation
+
+For general documentation [see here](docs/general/index.md)
+
+### Screenshots
+
+For screenshots [see here](docs/general/screenshots.md)
 
 ## Basic Features
 
@@ -61,30 +84,11 @@ SnitchDNS can be used for:
 * Red Teams - Implement IP restrictions to block sandboxes, monitor phishing domain resolutions and e-mails, and restrict access to known IP ranges.
 * DNS Tunnel - Log all DNS requests and egress data.
 * Let's Encrypt DNS Challenge, using the API or the CLI interface.
-* Ad-blocking
-* Canary Tokens
+* Ad-blocking.
+* Canary Tokens.
+* Integrate with SIEM solutions.
 
-For more details on scenarios please see the [Use Cases Document](docs/use_cases.md)
-
-## Dependencies
-
-* Python 3.6+
-
-## Installation
-
-Please make sure you install using `git` rather than by downloading the repo manually.
-
-* [The Ansible Way](docs/setup/ansible.md)
-* [The Manual Way](docs/setup/manual.md)
-* [The Docker Way](docs/setup/docker.md)
-
-## Documentation
-
-For general documentation [see here](docs/general/index.md)
-
-### Screenshots
-
-For screenshots [see here](docs/general/screenshots.md)
+For more details on scenarios please see the [Use Cases Document](docs/general/use_cases.md)
 
 ## Limitations
 

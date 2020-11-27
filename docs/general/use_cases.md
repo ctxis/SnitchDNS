@@ -42,7 +42,8 @@ It can also be used for Red Team engagements:
 * Phishing / Sandboxes
   * Before an e-mail lands into an inbox it may be scanned by sandboxes and usually those resolve a domain but never visit it. You can now log all those IP addresses and block them from resolving your C2 domain.
 * Restrict domain resolutions only to the IP range of your client, minimising the risk of accidentally serving payloads to third-parties.
-* Use it as a [DNS Tunnel](#dns-tunnel) and egress data. 
+* Use it as a [DNS Tunnel](#dns-tunnel) and egress data.
+* Bring tools into a network over DNS. Base64 encode a tool and put it into TXT records for a domain. Then, query those records from the internal network, concatenate, and decode the Base64 string. 
 * Easily deploy using Ansible, and manage it via CLI (or API):
 
     ```
