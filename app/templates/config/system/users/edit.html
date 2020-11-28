@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-3">
+    <div class="col-lg-3">
         {% set active_nav = 'users' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col-7">
+    <div class="col-lg-7">
         <h4>{{ 'Create' if user_id == 0 else 'Edit' }} User</h4>
 
         {% if base_domain|length == 0 %}

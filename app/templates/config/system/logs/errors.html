@@ -3,17 +3,17 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-3">
+    <div class="col-lg-3">
         {% set active_nav = 'error_logs' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col">
+    <div class="col-lg">
         <h4>Error Logs</h4>
 
         {% if results.total == 0 %}
         <div class="alert alert-info">Nothing to display.</div>
         {% else %}
-        <table class="table table-sm table-striped">
+        <table class="table table-sm table-striped table-responsive-lg">
             <thead>
             <tr>
                 <th>#</th>

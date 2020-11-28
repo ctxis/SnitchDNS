@@ -1,5 +1,5 @@
 <div class="row mt-4">
-    <div class="col">
+    <div class="col-lg">
         <h5>{{ 'Edit' if restriction_id > 0 else 'Create' }} Restriction Rule</h5>
 
         <form action="{{ url_for('dns.zone_restrictions_edit_save', dns_zone_id=zone.id, restriction_id=restriction_id) }}" method="post" class="mt-4">

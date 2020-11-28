@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col">
+    <div class="col-lg">
         <h1 class="mb-5">
             <div>
                 <div class="d-inline">Search Logs</div>
@@ -16,7 +16,7 @@
             <form action="{{ url_for('logs.index') }}" method="get">
                 <input type="hidden" name="advanced" value="1" class="field-advanced">
                 <div class="form-group row">
-                    <div class="col-6">
+                    <div class="col-lg-6">
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text">Domain</span></div>
                             <input type="text" class="form-control" value="{{ params.domain }}" name="domain" placeholder="%.example.com">
@@ -25,7 +25,7 @@
                             <input type="text" class="form-control" value="{{ params.source_ip }}" name="source_ip" placeholder="192.168.%">
                         </div>
                     </div>
-                    <div class="col-4 pl-0 ml-0">
+                    <div class="col-lg-4 pl-0 ml-0">
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text">Type</span></div>
                             <select class="custom-select form-control" name="type">
@@ -43,14 +43,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col pl-0 ml-0">
+                    <div class="col-lg pl-0 ml-0">
                         <button type="submit" class="btn btn-primary btn-block">search</button>
                     </div>
                 </div>
                 <div class="form-group row search-advanced">
-                    <div class="col-5">
+                    <div class="col-lg-5">
                         <div class="row">
-                            <div class="col mr-0 pr-0">
+                            <div class="col-lg mr-0 pr-0">
                                 <div class="input-group date" id="date_from" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">From</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="date_from" data-target="#date_from" placeholder="YYYY-MM-DD">
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col ml-0 pl-0">
+                            <div class="col-lg ml-0 pl-0">
                                 <div class="input-group date" id="time_from" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">At</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="time_from" data-target="#time_from" placeholder="HH:MM">
@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col ml-0 pl-0">
+                    <div class="col-lg ml-0 pl-0">
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text">Forwarded</span></div>
                             <select class="custom-select" name="forwarded">
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     {% if current_user.admin %}
-                    <div class="col-3 ml-0 pl-0">
+                    <div class="col-lg-3 ml-0 pl-0">
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text">User</span></div>
                             <select class="custom-select" name="user_id">
@@ -103,9 +103,9 @@
                     {% endif %}
                 </div>
                 <div class="form-group row search-advanced">
-                    <div class="col-5">
+                    <div class="col-lg-5">
                         <div class="row">
-                            <div class="col mr-0 pr-0">
+                            <div class="col-lg mr-0 pr-0">
                                 <div class="input-group date" id="date_to" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">To</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="date_to" data-target="#date_to" placeholder="YYYY-MM-DD">
@@ -114,7 +114,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col ml-0 pl-0">
+                            <div class="col-lg ml-0 pl-0">
                                 <div class="input-group date" id="time_to" data-target-input="nearest">
                                     <div class="input-group-prepend"><span class="input-group-text">At</span></div>
                                     <input type="text" class="form-control datetimepicker-input text-right" name="time_to" data-target="#time_to" placeholder="HH:MM">
@@ -125,9 +125,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col ml-0 pl-0">
+                    <div class="col-lg ml-0 pl-0">
                         <div class="row">
-                            <div class="col mr-0">
+                            <div class="col-lg mr-0">
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Tags</span></div>
                                     <select class="custom-select" name="tags" id="tags" multiple="multiple">
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
                             {% if aliases|length > 0 %}
-                            <div class="col ml-0 pl-0">
+                            <div class="col-lg ml-0 pl-0">
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">Alias</span></div>
                                     <select class="custom-select" name="alias">
@@ -154,7 +154,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col text-right">
+                    <div class="col-lg text-right">
                         <a href="#" class="text-info toggle-advanced">show advanced search</a>
                     </div>
                 </div>

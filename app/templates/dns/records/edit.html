@@ -1,5 +1,5 @@
 <div class="row mt-4">
-    <div class="col">
+    <div class="col-lg">
         <h5>{{ 'Edit' if dns_record_id > 0 else 'Create' }} Record</h5>
 
         <form action="{{ url_for('dns.record_edit_save', dns_zone_id=zone.id, dns_record_id=dns_record_id) }}" method="post">

@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col">
+    <div class="col-lg">
         <h2>Review CSV Import</h2>
 
         {% if errors|length > 0 %}
         <h4 class="text-danger">{{ errors|length }} Error(s)</h4>
         <div class="pb-3">Please fix the below errors, and re-upload the updated file.</div>
-        <table class="table table-sm table-striped">
+        <table class="table table-sm table-striped table-responsive-lg">
             <thead>
             <tr>
                 <th>Row</th>
@@ -38,7 +38,7 @@
 
                 {% if type == 1 %}
                     <h4 class="text-info">{{ data|length }} Zone(s) to Import</h4>
-                    <table class="table table-sm table-striped">
+                    <table class="table table-sm table-striped table-responsive-lg">
                         <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -86,7 +86,7 @@
                     </table>
                 {% elif type == 2 %}
                     <h4 class="text-info">{{ data|length }} Record(s) to Import</h4>
-                    <table class="table table-sm table-striped">
+                    <table class="table table-sm table-striped table-responsive-lg">
                         <thead>
                         <tr>
                             <th class="text-center">#</th>

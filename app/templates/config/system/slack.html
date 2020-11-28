@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-3">
+    <div class="col-lg-3">
         {% set active_nav = 'slack' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col-6">
+    <div class="col-lg-6">
         <h4>Slack Webhooks</h4>
         <form action="{{ url_for('config.slack_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

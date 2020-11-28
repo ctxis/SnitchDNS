@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col-3">
+    <div class="col-lg-3">
         {% set active_nav = 'webpush' %}
         {% include 'config/includes/sidebar.html' %}
     </div>
-    <div class="col-5">
+    <div class="col-lg-5">
         <h4>Web Push Notifications</h4>
         <form action="{{ url_for('config.webpush_save') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

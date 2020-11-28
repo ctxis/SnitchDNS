@@ -2,13 +2,13 @@
 
 {% if results.total == 0 %}
 <div class="row mt-5">
-    <div class="col text-center">
+    <div class="col-lg text-center">
         <div class="alert alert-info">No query logs found</div>
     </div>
 </div>
 {% else %}
 <div class="row mt-5">
-    <div class="col">
+    <div class="col-lg">
         <div class="clearfix mb-3">
             <div class="float-right">
                 <form action="{{ url_for('logs.export') }}/?{{ params.url() }}" method="post">
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <table class="table table-sm table-striped">
+        <table class="table table-sm table-striped table-responsive-lg">
             <thead>
             <tr>
                 <th>#</th>

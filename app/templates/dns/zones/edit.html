@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="row mt-5">
-    <div class="col"></div>
-    <div class="col-6">
+    <div class="col-lg"></div>
+    <div class="col-lg-6">
         <div class="card">
             <div class="card-header">{{ 'Edit' if dns_zone_id > 0 else 'Create' }} DNS Zone</div>
             <div class="card-body">
@@ -58,7 +58,7 @@
 
                     <div class="form-group row py-0 my-0">
                         <div class="col">
-                            <label for="forwarding">
+                            <label for="forwarding" class="text-nowrap">
                                 Unmatched Record Forwarding
                                 <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="Example: If Record A is matched but Record AAAA isn't, determine whether to forward the AAAA request to an external DNS Server (if DNS Forwarding is enabled)" data-original-title="Catch-All"><i class="fas fa-question-circle ml-1"></i></a>
                             </label>
@@ -87,7 +87,7 @@
             </div>
         </div>
     </div>
-    <div class="col"></div>
+    <div class="col-lg"></div>
 </div>
 
 <script type="text/javascript">

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="row mb-3">
-    <div class="col">
+    <div class="col-lg">
         {% if zone_count == 0 %}
         <div class="alert alert-warning text-center">
             You do not have any zones. <a href="{{ url_for('dns.zone_edit', dns_zone_id=0) }}">Click here to create one</a>.
