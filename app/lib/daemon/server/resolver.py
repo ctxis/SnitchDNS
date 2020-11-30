@@ -48,7 +48,7 @@ class DatabaseDNSResolver:
         answers = []
         lookup_result = ''
 
-        domain = str(query.name.name.decode('utf-8')).lower()
+        domain = str(query.name.name.decode('utf-8'))
         type = str(dns.QUERY_TYPES.get(query.type, None))
         cls = str(dns.QUERY_CLASSES.get(query.cls, None))
 
@@ -71,7 +71,7 @@ class DatabaseDNSResolver:
         # Whichever it finds first, that's the one it will return and exit.
         while len(parts) > 0:
             # Join all the current items to re-create the domain.
-            path = ".".join(parts)
+            path = ".".join(parts).lower()
 
             # Remove the first element of the array, to continue searching for a matching domain.
             parts.pop(0)
