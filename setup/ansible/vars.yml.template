@@ -22,7 +22,7 @@ snitch:
   listen_port: 2024
   # Where all the user data will be stored, including the sqlite database (if that is the DBMS of choice). If left empty
   # the default value will fallback to: << snitch.destination + '/data' >>
-  data_path: '/opt/outside_data'
+  data_path: ''
   # Secret key to encrypt sessions. If left empty it will be auto-generated.
   secret_key: ''
 
