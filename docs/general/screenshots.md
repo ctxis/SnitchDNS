@@ -1,8 +1,8 @@
 # SnitchDNS Screenshots
 
-## Homepage
+## Search Logs
 
-![](../images/screenshots/homepage.png)
+![](../images/screenshots/logs.png)
 
 ## Settings
 

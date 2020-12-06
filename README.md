@@ -1,8 +1,8 @@
 # ![](docs/images/icon32.png) SnitchDNS
 
-SnitchDNS is database driven (basic) DNS server built using [Twisted](https://github.com/twisted/twisted)
+SnitchDNS is a database driven DNS Server with a Web UI, written in Python and [Twisted](https://github.com/twisted/twisted), that makes DNS administration easier with all configuration changed applied instantly without restarting any system services.
 
-Ideal for Red Team infrastructure, bug bounties, ad-blocking, DNS tunnels, and more.
+One of its main features is the logging of all DNS queries allowing the discovery of network traffic endpoints, and it can also be used to implement canary tokens as it supports notifications via e-mail, web push, Slack, and Teams. Red teamers can also use SnitchDNS to monitor phishing domains for sandboxes, integrate with SIEM solutions, restrict responses to specific IP ranges, egress data via a DNS tunnel and catch-all domains, and more.
 
 * [Installation](#installation)
   * [The Manual Way](docs/setup/manual.md)
