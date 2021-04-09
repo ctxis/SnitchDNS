@@ -15,6 +15,7 @@ class UserModel(db.Model, UserMixin):
     ldap = db.Column(db.Boolean, default=True, index=True)
     otp_secret = db.Column(db.String(255), nullable=True, default='')
     otp_last_used = db.Column(db.String(255), nullable=True, default='')
+    auth_type_id = db.Column(db.Integer, nullable=True, index=True, default=0)
     created_at = db.Column(db.DateTime, nullable=True)
 
     def get_id(self):
@@ -22,6 +23,16 @@ class UserModel(db.Model, UserMixin):
 
     def has_2fa(self):
         return False if self.otp_secret is None else len(self.otp_secret) > 0
+
+
+class AuthTypeModel(db.Model):
+    __tablename__ = 'auth_types'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=True, default='', index=True)
+
+    # Required in all models.
+    created_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)
 
 
 @login.user_loader

@@ -1,4 +1,5 @@
-from app.lib.models.user import UserModel
+from app.lib.models.user import UserModel, AuthTypeModel
+from app.lib.users.instances.authtype import AuthType
 from app.lib.dns.helpers.shared import SharedHelper
 from app import db
 import flask_bcrypt as bcrypt
@@ -45,6 +46,17 @@ class UserManager(SharedHelper):
             query = query.filter(UserModel.admin == admin)
 
         query = query.order_by(UserModel.id)
+
+        return query.all()
+
+    def __get_authtype(self, id=None, name=None):
+        query = AuthTypeModel.query
+
+        if id is not None:
+            query = query.filter(AuthTypeModel.id == id)
+
+        if name is not None:
+            query = query.filter(func.lower(AuthTypeModel.name) == func.lower(name))
 
         return query.all()
 
@@ -182,6 +194,34 @@ class UserManager(SharedHelper):
         db.session.refresh(user)
 
         return user
+
+    def get_authtype(self, id=None, name=None):
+        authtypes = self.__get_authtype(id=id, name=name)
+        if len(authtypes) == 0:
+            return False
+        return AuthType(authtypes[0])
+
+    def add_authtype(self, name):
+        type = AuthType(AuthTypeModel())
+        type.name = name
+
+        type.save()
+        return type
+
+    def set_auth_method_by_name(self, user_id, auth_type_name):
+        type = self.get_authtype(name=auth_type_name)
+        if not type:
+            return False
+
+        user = self.get_user(user_id)
+        if not user:
+            return False
+
+        user.auth_type_id = type.id
+        db.session.commit()
+        db.session.refresh(user)
+
+        return True
 
     def get_user(self, user_id):
         users = self.__get(user_id=user_id)

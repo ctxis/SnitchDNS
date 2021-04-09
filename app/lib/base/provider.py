@@ -1,4 +1,4 @@
-from app.lib.base.users import UserManager
+from app.lib.users.user_manager import UserManager
 from app.lib.base.settings import SettingsManager
 from app.lib.dns.manager import DNSManager
 from app.lib.dns.zone_manager import DNSZoneManager
