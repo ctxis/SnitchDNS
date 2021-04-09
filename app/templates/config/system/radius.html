@@ -1,0 +1,72 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-lg-3">
+        {% set active_nav = 'radius' %}
+        {% include 'config/includes/sidebar.html' %}
+    </div>
+    <div class="col-lg-5">
+        <h4>RADIUS Authentication</h4>
+        <form action="{{ url_for('config.radius_save') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <h5>Connection</h5>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="radius_enabled">Enable RADIUS Auth</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="radius_enabled" type="checkbox" class="custom-control-input" id="radius_enabled" value="1" {{ 'checked' if setting_get('radius_enabled', False) == True }}>
+                        <label class="custom-control-label" for="radius_enabled"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="radius_host">Host</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-right" name="radius_host" id="radius_host" value="{{ setting_get('radius_host', '') }}" placeholder="">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="radius_port">Port</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-right" name="radius_port" id="radius_port" value="{{ setting_get('radius_port', '1812') }}" placeholder="1812">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col">
+                    <label for="radius_secret">Bind Password</label>
+                </div>
+                <div class="col">
+                    <input type="password" class="form-control text-right" name="radius_secret" id="radius_secret" value="{{ '********' if setting_get('radius_secret', '')|length > 0 }}" placeholder="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-block btn-primary">save</button>
+            </div>
+        </form>
+
+        <h4>Test Connection</h4>
+
+        <form action="{{ url_for('config.radius_test') }}" method="post" class="pb-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-block btn-primary">test connection</button>
+            </div>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

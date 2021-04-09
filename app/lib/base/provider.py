@@ -11,6 +11,7 @@ from app.lib.base.shell import ShellManager
 from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
 from app.lib.users.auth.ldap import LDAPManager
+from app.lib.users.auth.radius import RADIUSManager
 from app.lib.api.manager import ApiManager
 from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager
@@ -135,6 +136,18 @@ class Provider:
         manager.mapping_username = settings.get('ldap_mapping_username', '')
         manager.mapping_fullname = settings.get('ldap_mapping_fullname', '')
         manager.mapping_email = settings.get('ldap_mapping_email', '')
+
+        return manager
+
+    def radius(self):
+        settings = self.settings()
+        manager = RADIUSManager()
+
+        manager.enabled = settings.get('radius_enabled', False, type=bool)
+        manager.host = settings.get('radius_host', '')
+        manager.port = settings.get('radius_port', 0, type=int)
+        manager.secret = settings.get('radius_secret', '')
+        manager.dictionary = os.path.realpath(os.path.join(current_app.root_path, 'lib', 'users', 'auth', 'radius.dict'))
 
         return manager
 

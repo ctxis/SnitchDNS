@@ -18,6 +18,16 @@
                     <div class="form-group">
                         <input name="password" type="password" class="form-control" placeholder="Password" required>
                     </div>
+                    {% if multiauth %}
+                    <div class="form-group">
+                        <select name="auth" class="form-control custom-select" required>
+                            <option value="">Authenticate via...</option>
+                            <option value="local">Local</option>
+                            <option value="ldap">LDAP</option>
+                            <option value="radius">RADIUS</option>
+                        </select>
+                    </div>
+                    {% endif %}
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block">login</button>
                     </div>

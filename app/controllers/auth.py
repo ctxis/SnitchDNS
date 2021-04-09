@@ -15,7 +15,15 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('home.index'))
 
-    return render_template('auth/login.html', next=request.args.get('next', ''))
+    provider = Provider()
+    ldap = provider.ldap()
+    radius = provider.radius()
+
+    return render_template(
+        'auth/login.html',
+        next=request.args.get('next', ''),
+        multiauth=(ldap.enabled and radius.enabled)
+    )
 
 
 @bp.route('/login', methods=['POST'])
@@ -30,55 +38,72 @@ def login_process():
     provider = Provider()
     users = provider.users()
     ldap = provider.ldap()
+    radius = provider.radius()
     zones = provider.dns_zones()
 
-    # First lookup local users.
-    user = users.find_user_login(username, 'local')
-    if user:
-        if not users.validate_password(user.password, password):
-            flash('Invalid credentials', 'error')
-            return redirect(url_for('auth.login', next=next))
-    elif ldap.enabled:
-        ldap_result = ldap.authenticate(username, password)
-        if ldap_result is False:
-            if len(ldap.error_message) > 0:
-                flash(ldap.error_message, 'error')
+    # If more than one external methods are defined, the user has to specify which one they want to authenticate
+    # against, as we won't be trying each and every one until we get a hit. If only one method is enabled (ie LDAP) then
+    # LOCAL auth will be tried first and then it will try LDAP.
+    multiauth = ldap.enabled and radius.enabled
+    auth = request.form['auth'].strip().lower() if 'auth' in request.form else ''
+
+    login_result = False
+    fullname = ''
+    email = ''
+
+    if (multiauth is False) or (multiauth is True and auth == 'local'):
+        login_result = __auth_local(username, password)
+
+    if (login_result is False) and ldap.enabled:
+        if (multiauth is False) or (multiauth is True and auth == 'ldap'):
+            ldap_result, error_message = __auth_ldap(username, password)
+            if ldap_result is False:
+                error_message = error_message if len(error_message) > 0 else 'Invalid credentials'
+                flash(error_message, 'error')
+                return redirect(url_for('auth.login', next=next))
+            elif ldap_result['result'] == ldap.AUTH_SUCCESS:
+                login_result = True
+                fullname = ldap_result['user']['fullname'].lower()
+                email = ldap_result['user']['email'].lower()
+            elif ldap_result['result'] == ldap.AUTH_CHANGE_PASSWORD:
+                session['ldap_username'] = username
+                session['ldap_time'] = int(time.time())
+                flash('Your LDAP password has expired or needs changing', 'error')
+                return redirect(url_for('auth.ldap_changepwd', next=next))
+            elif ldap_result['result'] == ldap.AUTH_LOCKED:
+                flash('Your AD account is disabled', 'error')
+                return redirect(url_for('auth.login', next=next))
             else:
                 flash('Invalid credentials', 'error')
-            return redirect(url_for('auth.login', next=next))
-        elif ldap_result['result'] == ldap.AUTH_SUCCESS:
-            ldap_user = ldap_result['user']
-        elif ldap_result['result'] == ldap.AUTH_CHANGE_PASSWORD:
-            session['ldap_username'] = username
-            session['ldap_time'] = int(time.time())
-            flash('Your LDAP password has expired or needs changing', 'error')
-            return redirect(url_for('auth.ldap_changepwd', next=next))
-        elif ldap_result['result'] == ldap.AUTH_LOCKED:
-            flash('Your AD account is disabled', 'error')
-            return redirect(url_for('auth.login', next=next))
-        else:
-            if len(ldap.error_message) > 0:
-                flash(ldap.error_message, 'error')
-            else:
-                flash('Invalid credentials', 'error')
-            return redirect(url_for('auth.login', next=next))
-
-        # Now see if the user exists.
-        user = users.find_user_login(username)
-        if not user:
-            # Doesn't exist yet, we'll have to create them now.
-            user = users.save(0, ldap_user['username'].lower(), password, ldap_user['fullname'], ldap_user['email'], False, 'ldap', True)
-            if not user:
-                flash('Could not create LDAP user: {0}'.format(users.last_error), 'error')
                 return redirect(url_for('auth.login', next=next))
 
-            # Now we need to create a zone for that user.
-            if not zones.create_user_base_zone(user):
-                flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
+    if (login_result is False) and radius.enabled:
+        if (multiauth is False) or (multiauth is True and auth == 'radius'):
+            radius_result, error_message = __auth_radius(username, password)
+            if radius_result is False:
+                error_message = error_message if len(error_message) > 0 else 'Invalid credentials'
+                flash(error_message, 'error')
                 return redirect(url_for('auth.login', next=next))
-    else:
+            login_result = radius_result
+            fullname = username.lower()
+            email = ''
+
+    if login_result is False:
         flash('Invalid credentials', 'error')
         return redirect(url_for('auth.login', next=next))
+
+    # Check to see if the user exists. This will return false only if it's the first login of an external user.
+    user = users.find_user_login(username)
+    if not user:
+        user = users.save(0, username.lower(), password, fullname.lower(), email.lower(), False, auth, True)
+        if not user:
+            flash('Could not create external user: {0}'.format(users.last_error), 'error')
+            return redirect(url_for('auth.login', next=next))
+
+        # Now create the default zone for that user.
+        if not zones.create_user_base_zone(user):
+            flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
+            return redirect(url_for('auth.login', next=next))
 
     if not user.active:
         # This check has to be after the password validation.
@@ -265,3 +290,29 @@ def ldap_changepwd_process():
 
     flash('Password updated - please login again', 'success')
     return redirect(url_for('auth.login', next=next))
+
+
+def __auth_local(username, password):
+    provider = Provider()
+    users = provider.users()
+
+    user = users.find_user_login(username, 'local')
+    if user and users.validate_password(user.password, password):
+        return True
+    return False
+
+
+def __auth_ldap(username, password):
+    provider = Provider()
+    ldap = provider.ldap()
+    result = ldap.authenticate(username, password)
+
+    return result, ldap.error_message
+
+
+def __auth_radius(username, password):
+    provider = Provider()
+    radius = provider.radius()
+    result = radius.authenticate(username, password)
+
+    return result, radius.error_message

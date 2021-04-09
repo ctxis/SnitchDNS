@@ -18,3 +18,4 @@ pyotp
 tabulate
 python-dotenv
 progressbar2
+pyrad

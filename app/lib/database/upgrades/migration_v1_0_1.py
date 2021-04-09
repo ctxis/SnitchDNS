@@ -13,7 +13,8 @@ class DBMigration:
 
         auth_types = [
             {'name': 'Local'},
-            {'name': 'LDAP'}
+            {'name': 'LDAP'},
+            {'name': 'RADIUS'}
         ]
 
         for auth_type in auth_types:
