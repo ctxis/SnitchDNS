@@ -15,10 +15,11 @@ def main():
 def cli_users_list():
     provider = Provider()
     users = provider.users()
+    auth_types = users.authtypes_all()
 
     results = users.all()
 
-    headers = ['id', 'username', 'full name', 'email', 'admin', 'active', 'ldap', '2fa']
+    headers = ['id', 'username', 'full name', 'email', 'auth', 'admin', 'active', '2fa']
     table = []
     for user in results:
         table.append([
@@ -26,9 +27,9 @@ def cli_users_list():
             user.username,
             user.full_name,
             user.email,
+            auth_types[user.auth_type_id],
             user.admin,
             user.active,
-            user.ldap,
             user.has_2fa()
         ])
 
@@ -43,29 +44,28 @@ def cli_users_list():
 @click.option('--email', required=True, help='E-Mail', type=click.STRING)
 @click.option('--active', required=True, help='User will be active', type=click.Choice(['yes', 'no', 'true', 'false']))
 @click.option('--admin', required=True, help='User will be an administrator', type=click.Choice(['yes', 'no', 'true', 'false']))
-@click.option('--ldap', required=True, help='User will be authenticated against the LDAP server (if configured)', type=click.Choice(['yes', 'no', 'true', 'false']))
+@click.option('--auth', required=True, help='User will be authenticated against the Local/LDAP/etc server (if configured)', type=click.STRING)
 @click.option('--create_zone', is_flag=True, help='Whether a master zone fill be created for the user')
 @with_appcontext
-def cli_users_add(username, password, full_name, email, active, admin, ldap, create_zone):
+def cli_users_add(username, password, full_name, email, active, admin, auth, create_zone):
     provider = Provider()
     users = provider.users()
     zones = provider.dns_zones()
 
     active = (active in ['true', 'yes'])
     admin = (admin in ['true', 'yes'])
-    ldap = (ldap in ['true', 'yes'])
 
     ask_for_password = False
     if len(password) == 0:
         # If it's an LDAP user, we don't need it.
-        if not ldap:
+        if auth.lower() == 'local':
             ask_for_password = True
 
     if ask_for_password:
         password = click.prompt('Password', hide_input=True, confirmation_prompt=True)
 
     # If the user entered the password manually it's in plaintext so we can check for complexity.
-    user = users.save(0, username, password, full_name, email, admin, ldap, active, check_complexity=ask_for_password, hash_password=ask_for_password)
+    user = users.save(0, username, password, full_name, email, admin, auth, active, check_complexity=ask_for_password, hash_password=ask_for_password)
     if not user:
         print(users.last_error)
         return False
@@ -87,27 +87,27 @@ def cli_users_add(username, password, full_name, email, active, admin, ldap, cre
 @click.option('--email', required=False, default=None, help='E-Mail', type=click.STRING)
 @click.option('--active', required=False, default=None, help='User will be active', type=click.Choice(['yes', 'no', 'true', 'false']))
 @click.option('--admin', required=False, default=None, help='User will be an administrator', type=click.Choice(['yes', 'no', 'true', 'false']))
-@click.option('--ldap', required=False, default=None, help='User will be authenticated against the LDAP server (if configured)', type=click.Choice(['yes', 'no', 'true', 'false']))
+@click.option('--auth', required=False, help='User will be authenticated against the Local/LDAP/etc server (if configured)', type=click.STRING)
 @with_appcontext
-def cli_users_update(username, password, full_name, email, active, admin, ldap, update_password):
+def cli_users_update(username, password, full_name, email, active, admin, auth, update_password):
     provider = Provider()
     users = provider.users()
 
-    user = users.find_user_login(username, None)
+    user = users.find_user_login(username)
     if not user:
         print("Could not find user")
         return False
 
     active = user.active if active is None else (active in ['true', 'yes'])
     admin = user.admin if admin is None else (admin in ['true', 'yes'])
-    ldap = user.ldap if ldap is None else (ldap in ['true', 'yes'])
+    auth = user.auth if auth is None else auth.lower()
 
     ask_for_password = False
     hash_password = False
     check_complexity = False
     if update_password:
         if len(password) == 0:
-            if not ldap:
+            if auth.lower() == 'local':
                 ask_for_password = True
                 check_complexity = True
                 hash_password = True
@@ -124,7 +124,7 @@ def cli_users_update(username, password, full_name, email, active, admin, ldap, 
         password = click.prompt('Password', hide_input=True, confirmation_prompt=True)
 
     # If the user entered the password manually it's in plaintext so we can check for complexity.
-    user = users.save(user.id, username, password, full_name, email, admin, ldap, active, check_complexity=check_complexity, hash_password=hash_password)
+    user = users.save(user.id, username, password, full_name, email, admin, auth, active, check_complexity=check_complexity, hash_password=hash_password)
     if not user:
         print(users.last_error)
         return False

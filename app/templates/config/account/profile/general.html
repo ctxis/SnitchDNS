@@ -35,7 +35,7 @@
                     <label for="full_name">Full Name</label>
                 </div>
                 <div class="col">
-                    {% if user.ldap %}
+                    {% if auth_types[user.auth_type_id].lower() != 'local' %}
                     {{ user.full_name }}
                     {% else %}
                     <input type="text" class="form-control" name="full_name" id="full_name" value="{{ user.full_name }}" required>
@@ -48,7 +48,7 @@
                     <label for="email">E-mail</label>
                 </div>
                 <div class="col">
-                    {% if (user.ldap == True) and (has_email_mapping == True) %}
+                    {% if (auth_types[user.auth_type_id].lower() != 'local') and (has_email_mapping == True) %}
                     {{ user.email }}
                     {% else %}
                     <input type="email" class="form-control" name="email" id="email" value="{{ user.email }}" required>
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            {% if user.ldap == False %}
+            {% if auth_types[user.auth_type_id].lower() == 'local' %}
             <h5 class="pb-0 mb-0">Change Password</h5>
 
             <div class="form-group">

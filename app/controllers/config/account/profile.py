@@ -16,7 +16,8 @@ def profile():
         'config/account/profile/general.html',
         user=users.get_user(current_user.id),
         has_email_mapping=(len(ldap.mapping_email) > 0),
-        password_complexity=users.password_complexity.get_requirement_description()
+        password_complexity=users.password_complexity.get_requirement_description(),
+        auth_types=users.authtypes_all()
     )
 
 
@@ -30,7 +31,8 @@ def profile_save():
     email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
     user = users.get_user(current_user.id)
-    if user.ldap:
+    auth_type = users.get_authtype(id=user.auth_type_id)
+    if auth_type and auth_type.name.lower() == 'ldap':
         has_email_mapping = (len(ldap.mapping_email) > 0)
         if not has_email_mapping:
             email = request.form['email'].strip().lower().replace(' ', '')

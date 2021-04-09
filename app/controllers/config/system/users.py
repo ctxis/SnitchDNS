@@ -14,7 +14,8 @@ def users():
 
     return render_template(
         'config/system/users/index.html',
-        users=users.all()
+        users=users.all(),
+        auth_types=users.authtypes_all()
     )
 
 
@@ -40,7 +41,8 @@ def user_edit(user_id):
         user_id=user_id,
         user=user,
         password_complexity=users.password_complexity.get_requirement_description(),
-        base_domain=zones.base_domain
+        base_domain=zones.base_domain,
+        auth_types=users.authtypes_all()
     )
 
 
@@ -65,12 +67,15 @@ def user_edit_save(user_id):
     password = request.form['password'].strip()
     full_name = request.form['full_name'].strip()
     email = request.form['email'].strip()
+    auth = request.form['auth'].strip()
+    auth = int(auth) if auth.isdigit() else 0
     admin = True if int(request.form.get('admin', 0)) == 1 else False
-    ldap = True if int(request.form.get('ldap', 0)) == 1 else False
     active = True if int(request.form.get('active', 0)) == 1 else False
 
     if user and password == '********':
         password = ''
+
+    auth_type = users.get_authtype(id=auth)
 
     if len(username) == 0:
         flash('Please enter a username', 'error')
@@ -87,8 +92,11 @@ def user_edit_save(user_id):
     elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         flash('Please enter a valid e-mail', 'error')
         return redirect(url_for('config.user_edit', user_id=user_id))
+    elif auth_type is False:
+        flash('Invalid authentication selected', 'error')
+        return redirect(url_for('config.user_edit', user_id=user_id))
 
-    user = users.save(user_id, username, password, full_name, email, admin, ldap, active)
+    user = users.save(user_id, username, password, full_name, email, admin, auth_type.name, active)
     if not user:
         flash('Could not save user: ' + users.last_error, 'error')
         return redirect(url_for('config.user_edit', user_id=user_id))

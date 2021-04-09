@@ -10,7 +10,7 @@ from app.lib.base.email import EmailManager
 from app.lib.base.shell import ShellManager
 from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
-from app.lib.base.ldap import LDAPManager
+from app.lib.users.auth.ldap import LDAPManager
 from app.lib.api.manager import ApiManager
 from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager

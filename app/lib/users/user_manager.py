@@ -24,7 +24,7 @@ class UserManager(SharedHelper):
     def last_error(self, value):
         self.__last_error = value
 
-    def __get(self, user_id=None, username=None, email=None, ldap=None, active=None, admin=None):
+    def __get(self, user_id=None, username=None, email=None, active=None, admin=None, auth_type_id=None):
         query = UserModel.query
 
         if user_id is not None:
@@ -36,8 +36,8 @@ class UserManager(SharedHelper):
         if email is not None:
             query = query.filter(func.lower(UserModel.email) == func.lower(email))
 
-        if ldap is not None:
-            query = query.filter(UserModel.ldap == ldap)
+        if auth_type_id is not None:
+            query = query.filter(UserModel.auth_type_id == auth_type_id)
 
         if active is not None:
             query = query.filter(UserModel.active == active)
@@ -120,7 +120,13 @@ class UserManager(SharedHelper):
             return user
         return True if user else False
 
-    def save(self, user_id, username, password, full_name, email, admin, ldap, active, check_complexity=True, hash_password=True):
+    def save(self, user_id, username, password, full_name, email, admin, auth, active, check_complexity=True, hash_password=True):
+        auth = auth.lower()
+        auth_type = self.get_authtype(name=auth)
+        if not auth_type:
+            self.last_error = 'Invalid authentication type'
+            return False
+
         if user_id > 0:
             # Editing an existing user.
             user = self.get_user(user_id)
@@ -131,10 +137,10 @@ class UserManager(SharedHelper):
             # Create a user.
             user = UserModel()
 
-        # If it's an existing user and it's the LDAP status that has changed, update only that and return
-        # because otherwise it will clear the fields (as the fields are not posted during the submit.
-        if user_id > 0 and user.ldap != ldap:
-            user.ldap = True if ldap else False
+        # If it's an existing user and it's the auth type that has changed, update only that and return
+        # because otherwise it will clear the fields (as the fields are not posted during the submit).
+        if user_id > 0 and user.auth_type_id != auth_type.id:
+            user.auth_type_id = auth_type.id
             user.active = True if active else False
             db.session.commit()
             db.session.refresh(user)
@@ -146,8 +152,8 @@ class UserManager(SharedHelper):
                 self.last_error = 'Username already exists'
                 return False
 
-        if ldap:
-            # This is an LDAP user, no point in setting their password.
+        if auth != 'local':
+            # This is an external auth, no point in setting their password.
             password = ''
         else:
             if len(password) > 0:
@@ -160,7 +166,7 @@ class UserManager(SharedHelper):
                 if hash_password:
                     password = self.__hash_password(password)
 
-        if (user_id == 0) or (ldap is False):
+        if (user_id == 0) or (auth == 'local'):
             user.username = username
             if len(password) > 0:
                 user.password = password
@@ -168,7 +174,7 @@ class UserManager(SharedHelper):
             user.email = email
 
         user.admin = True if admin else False
-        user.ldap = True if ldap else False
+        user.auth_type_id = auth_type.id
         user.active = True if active else False
 
         if user_id == 0:
@@ -208,6 +214,13 @@ class UserManager(SharedHelper):
         type.save()
         return type
 
+    def authtypes_all(self):
+        types = {}
+        auth_types = self.__get_authtype()
+        for type in auth_types:
+            types[type.id] = type.name
+        return types
+
     def set_auth_method_by_name(self, user_id, auth_type_name):
         type = self.get_authtype(name=auth_type_name)
         if not type:
@@ -235,8 +248,14 @@ class UserManager(SharedHelper):
             return False
         return user.admin
 
-    def find_user_login(self, username, ldap):
-        users = self.__get(username=username, ldap=ldap)
+    def find_user_login(self, username, auth=None):
+        if auth is not None:
+            auth_type = self.get_authtype(name=auth)
+            if not auth_type:
+                return False
+            auth = auth_type.id
+
+        users = self.__get(username=username, auth_type_id=auth)
         if len(users) == 0:
             return False
         return users[0]

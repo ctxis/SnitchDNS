@@ -22,8 +22,8 @@
                 <th>Username</th>
                 <th>Full Name</th>
                 <th>E-mail</th>
+                <th>Auth</th>
                 <th class="text-center">Admin</th>
-                <th class="text-center">LDAP</th>
                 <th class="text-center">Active</th>
                 <th class="text-center">2FA</th>
                 <th></th>
@@ -36,14 +36,10 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.full_name }}</td>
                 <td>{{ user.email }}</td>
+                <td>{{ auth_types[user.auth_type_id] }}</td>
                 <td class="text-center">
                     {% set class = 'success' if user.admin else 'danger' %}
                     {% set icon = 'check' if user.admin else 'times' %}
-                    <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
-                </td>
-                <td class="text-center">
-                    {% set class = 'success' if user.ldap else 'danger' %}
-                    {% set icon = 'check' if user.ldap else 'times' %}
                     <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                 </td>
                 <td class="text-center">

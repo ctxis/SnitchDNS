@@ -33,7 +33,7 @@ def login_process():
     zones = provider.dns_zones()
 
     # First lookup local users.
-    user = users.find_user_login(username, False)
+    user = users.find_user_login(username, 'local')
     if user:
         if not users.validate_password(user.password, password):
             flash('Invalid credentials', 'error')
@@ -64,10 +64,10 @@ def login_process():
             return redirect(url_for('auth.login', next=next))
 
         # Now see if the user exists.
-        user = users.find_user_login(username, True)
+        user = users.find_user_login(username)
         if not user:
             # Doesn't exist yet, we'll have to create them now.
-            user = users.save(0, ldap_user['username'].lower(), password, ldap_user['fullname'], ldap_user['email'], False, True, True)
+            user = users.save(0, ldap_user['username'].lower(), password, ldap_user['fullname'], ldap_user['email'], False, 'ldap', True)
             if not user:
                 flash('Could not create LDAP user: {0}'.format(users.last_error), 'error')
                 return redirect(url_for('auth.login', next=next))
@@ -209,7 +209,7 @@ def ldap_changepwd():
         session.pop('ldap_time', None)
         return redirect(url_for('auth.login', next=next))
 
-    user = users.find_user_login(username, True)
+    user = users.find_user_login(username, auth='ldap')
     if not user:
         session.pop('ldap_username', None)
         session.pop('ldap_time', None)
@@ -240,7 +240,7 @@ def ldap_changepwd_process():
         session.pop('ldap_time', None)
         return redirect(url_for('auth.login', next=next))
 
-    user = users.find_user_login(username, True)
+    user = users.find_user_login(username, auth='ldap')
     if not user:
         session.pop('ldap_username', None)
         session.pop('ldap_time', None)
