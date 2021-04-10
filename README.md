@@ -52,7 +52,8 @@ For screenshots [see here](docs/general/screenshots.md)
     * Ability to match any subdomain (no matter the depth) to a specific parent domain, for instance *.hello.example.com.
   * Unmatched Record Forwarding.
     * Functionality to intercept specific queries (ie only `A` and `CNAME`) and forward all other records to a third-party DNS server (ie Google).
-  * Tags and Aliases.
+  * Regular Expression matching.   
+* Tags and Aliases.
 * IP Rules
   * Configure Allow/Block rules per domain.
 * Notifications. Receive a notification when a domain is resolved, via:
