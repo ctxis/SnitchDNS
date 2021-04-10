@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.1
+## v1.1.0
 
 * `[New]` Implement RADIUS authentication.
 * `[Fix]` Update password complexity checks to accept non-7-bit ASCII.

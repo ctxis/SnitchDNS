@@ -3,7 +3,7 @@ class DBMigration:
         self.__provider = provider
 
     def run(self):
-        print("Upgrading to version v1.0.1...")
+        print("Upgrading to version v1.1.0...")
         self.__add_auth_types()
         self.__migrate_existing_users()
         return True

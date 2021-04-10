@@ -2,7 +2,7 @@ from app.lib.notifications.managers.type_manager import NotificationTypeManager
 from app.lib.base.provider import Provider
 from app import version as app_version
 from packaging import version
-import app.lib.database.upgrades.migration_v1_0_1 as v1_0_1
+import app.lib.database.upgrades.migration_v1_1_0 as v1_1_0
 
 
 class SeedDatabase:
@@ -46,9 +46,9 @@ class SeedDatabase:
             print("No database updates required")
             return True
 
-        if installed_version < version.parse('1.0.1'):
-            migration = v1_0_1.DBMigration(provider)
+        if installed_version < version.parse('1.1.0'):
+            migration = v1_1_0.DBMigration(provider)
             if migration.run():
-                settings.save('db_version', '1.0.1')
+                settings.save('db_version', '1.1.0')
 
         return True
