@@ -63,7 +63,7 @@ For screenshots [see here](docs/general/screenshots.md)
 * User Management
   * Multi-User support
     * Each user is given their own subdomain to use.
-  * LDAP Support
+  * LDAP/RADIUS Support
   * Two Factor Authentication
   * Password Complexity Management
 * Logging
