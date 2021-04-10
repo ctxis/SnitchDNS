@@ -55,41 +55,55 @@ class DatabaseDNSResolver:
         # Create a new logging record.
         log = self.__logging.create(domain=domain, type=type, cls=cls)
 
-        # Split the query into an array.
-        # 'something.snitch.contextis.com' will become:
-        #   0 => something
-        #   1 => snitch
-        #   2 => contextis
-        #   3 => com
-        parts = domain.split('.')
+        # Before we start checking the domain part by part, check it against any regex domains.
+        db_zone = self.__dns_manager.find_zone_regex(domain)
+        if db_zone:
+            lookup_result, answers, log = self.__get_zone_answers(db_zone, query, cls, type, log)
+        else:
+            # Split the query into an array.
+            # 'something.snitch.contextis.com' will become:
+            #   0 => something
+            #   1 => snitch
+            #   2 => contextis
+            #   3 => com
+            parts = domain.split('.')
 
-        # The following loop will lookup from the longest to the shortest domain, for example:
-        #   1 => something.snitch.contextis.com
-        #   2 => snitch.contextis.com
-        #   3 => contextis
-        #   4 => com
-        # Whichever it finds first, that's the one it will return and exit.
-        while len(parts) > 0:
-            # Join all the current items to re-create the domain.
-            path = ".".join(parts).lower()
+            # The following loop will lookup from the longest to the shortest domain, for example:
+            #   1 => something.snitch.contextis.com
+            #   2 => snitch.contextis.com
+            #   3 => contextis
+            #   4 => com
+            # Whichever it finds first, that's the one it will return and exit.
+            while len(parts) > 0:
+                # Join all the current items to re-create the domain.
+                path = ".".join(parts).lower()
 
-            # Remove the first element of the array, to continue searching for a matching domain.
-            parts.pop(0)
+                # Remove the first element of the array, to continue searching for a matching domain.
+                parts.pop(0)
 
-            db_zone = self.__dns_manager.find_zone(path, domain)
-            if not db_zone:
-                # Look for the next domain.
-                continue
+                db_zone = self.__dns_manager.find_zone(path, domain)
+                if db_zone:
+                    lookup_result, answers, log = self.__get_zone_answers(db_zone, query, cls, type, log)
+                    break
 
-            # Log the identified zone id.
-            log.dns_zone_id = db_zone.id
+        log.save()
+        return {
+            'result': lookup_result if len(lookup_result) > 0 else 'continue',
+            'answers': answers,
+            'log': log
+        }
 
-            db_records = self.__get_records(db_zone, cls, type)
-            if len(db_records) == 0:
-                # If we still haven't found anything (no matches), determine whether we can forward this record or not.
-                lookup_result = 'continue' if db_zone.forwarding else 'stop'
-                break
+    def __get_zone_answers(self, db_zone, query, cls, type, log):
+        answers = []
+        lookup_result = ''
 
+        log.dns_zone_id = db_zone.id
+
+        db_records = self.__get_records(db_zone, cls, type)
+        if len(db_records) == 0:
+            # If we still haven't found anything (no matches), determine whether we can forward this record or not.
+            lookup_result = 'continue' if db_zone.forwarding else 'stop'
+        else:
             for db_record in db_records:
                 # This will hold the last db_record but we don't really care about that.
                 log.dns_record_id = db_record.id
@@ -103,16 +117,7 @@ class DatabaseDNSResolver:
 
                 answers.append(answer)
 
-            # If we reached this point it means that we've already matched at least one db_zone, therefore there's not
-            # need to keep looking.
-            break
-
-        log.save()
-        return {
-            'result': lookup_result if len(lookup_result) > 0 else 'continue',
-            'answers': answers,
-            'log': log
-        }
+        return lookup_result, answers, log
 
     def __is_conditional_response(self, db_record):
         if not db_record.has_conditional_responses:

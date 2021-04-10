@@ -47,6 +47,7 @@
                             <th class="text-center">Active</th>
                             <th class="text-center" style="white-space: nowrap;">Catch-All</th>
                             <th class="text-center">Forwarding</th>
+                            <th class="text-center">Regex</th>
                             <th class="text-center">Master</th>
                             <th>Tags</th>
                         </tr>
@@ -70,6 +71,11 @@
                             <td class="text-center">
                                 {% set class = 'success' if zone.forwarding else 'danger' %}
                                 {% set icon = 'check' if zone.forwarding else 'times' %}
+                                <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
+                            </td>
+                            <td class="text-center">
+                                {% set class = 'success' if zone.regex else 'danger' %}
+                                {% set icon = 'check' if zone.regex else 'times' %}
                                 <span class="text-{{ class }}"><i class="fas fa-{{ icon }} fa-fw"></i></span>
                             </td>
                             <td class="text-center">

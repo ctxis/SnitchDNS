@@ -10,6 +10,7 @@ class DNSZoneModel(db.Model):
     catch_all = db.Column(db.Boolean, default=True, index=True)
     master = db.Column(db.Boolean, default=False, index=True)
     forwarding = db.Column(db.Boolean, default=False, index=True)
+    regex = db.Column(db.Boolean, default=False, index=True)
 
     # Required in all models.
     created_at = db.Column(db.DateTime, nullable=True)

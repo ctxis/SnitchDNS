@@ -41,7 +41,7 @@ class ApiZones(ApiBase):
         return self.send_valid_response(self.__load_zone(zone))
 
     def create(self, user_id):
-        required_fields = ['domain', 'active', 'catch_all', 'master', 'forwarding', 'tags']
+        required_fields = ['domain', 'active', 'catch_all', 'master', 'forwarding', 'regex', 'tags']
         data = self.get_json(required_fields)
         if data is False:
             return self.send_error_response(
@@ -57,12 +57,13 @@ class ApiZones(ApiBase):
         data['catch_all'] = True if data['catch_all'] else False
         data['master'] = True if data['master'] else False
         data['forwarding'] = True if data['forwarding'] else False
+        data['regex'] = True if data['regex'] else False
         data['tags'] = data['tags'].split(',')
 
         provider = Provider()
         zones = provider.dns_zones()
 
-        zone = zones.new(data['domain'], data['active'], data['catch_all'], data['forwarding'], user_id, master=data['master'], update_old_logs=True)
+        zone = zones.new(data['domain'], data['active'], data['catch_all'], data['forwarding'], data['regex'], user_id, master=data['master'], update_old_logs=True)
         if isinstance(zone, list):
             errors = '\n'.join(zone)
             return self.send_error_response(5003, 'Could not create zone', errors)
@@ -110,12 +111,17 @@ class ApiZones(ApiBase):
         else:
             data['forwarding'] = zone.forwarding
 
+        if 'regex' in data:
+            data['regex'] = True if data['regex'] else False
+        else:
+            data['regex'] = zone.regex
+
         if 'tags' in data:
             data['tags'] = data['tags'].split(',')
         else:
             data['tags'] = []
 
-        zone = zones.update(zone.id, data['domain'], data['active'], data['catch_all'], data['forwarding'], zone.user_id, master=zone.master, update_old_logs=True)
+        zone = zones.update(zone.id, data['domain'], data['active'], data['catch_all'], data['forwarding'], data['regex'], zone.user_id, master=zone.master, update_old_logs=True)
         if isinstance(zone, list):
             errors = '\n'.join(zone)
             return self.send_error_response(5003, 'Could not save zone', errors)
@@ -144,6 +150,7 @@ class ApiZones(ApiBase):
         zone.active = item.active
         zone.catch_all = item.catch_all
         zone.forwarding = item.forwarding
+        zone.regex = item.regex
         zone.master = item.master
         zone.domain = item.domain
         zone.tags = item.tags

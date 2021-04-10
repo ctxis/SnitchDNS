@@ -19,7 +19,7 @@ def cli_zones_list():
 
     results = zones.all()
 
-    headers = ['id', 'user', 'domain', 'active', 'catch-all', 'forwarding', 'tags']
+    headers = ['id', 'user', 'domain', 'active', 'catch-all', 'forwarding', 'regex', 'tags']
     table = []
     for result in results:
         table.append([
@@ -29,6 +29,7 @@ def cli_zones_list():
             result.active,
             result.catch_all,
             result.forwarding,
+            result.regex,
             ', '.join(result.tags)
         ])
 
@@ -59,12 +60,13 @@ def cli_zones_delete(domain):
 @click.option('--active', is_flag=True, help='Domain will be active')
 @click.option('--catch_all', is_flag=True, help='Domain will be catch-all')
 @click.option('--forwarding', is_flag=True, help='Unmatched records will be forwarded (if forwarding is enabled)')
+@click.option('--regex', is_flag=True, help='Domain will be evaluated as a regular expression')
 @with_appcontext
-def cli_zones_add(domain, user_id, active, catch_all, forwarding):
+def cli_zones_add(domain, user_id, active, catch_all, forwarding, regex):
     provider = Provider()
     zones = provider.dns_zones()
 
-    zone = zones.new(domain, active, catch_all, forwarding, user_id)
+    zone = zones.new(domain, active, catch_all, forwarding, regex, user_id)
     if isinstance(zone, list):
         for error in zone:
             print(error)
@@ -79,8 +81,9 @@ def cli_zones_add(domain, user_id, active, catch_all, forwarding):
 @click.option('--active', required=False, default=None, help='Domain will be active', type=click.Choice(['yes', 'no', 'true', 'false']))
 @click.option('--catch_all', required=False, default=None, help='Domain will be catch-all', type=click.Choice(['yes', 'no', 'true', 'false']))
 @click.option('--forwarding', required=False, default=None, help='Unmatched records will be forwarded (if forwarding is enabled)', type=click.Choice(['yes', 'no', 'true', 'false']))
+@click.option('--regex', required=False, default=None, help='Domain will be evaluated as a regular expression', type=click.Choice(['yes', 'no', 'true', 'false']))
 @with_appcontext
-def cli_zones_update(domain, active, catch_all, forwarding):
+def cli_zones_update(domain, active, catch_all, forwarding, regex):
     provider = Provider()
     zones = provider.dns_zones()
 
@@ -97,6 +100,9 @@ def cli_zones_update(domain, active, catch_all, forwarding):
 
     if forwarding is not None:
         zone.forwarding = (forwarding in ['yes', 'true'])
+
+    if regex is not None:
+        zone.regex = (regex in ['yes', 'true'])
 
     zone.save()
 

@@ -94,6 +94,14 @@ class DNSZone(BaseInstance):
         self.item.forwarding = value
 
     @property
+    def regex(self):
+        return self.item.regex
+
+    @regex.setter
+    def regex(self, value):
+        self.item.regex = value
+
+    @property
     def restrictions(self):
         return self.__restrictions
 

@@ -22,7 +22,7 @@ class DNSZoneManager(SharedHelper):
         self.tag_manager = tag_manager
 
     def __get(self, id=None, user_id=None, domain=None, active=None, catch_all=None, master=None, order_by='id',
-              page=None, per_page=None, search=None, tags=None):
+              page=None, per_page=None, search=None, tags=None, regex=None):
         query = DNSZoneModel.query
 
         if id is not None:
@@ -42,6 +42,9 @@ class DNSZoneManager(SharedHelper):
 
         if master is not None:
             query = query.filter(DNSZoneModel.master == master)
+
+        if regex is not None:
+            query = query.filter(DNSZoneModel.regex == regex)
 
         if (search is not None) and (len(search) > 0):
             query = query.filter(DNSZoneModel.domain.ilike("%{0}%".format(search)))
@@ -133,13 +136,14 @@ class DNSZoneManager(SharedHelper):
         item.save()
         return item
 
-    def save(self, zone, user_id, domain, active, catch_all, master, forwarding, update_old_logs=False):
+    def save(self, zone, user_id, domain, active, catch_all, master, forwarding, regex, update_old_logs=False):
         zone.user_id = user_id
         zone.domain = domain.lower()
         zone.active = active
         zone.catch_all = catch_all
         zone.master = master
         zone.forwarding = forwarding
+        zone.regex = regex
         zone.save()
 
         if update_old_logs:
@@ -195,6 +199,14 @@ class DNSZoneManager(SharedHelper):
 
         return self.__load(results[0])
 
+    def load_regex_domains(self, user_id=None):
+        results = self.__get(user_id=user_id, regex=True)
+        zones = []
+        for result in results:
+            zones.append(self.__load(result))
+
+        return zones
+
     @property
     def base_domain(self):
         return self.settings.get('dns_base_domain', '')
@@ -234,7 +246,7 @@ class DNSZoneManager(SharedHelper):
     def exists(self, dns_zone_id=None, domain=None):
         return len(self.__get(id=dns_zone_id, domain=domain)) > 0
 
-    def new(self, domain, active, catch_all, forwarding, user_id, master=False, update_old_logs=False):
+    def new(self, domain, active, catch_all, forwarding, regex, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0:
@@ -259,7 +271,7 @@ class DNSZoneManager(SharedHelper):
             errors.append('Could not get zone')
             return errors
 
-        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding)
+        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding, regex)
         if not zone:
             errors.append('Could not save zone')
             return errors
@@ -269,7 +281,7 @@ class DNSZoneManager(SharedHelper):
 
         return zone
 
-    def update(self, zone_id, domain, active, catch_all, forwarding, user_id, master=False, update_old_logs=False):
+    def update(self, zone_id, domain, active, catch_all, forwarding, regex, user_id, master=False, update_old_logs=False):
         errors = []
 
         if len(domain) == 0 and master is False:
@@ -295,7 +307,7 @@ class DNSZoneManager(SharedHelper):
             errors.append('This domain already exists.')
             return errors
 
-        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding, update_old_logs=update_old_logs)
+        zone = self.save(zone, user.id, domain, active, catch_all, master, forwarding, regex, update_old_logs=update_old_logs)
         return zone
 
     def export_zones(self, zones, output):
@@ -304,6 +316,7 @@ class DNSZoneManager(SharedHelper):
             'active',
             'catch_all',
             'forwarding',
+            'regex',
             'master',
             'tags'
         ]
@@ -318,6 +331,7 @@ class DNSZoneManager(SharedHelper):
                     '1' if zone.active else '0',
                     '1' if zone.catch_all else '0',
                     '1' if zone.forwarding else '0',
+                    '1' if zone.regex else '0',
                     '1' if zone.master else '0',
                     ','.join(self.__load_tags(zone.id))
                 ]

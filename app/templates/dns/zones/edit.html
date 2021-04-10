@@ -45,7 +45,7 @@
                         <div class="col">
                             <label for="catch_all">
                                 Catch-All
-                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="All subdomains for this zone will match this domain, if no other match is found. If disabled, the incoming DNS must match the full domain in order to get a response. Fallback matches will be ignored." data-original-title="Catch-All"><i class="fas fa-question-circle ml-1"></i></a>
+                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="All subdomains for this zone will match this domain, if no other match is found. If disabled, the incoming DNS must match the full domain in order to get a response. Fallback matches will be ignored.<br><br>This setting is ignored when Regular Expressions are enabled." data-original-title="Catch-All"><i class="fas fa-question-circle ml-1"></i></a>
                             </label>
                         </div>
                         <div class="col text-right">
@@ -67,6 +67,21 @@
                             <div class="custom-control custom-switch">
                                 <input name="forwarding" type="checkbox" class="custom-control-input" id="forwarding" value="1" {{ 'checked' if (dns_zone_id > 0 and zone.forwarding) }}>
                                 <label class="custom-control-label" for="forwarding"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row py-0 my-0">
+                        <div class="col">
+                            <label for="regex" class="text-nowrap">
+                                Regular Expression
+                                <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="The value of the domain will be evaluated as a regular expression. Make sure that no two zones share a regular expression where a domain can evaluate to true in both.<br><br>To match:<br><span class='text-monospace'>hello###.example.com</span><br>Enter:<br><span class='text-monospace'>hello[0-9]{3}\.example\.com</span>" data-original-title="Regular Expression"><i class="fas fa-question-circle ml-1"></i></a>
+                            </label>
+                        </div>
+                        <div class="col text-right">
+                            <div class="custom-control custom-switch">
+                                <input name="regex" type="checkbox" class="custom-control-input" id="regex" value="1" {{ 'checked' if (dns_zone_id > 0 and zone.regex) }}>
+                                <label class="custom-control-label" for="regex"></label>
                             </div>
                         </div>
                     </div>

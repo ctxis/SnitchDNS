@@ -1,5 +1,6 @@
 import ipaddress
 import os
+import re
 
 
 class DNSManager:
@@ -42,6 +43,16 @@ class DNSManager:
                 return False
 
         return zone
+
+    def find_zone_regex(self, domain):
+        zones = self.zone_manager.load_regex_domains()
+        for zone in zones:
+            if re.search(zone.domain, domain):
+                if not zone.active:
+                    break
+                return zone
+
+        return False
 
     def find_all_records(self, zone, cls, type, active=None):
         records = self.record_manager.find(zone.id, cls, type, active=active)

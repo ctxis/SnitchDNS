@@ -22,7 +22,7 @@ class DNSImportManager(SharedHelper):
         self.__last_error = ''
         self.__dns_zones = dns_zones
         self.__dns_records = dns_records
-        self.__zone_headers = ['domain', 'active', 'catch_all', 'forwarding', 'master', 'tags']
+        self.__zone_headers = ['domain', 'active', 'catch_all', 'forwarding', 'regex', 'master', 'tags']
         self.__record_headers = ['domain', 'id', 'ttl', 'cls', 'type', 'active', 'data', 'is_conditional', 'conditional_count', 'conditional_limit', 'conditional_reset', 'conditional_data']
         self.__users = users
 
@@ -130,6 +130,7 @@ class DNSImportManager(SharedHelper):
                 zone_to_import['active'],
                 zone_to_import['catch_all'],
                 zone_to_import['forwarding'],
+                zone_to_import['regex'],
                 zone_to_import['master'],
                 user_id,
                 id=zone_to_import['id'],
@@ -271,6 +272,7 @@ class DNSImportManager(SharedHelper):
             active = True if zone['active'] in ['1', 'yes', 'true'] else False
             catch_all = True if zone['catch_all'] in ['1', 'yes', 'true'] else False
             forwarding = True if zone['forwarding'] in ['1', 'yes', 'true'] else False
+            regex = True if zone['regex'] in ['1', 'yes', 'true'] else False
             master = True if zone['master'] in ['1', 'yes', 'true'] else False
             tags = zone['tags'].split(',')
             # Trim each element.
@@ -291,6 +293,7 @@ class DNSImportManager(SharedHelper):
                     'active': active,
                     'catch_all': catch_all,
                     'forwarding': forwarding,
+                    'regex': regex,
                     'master': master,
                     'tags': tags
                 }
@@ -503,6 +506,7 @@ class DNSImportManager(SharedHelper):
                     'active': row['active'].strip().lower(),
                     'catch_all': row['catch_all'].strip().lower(),
                     'forwarding': row['forwarding'].strip().lower(),
+                    'regex': row['regex'].strip().lower(),
                     'master': row['master'].strip().lower(),
                     'tags': row['tags'].strip()
                 })
@@ -550,12 +554,13 @@ class DNSImportManager(SharedHelper):
 
         return mapping
 
-    def __zone_update_or_create(self, domain, active, catch_all, forwarding, master, user_id, id=None, autocommit=True):
+    def __zone_update_or_create(self, domain, active, catch_all, forwarding, regex, master, user_id, id=None, autocommit=True):
         params = {
             'domain': domain,
             'active': active,
             'catch_all': catch_all,
             'forwarding': forwarding,
+            'regex': regex,
             'master': master,
             'user_id': user_id,
             'updated_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -563,12 +568,12 @@ class DNSImportManager(SharedHelper):
         if (id is None) or (id == 0):
             params['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            sql = "INSERT INTO dns_zones (domain, active, catch_all, forwarding, master, user_id, updated_at, created_at)" \
-                  "VALUES(:domain, :active, :catch_all, :forwarding, :master, :user_id, :updated_at, :created_at)"
+            sql = "INSERT INTO dns_zones (domain, active, catch_all, forwarding, regex, master, user_id, updated_at, created_at)" \
+                  "VALUES(:domain, :active, :catch_all, :forwarding, :regex, :master, :user_id, :updated_at, :created_at)"
         else:
             params['id'] = id
 
-            sql = "UPDATE dns_zones SET domain = :domain, active = :active, catch_all = :catch_all, forwarding = :forwarding, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
+            sql = "UPDATE dns_zones SET domain = :domain, active = :active, catch_all = :catch_all, forwarding = :forwarding, regex = :regex, master = :master, user_id = :user_id, updated_at = :updated_at WHERE id = :id"
 
         result = db.session.execute(sql, params)
         if autocommit:

@@ -71,6 +71,7 @@ paths:
               - active
               - catch_all
               - forwarding
+              - regex
               - master
               - tags
             properties:
@@ -81,6 +82,8 @@ paths:
               catch_all:
                 type: boolean
               forwarding:
+                type: boolean
+              regex:
                 type: boolean
               master:
                 type: boolean
@@ -136,6 +139,8 @@ paths:
               catch_all:
                 type: boolean
               forwarding:
+                type: boolean
+              regex:
                 type: boolean
               tags:
                 type: string
@@ -687,6 +692,8 @@ definitions:
       catch_all:
         type: boolean
       forwarding:
+        type: boolean
+      regex:
         type: boolean
       master:
         type: boolean

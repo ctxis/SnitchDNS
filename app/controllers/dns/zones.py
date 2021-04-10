@@ -152,9 +152,10 @@ def __zone_create():
     active = True if int(request.form.get('active', 0)) == 1 else False
     catch_all = True if int(request.form.get('catch_all', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
+    regex = True if int(request.form.get('regex', 0)) == 1 else False
     tags = request.form.getlist('tags')
 
-    zone = zones.new(domain, active, catch_all, forwarding, current_user.id, update_old_logs=True)
+    zone = zones.new(domain, active, catch_all, forwarding, regex, current_user.id, update_old_logs=True)
     if isinstance(zone, list):
         for error in zone:
             flash(error, 'error')
@@ -186,6 +187,7 @@ def __zone_update(dns_zone_id):
     active = True if int(request.form.get('active', 0)) == 1 else False
     catch_all = True if int(request.form.get('catch_all', 0)) == 1 else False
     forwarding = True if int(request.form.get('forwarding', 0)) == 1 else False
+    regex = True if int(request.form.get('regex', 0)) == 1 else False
     tags = request.form.getlist('tags')
 
     if len(domain) == 0:
@@ -196,7 +198,7 @@ def __zone_update(dns_zone_id):
         flash('This domain already exists.', 'error')
         return redirect(url_for('dns.zone_edit', dns_zone_id=dns_zone_id))
 
-    zone = zones.update(zone.id, domain, active, catch_all, forwarding, zone.user_id, master=zone.master, update_old_logs=True)
+    zone = zones.update(zone.id, domain, active, catch_all, forwarding, regex, zone.user_id, master=zone.master, update_old_logs=True)
     if isinstance(zone, list):
         for error in zone:
             flash(error, 'error')

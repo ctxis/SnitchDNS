@@ -5,6 +5,7 @@ class Zone:
         self.active = False
         self.catch_all = False
         self.forwarding = False
+        self.regex = False
         self.master = False
         self.domain = ''
         self.created_at = ''
