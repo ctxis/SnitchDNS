@@ -346,7 +346,8 @@ class DNSImportManager(SharedHelper):
             conditional_data = {}
             if len(type) > 0:
                 data = self.__process_record_data(record, type, record_errors)
-                conditional_data = self.__process_record_data(record, type, record_errors, is_conditional=True)
+                if is_conditional:
+                    conditional_data = self.__process_record_data(record, type, record_errors, is_conditional=True)
 
             if len(record_errors) == 0:
                 items.append({
