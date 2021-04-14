@@ -40,6 +40,7 @@ def profile_save():
         flash('Invalid authentication type', 'error')
         return redirect(url_for('config.profile'))
 
+    # Username / Name / Email change
     if auth_type.name.lower() == 'ldap':
         has_email_mapping = (len(ldap.mapping_email) > 0)
         if not has_email_mapping:
@@ -48,43 +49,9 @@ def profile_save():
                 flash('Invalid e-mail', 'error')
                 return redirect(url_for('config.profile'))
             user = users.update_property(current_user.id, 'email', email)
-
-        if ldap.pwchange:
-            existing_password = request.form['existing_password'].strip()
-            new_password = request.form['new_password'].strip()
-            confirm_password = request.form['confirm_password'].strip()
-
-            if len(existing_password) > 0 and len(new_password) > 0 and len(confirm_password) > 0:
-                # Password change as well.
-                if len(existing_password) == 0:
-                    flash('Please enter your existing password', 'error')
-                    return redirect(url_for('config.profile'))
-                elif len(new_password) == 0:
-                    flash('Please enter your new password', 'error')
-                    return redirect(url_for('config.profile'))
-                elif new_password != confirm_password:
-                    flash('New passwords do not match', 'error')
-                    return redirect(url_for('config.profile'))
-
-                if not ldap.update_password_ad(user.username, existing_password, new_password):
-                    if len(ldap.error_message) > 0:
-                        flash(ldap.error_message, 'error')
-                    else:
-                        flash('Could not update password', 'error')
-                    return redirect(url_for('config.profile'))
-
-                # Force the user to re-login.
-                users.logout_session(current_user.id)
-
-                flash('Please login with your new password', 'success')
-                return redirect(url_for('config.profile'))
     elif auth_type.name.lower() == 'local':
         full_name = request.form['full_name'].strip()
         email = request.form['email'].strip().lower().replace(' ', '')
-
-        existing_password = request.form['existing_password'].strip()
-        new_password = request.form['new_password'].strip()
-        confirm_password = request.form['confirm_password'].strip()
 
         if len(full_name) == 0:
             flash('Invalid full name', 'error')
@@ -96,8 +63,13 @@ def profile_save():
         user = users.update_property(current_user.id, 'email', email)
         user = users.update_property(current_user.id, 'full_name', full_name)
 
+    # Password change
+    if (auth_type.name.lower() == 'ldap' and ldap.pwchange) or (auth_type.name.lower() == 'local'):
+        existing_password = request.form['existing_password'].strip()
+        new_password = request.form['new_password'].strip()
+        confirm_password = request.form['confirm_password'].strip()
+
         if len(existing_password) > 0 and len(new_password) > 0 and len(confirm_password) > 0:
-            # Password change as well.
             if len(existing_password) == 0:
                 flash('Please enter your existing password', 'error')
                 return redirect(url_for('config.profile'))
@@ -108,12 +80,20 @@ def profile_save():
                 flash('New passwords do not match', 'error')
                 return redirect(url_for('config.profile'))
 
-            if not users.validate_user_password(current_user.id, existing_password):
-                flash('Invalid existing password', 'error')
-                return redirect(url_for('config.profile'))
-            elif not users.update_user_password(current_user.id, new_password):
-                flash('Could not update password: ' + users.last_error, 'error')
-                return redirect(url_for('config.profile'))
+            if auth_type.name.lower() == 'ldap':
+                if not ldap.update_password_ad(user.username, existing_password, new_password):
+                    if len(ldap.error_message) > 0:
+                        flash(ldap.error_message, 'error')
+                    else:
+                        flash('Could not update password', 'error')
+                    return redirect(url_for('config.profile'))
+            elif auth_type.name.lower() == 'local':
+                if not users.validate_user_password(current_user.id, existing_password):
+                    flash('Invalid existing password', 'error')
+                    return redirect(url_for('config.profile'))
+                elif not users.update_user_password(current_user.id, new_password):
+                    flash('Could not update password: ' + users.last_error, 'error')
+                    return redirect(url_for('config.profile'))
 
             # Force the user to re-login.
             users.logout_session(current_user.id)
