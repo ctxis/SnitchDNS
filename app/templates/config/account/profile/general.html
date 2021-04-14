@@ -35,10 +35,10 @@
                     <label for="full_name">Full Name</label>
                 </div>
                 <div class="col">
-                    {% if auth_types[user.auth_type_id].lower() != 'local' %}
-                    {{ user.full_name }}
+                    {% if auth_type != 'local' %}
+                        {{ user.full_name }}
                     {% else %}
-                    <input type="text" class="form-control" name="full_name" id="full_name" value="{{ user.full_name }}" required>
+                        <input type="text" class="form-control" name="full_name" id="full_name" value="{{ user.full_name }}" required>
                     {% endif %}
                 </div>
             </div>
@@ -48,20 +48,24 @@
                     <label for="email">E-mail</label>
                 </div>
                 <div class="col">
-                    {% if (auth_types[user.auth_type_id].lower() != 'local') and (has_email_mapping == True) %}
-                    {{ user.email }}
+                    {% if (auth_type == 'ldap') and (has_email_mapping == True) %}
+                        {{ user.email }}
                     {% else %}
-                    <input type="email" class="form-control" name="email" id="email" value="{{ user.email }}" required>
+                        <input type="email" class="form-control" name="email" id="email" value="{{ user.email }}" required>
                     {% endif %}
                 </div>
             </div>
 
-            {% if auth_types[user.auth_type_id].lower() == 'local' %}
+            {% if auth_type == 'local' or (auth_type == 'ldap' and ldap_pwdchange) %}
             <h5 class="pb-0 mb-0">Change Password</h5>
 
+            {% if auth_type == 'local' %}
             <div class="form-group">
                 <small class="font-italic">{{ password_complexity }}</small>
             </div>
+            {% else %}
+            <div class="form-group"></div>
+            {% endif %}
 
             <div class="form-group row">
                 <div class="col">

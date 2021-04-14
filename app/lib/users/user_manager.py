@@ -264,7 +264,7 @@ class UserManager(SharedHelper):
         return self.__get(admin=True, active=active)
 
     def otp_new(self, user):
-        otp_secret = pyotp.random_base32(16)
+        otp_secret = pyotp.random_base32(32)
         otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(user.username, issuer_name='SnitchDNS')
         return {
             'secret': otp_secret,

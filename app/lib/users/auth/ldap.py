@@ -8,6 +8,7 @@ class LDAPManager:
     AUTH_SUCCESS = 0
     AUTH_CHANGE_PASSWORD = 1
     AUTH_LOCKED = 2
+    AUTH_PASSWORD_COMPLEXITY = 3
 
     @property
     def enabled(self):
@@ -157,8 +158,9 @@ class LDAPManager:
         # be the ldap3 library or the way AD returns the code, but I can't fix either one soooo here it is!
         ldap_responses = {
             'data 532': self.AUTH_CHANGE_PASSWORD,  # ERROR_PASSWORD_EXPIRED
-            'data 773': self.AUTH_CHANGE_PASSWORD, # ERROR_PASSWORD_MUST_CHANGE
-            'data 533': self.AUTH_LOCKED, # ERROR_ACCOUNT_DISABLED
+            'data 773': self.AUTH_CHANGE_PASSWORD,  # ERROR_PASSWORD_MUST_CHANGE
+            'data 533': self.AUTH_LOCKED,  # ERROR_ACCOUNT_DISABLED
+            '0000052D': self.AUTH_PASSWORD_COMPLEXITY,  # CONSTRAINT_ATT_TYPE
         }
 
         if result is None:
@@ -242,8 +244,10 @@ class LDAPManager:
 
     def update_password_ad(self, username, old_password, new_password):
         # First we need to check their existing password.
+        self.error_message = ''
         result = self.authenticate(username, old_password)
-        if result['result'] != self.AUTH_CHANGE_PASSWORD:
+        if result['result'] != self.AUTH_CHANGE_PASSWORD and result['result'] != self.AUTH_SUCCESS:
+            self.error_message = 'Invalid existing password'
             return False
 
         user = self.__load_user(username)
@@ -252,4 +256,7 @@ class LDAPManager:
 
         connection = self.__connect(self.bind_user, self.bind_pass)
         result = ad_modify_password(connection, user['dn'], new_password, old_password)
+        response = self.__process_result(connection.result)
+        if response and response['result'] == self.AUTH_PASSWORD_COMPLEXITY:
+            self.error_message = 'New password does not meet password complexity/history requirements'
         return result
