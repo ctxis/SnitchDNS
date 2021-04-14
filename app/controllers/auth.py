@@ -52,10 +52,12 @@ def login_process():
     email = ''
 
     if (multiauth is False) or (multiauth is True and auth == 'local'):
+        auth = 'local'  # For when multiauth = False.
         login_result = __auth_local(username, password)
 
     if (login_result is False) and ldap.enabled:
         if (multiauth is False) or (multiauth is True and auth == 'ldap'):
+            auth = 'ldap'
             ldap_result, error_message = __auth_ldap(username, password)
             if ldap_result is False:
                 error_message = error_message if len(error_message) > 0 else 'Invalid credentials'
@@ -66,10 +68,14 @@ def login_process():
                 fullname = ldap_result['user']['fullname'].lower()
                 email = ldap_result['user']['email'].lower()
             elif ldap_result['result'] == ldap.AUTH_CHANGE_PASSWORD:
-                session['ldap_username'] = username
-                session['ldap_time'] = int(time.time())
-                flash('Your LDAP password has expired or needs changing', 'error')
-                return redirect(url_for('auth.ldap_changepwd', next=next))
+                if ldap.pwchange:
+                    session['ldap_username'] = username
+                    session['ldap_time'] = int(time.time())
+                    flash('Your LDAP password has expired or needs changing', 'error')
+                    return redirect(url_for('auth.ldap_changepwd', next=next))
+                else:
+                    flash('Your LDAP password has expired or needs changing', 'error')
+                    return redirect(url_for('auth.login', next=next))
             elif ldap_result['result'] == ldap.AUTH_LOCKED:
                 flash('Your AD account is disabled', 'error')
                 return redirect(url_for('auth.login', next=next))
@@ -79,6 +85,7 @@ def login_process():
 
     if (login_result is False) and radius.enabled:
         if (multiauth is False) or (multiauth is True and auth == 'radius'):
+            auth = 'radius'
             radius_result, error_message = __auth_radius(username, password)
             if radius_result is False:
                 error_message = error_message if len(error_message) > 0 else 'Invalid credentials'
@@ -221,8 +228,12 @@ def logout():
 def ldap_changepwd():
     provider = Provider()
     users = provider.users()
+    ldap = provider.ldap()
 
     next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
+    if not ldap.pwchange:
+        return redirect(url_for('auth.login', next=next))
+    
     username = session['ldap_username'] if 'ldap_username' in session else ''
     ldap_time = session['ldap_time'] if 'ldap_time' in session else 0
     if len(username) == 0:
@@ -250,6 +261,9 @@ def ldap_changepwd_process():
     ldap = provider.ldap()
 
     next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
+    if not ldap.pwchange:
+        return redirect(url_for('auth.login', next=next))
+
     password = request.form['password'].strip()
     new_password = request.form['new_password'].strip()
     confirm_password = request.form['confirm_password'].strip()

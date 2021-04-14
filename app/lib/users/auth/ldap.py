@@ -90,6 +90,14 @@ class LDAPManager:
         self.__mapping_email = value
 
     @property
+    def pwchange(self):
+        return self.__pwchange
+
+    @pwchange.setter
+    def pwchange(self, value):
+        self.__pwchange = value
+
+    @property
     def error_message(self):
         return self.__error_message
 
@@ -124,6 +132,7 @@ class LDAPManager:
         self.__mapping_fullname = ''
         self.__mapping_email = ''
         self.__ssl = False
+        self.__pwchange = False
 
         # Internal.
         self.__error_message = ''

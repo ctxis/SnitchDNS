@@ -238,7 +238,7 @@ class DNSZoneManager(SharedHelper):
             return False
 
         zone = self.create()
-        return self.save(zone, user.id, self.get_user_base_domain(user.username), True, True, True, False)
+        return self.save(zone, user.id, self.get_user_base_domain(user.username), True, True, True, False, False)
 
     def count(self, user_id=None):
         return len(self.__get(user_id=user_id))

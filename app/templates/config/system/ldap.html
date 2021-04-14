@@ -82,6 +82,21 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <div class="col">
+                    <label for="ldap_pwchange">
+                        Allow Password Updates
+                        <a href="#" title="" data-container="body" data-toggle="popover" data-placement="right" data-content="If the Bind User has write privileges, you can enable the LDAP Password change feature when the credentials have expired or for manual update by users.<br><br>In order for this feature to work, the SSL has to be enabled for the LDAP integration." data-original-title="LDAP Password Updates"><i class="fas fa-question-circle ml-1"></i></a>
+                    </label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="ldap_pwchange" type="checkbox" class="custom-control-input" id="ldap_pwchange" value="1" {{ 'checked' if setting_get('ldap_pwchange', False) == True }}>
+                        <label class="custom-control-label" for="ldap_pwchange"></label>
+                    </div>
+                </div>
+            </div>
+
             <h5>Mappings</h5>
 
             <div class="form-group row">

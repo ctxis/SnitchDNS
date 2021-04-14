@@ -9,6 +9,12 @@ from app.lib.base.decorators import admin_required
 @login_required
 @admin_required
 def ldap():
+    provider = Provider()
+    ldap = provider.ldap()
+
+    if ldap.enabled and ldap.pwchange and ldap.ssl is False:
+        flash('The Password Updates functionality will not work properly as SSL is disabled', 'error')
+
     return render_template('config/system/ldap.html')
 
 
@@ -21,6 +27,7 @@ def ldap_save():
 
     ldap_enabled = True if int(request.form.get('ldap_enabled', 0)) == 1 else False
     ldap_ssl = True if int(request.form.get('ldap_ssl', 0)) == 1 else False
+    ldap_pwchange = True if int(request.form.get('ldap_pwchange', 0)) == 1 else False
     ldap_bind_pass = request.form['ldap_bind_pass'].strip()
 
     # Put the rest of the ldap options in a dict to make it easier to validate and save.
@@ -49,6 +56,7 @@ def ldap_save():
     settings.save('ldap_mapping_email', request.form['ldap_mapping_email'].strip())
     settings.save('ldap_enabled', ldap_enabled)
     settings.save('ldap_ssl', ldap_ssl)
+    settings.save('ldap_pwchange', ldap_pwchange)
     for key, data in ldap_settings.items():
         settings.save(key, data['value'])
 

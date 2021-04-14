@@ -128,6 +128,7 @@ class Provider:
 
         manager.enabled = settings.get('ldap_enabled', False, type=bool)
         manager.ssl = settings.get('ldap_ssl', False, type=bool)
+        manager.pwchange = settings.get('ldap_pwchange', False, type=bool)
         manager.host = settings.get('ldap_host', '')
         manager.base_dn = settings.get('ldap_base_dn', '')
         manager.domain = settings.get('ldap_domain', '')
