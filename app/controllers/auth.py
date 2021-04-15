@@ -227,7 +227,6 @@ def logout():
 @bp.route('/ldap/password', methods=['GET'])
 def ldap_changepwd():
     provider = Provider()
-    users = provider.users()
     ldap = provider.ldap()
 
     next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
@@ -245,19 +244,12 @@ def ldap_changepwd():
         session.pop('ldap_time', None)
         return redirect(url_for('auth.login', next=next))
 
-    user = users.find_user_login(username, auth='ldap')
-    if not user:
-        session.pop('ldap_username', None)
-        session.pop('ldap_time', None)
-        return redirect(url_for('auth.login', next=next))
-
     return render_template('auth/ldap_password.html', next=request.args.get('next', ''))
 
 
 @bp.route('/ldap/password', methods=['POST'])
 def ldap_changepwd_process():
     provider = Provider()
-    users = provider.users()
     ldap = provider.ldap()
 
     next = urllib.parse.unquote_plus(request.args.get('next', '').strip())
@@ -279,12 +271,6 @@ def ldap_changepwd_process():
         session.pop('ldap_time', None)
         return redirect(url_for('auth.login', next=next))
 
-    user = users.find_user_login(username, auth='ldap')
-    if not user:
-        session.pop('ldap_username', None)
-        session.pop('ldap_time', None)
-        return redirect(url_for('auth.login', next=next))
-
     if len(password) == 0:
         flash('Please enter your current password', 'error')
         return redirect(url_for('ldap_changepwd', next=next))
@@ -295,10 +281,10 @@ def ldap_changepwd_process():
         flash('New passwords do not match', 'error')
         return redirect(url_for('ldap_changepwd', next=next))
 
-    session.pop('ldap_username', None)
+    username = session.pop('ldap_username', None)
     session.pop('ldap_time', None)
 
-    if not ldap.update_password_ad(user.username, password, new_password):
+    if not ldap.update_password_ad(username, password, new_password):
         flash('Could not update password', 'error')
         return redirect(url_for('auth.login', next=next))
 
