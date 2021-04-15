@@ -27,10 +27,10 @@ def radius_save():
 
     if len(radius_host) == 0:
         flash('RADIUS Host cannot be empty', 'error')
-        return redirect(url_for('config.ldap'))
+        return redirect(url_for('config.radius'))
     elif radius_port <= 0:
         flash('Invalid RADIUS port', 'error')
-        return redirect(url_for('config.ldap'))
+        return redirect(url_for('config.radius'))
 
     settings.save('radius_host', radius_host)
     settings.save('radius_port', radius_port)
