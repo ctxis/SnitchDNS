@@ -5,6 +5,7 @@ SnitchDNS is a database driven DNS Server with a Web UI, written in Python and [
 One of its main features is the logging of all DNS queries allowing the discovery of network traffic endpoints, and it can also be used to implement canary tokens as it supports notifications via e-mail, web push, Slack, and Teams. Red teamers can also use SnitchDNS to monitor phishing domains for sandboxes, integrate with SIEM solutions, restrict responses to specific IP ranges, egress data via a DNS tunnel and catch-all domains, and more.
 
 * [Installation](#installation)
+  * [Update to Latest Version](docs/setup/update.md)
   * [The Manual Way](docs/setup/manual.md)
   * [The Ansible Way](docs/setup/ansible.md)
   * [The Docker Way](docs/setup/docker.md)
@@ -25,6 +26,7 @@ One of its main features is the logging of all DNS queries allowing the discover
 
 Please make sure you install using `git` rather than by downloading the repo manually.
 
+* [Update to Latest Version](docs/setup/update.md)
 * [The Manual Way](docs/setup/manual.md)
 * [The Ansible Way](docs/setup/ansible.md)
 * [The Docker Way](docs/setup/docker.md)
