@@ -77,6 +77,7 @@ RUN openssl req \
     -subj "/C=GB/CN=${SNITCH_DOMAIN}"
 
 RUN cp ./setup/ansible/roles/webserver/templates/apache/ubuntu.vhost.conf.j2 $CONFIG_PATH/http/vhost.conf
+RUN sed -i "s|https://{{|http://{{|g" $CONFIG_PATH/http/vhost.conf
 RUN sed -i "s|{{ web.domain }}|${SNITCH_DOMAIN}|g" $CONFIG_PATH/http/vhost.conf
 RUN sed -i "s|{{ web.bind_host }}|127.0.0.1|g" $CONFIG_PATH/http/vhost.conf
 RUN sed -i "s|{{ web.bind_port }}|8888|g" $CONFIG_PATH/http/vhost.conf
