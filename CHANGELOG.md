@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.1
+
+* `[Fix]` Fix RADIUS password encoding from `ascii` to `utf8`.
+
 ## v1.1.0
 
 * `[New]` Implement RADIUS authentication.

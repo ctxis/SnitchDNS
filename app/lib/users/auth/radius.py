@@ -96,4 +96,4 @@ class RADIUSManager:
         return False
 
     def __get_client(self):
-        return Client(server=self.host, authport=self.port, secret=self.secret.encode('ascii'), dict=Dictionary(self.dictionary), retries=1)
+        return Client(server=self.host, authport=self.port, secret=self.secret.encode('utf8'), dict=Dictionary(self.dictionary), retries=1)
