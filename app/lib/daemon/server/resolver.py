@@ -81,7 +81,7 @@ class DatabaseDNSResolver:
                 # Remove the first element of the array, to continue searching for a matching domain.
                 parts.pop(0)
 
-                db_zone = self.__dns_manager.find_zone(path, domain)
+                db_zone = self.__dns_manager.find_zone(path, domain.lower())
                 if db_zone:
                     lookup_result, answers, log = self.__get_zone_answers(db_zone, query, cls, type, log)
                     break
