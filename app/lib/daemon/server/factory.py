@@ -1,10 +1,15 @@
 from twisted.names.server import DNSServerFactory
 from twisted.names import dns
+from app.lib.dns.records.record_caa import Record_CAA
 import threading
 import time
 import csv
 
 csv_logging_lock = threading.Lock()
+
+# Add custom record CAA which isn't supported by Twisted yet.
+dns.QUERY_TYPES[Record_CAA.TYPE] = Record_CAA.fancybasename
+dns.REV_TYPES[Record_CAA.fancybasename] = Record_CAA.TYPE
 
 
 class DatabaseDNSFactory(DNSServerFactory):

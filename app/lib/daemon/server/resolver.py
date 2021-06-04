@@ -2,6 +2,7 @@ from twisted.names import dns, error
 from twisted.names.dns import REV_TYPES
 from twisted.internet import defer
 from app.lib.dns.records.record_snitch import Record_SNITCH
+from app.lib.dns.records.record_caa import Record_CAA
 
 
 class DatabaseDNSResolver:
@@ -265,6 +266,10 @@ class DatabaseDNSResolver:
         elif query_type == dns.TXT:
             record = dns.Record_TXT(
                 db_record.property('data', conditional=is_conditional_response).encode()
+            )
+        elif query_type == Record_CAA.TYPE:
+            record = Record_CAA(
+                db_record.property('issue', conditional=is_conditional_response).encode()
             )
         else:
             pass

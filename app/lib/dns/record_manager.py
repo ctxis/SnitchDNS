@@ -22,6 +22,7 @@ class DNSRecordManager:
                 del copy[rec]
 
         items = list(copy.values())
+        items.append('CAA')
         items.sort()
         return items
 
@@ -209,6 +210,10 @@ class DNSRecordManager:
                 'original_id': 'int',
                 'mac': 'str',
                 'other_data': 'str'
+            }
+        elif record_type in ['CAA']:
+            properties = {
+                'issue': 'str'
             }
 
         if clean:

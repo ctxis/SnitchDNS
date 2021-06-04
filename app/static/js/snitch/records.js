@@ -93,6 +93,10 @@ var SnitchDNSRecords = {
                     $('#' + c).val(properties[n]);
                 });
                 break;
+            case 'CAA':
+                ['issue'].forEach((n) => {
+                    $('#' + n).val(properties[n]);
+                });
         }
     },
 
@@ -114,7 +118,8 @@ var SnitchDNSRecords = {
             'SSHFP': 'record-group-10',
             'TXT': 'record-group-11',
             'SPF': 'record-group-11',
-            'TSIG': 'record-group-12'
+            'TSIG': 'record-group-12',
+            'CAA': 'record-group-13'
         };
 
         return (recordType in recordMapping) ? recordMapping[recordType] : false;
