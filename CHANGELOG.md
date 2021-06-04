@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.2
+
+* `[New]` Implement support DNS Cache.
+* `[New]` Implement support for CAA records.
+* `[Fix]` Return SOA responses the right way.
+* `[Fix]` Fix issue to match domains regardless of upper/lower case formats.
+
 ## v1.1.1
 
 * `[Fix]` Fix RADIUS password encoding from `ascii` to `utf8`.
