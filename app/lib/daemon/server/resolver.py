@@ -28,7 +28,7 @@ class DatabaseDNSResolver:
         with self.__app.app_context():
             lookup = self.__find(query)
             data['answers'] = lookup['answers']
-            data['found'] = (len(data['answers']) > 0)
+            data['found'] = lookup['found']
             data['stop'] = (lookup['result'] == 'stop')
 
             log = lookup['log']
@@ -39,6 +39,9 @@ class DatabaseDNSResolver:
                 log.forwarded = False
             log.save()
 
+            if data['found'] and len(data['answers']) == 0:
+                data['authority'] = lookup['soa_answers']
+
             # At this point, add a dict as an answer that will hold the track of the database record log.
             # I don't like this and this isn't my proudest moment. But I can't access the Source IP from here.
             data['answers'].append(Record_SNITCH(name='SNITCH', ttl=log.id))
@@ -46,7 +49,9 @@ class DatabaseDNSResolver:
 
     def __find(self, query):
         answers = []
+        soa_answers = []
         lookup_result = ''
+        found = False
 
         domain = str(query.name.name.decode('utf-8'))
         type = str(dns.QUERY_TYPES.get(query.type, None))
@@ -83,21 +88,27 @@ class DatabaseDNSResolver:
 
                 db_zone = self.__dns_manager.find_zone(path, domain.lower())
                 if db_zone:
+                    found = True
                     lookup_result, answers, log = self.__get_zone_answers(db_zone, query, cls, type, log)
+                    if len(answers) == 0:
+                        soa_lookup_result, soa_answers, soa_log = self.__get_zone_answers(db_zone, query, cls, 'SOA', None)
                     break
 
         log.save()
         return {
             'result': lookup_result if len(lookup_result) > 0 else 'continue',
             'answers': answers,
-            'log': log
+            'soa_answers': soa_answers,
+            'log': log,
+            'found': found
         }
 
     def __get_zone_answers(self, db_zone, query, cls, type, log):
         answers = []
         lookup_result = ''
 
-        log.dns_zone_id = db_zone.id
+        if log:
+            log.dns_zone_id = db_zone.id
 
         db_records = self.__get_records(db_zone, cls, type)
         if len(db_records) == 0:
@@ -106,7 +117,8 @@ class DatabaseDNSResolver:
         else:
             for db_record in db_records:
                 # This will hold the last db_record but we don't really care about that.
-                log.dns_record_id = db_record.id
+                if log:
+                    log.dns_record_id = db_record.id
 
                 answer = self.__build_answer(query, db_zone, db_record, is_conditional_response=self.__is_conditional_response(db_record))
                 if not answer:
