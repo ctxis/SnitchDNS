@@ -5,6 +5,7 @@ from app.lib.models.dns import DNSZoneTagModel
 class DNSZone(BaseInstance):
     def __init__(self, item):
         super().__init__(item)
+        self._uses_cache = True
 
         self.__record_count = 0
         self.__match_count = 0

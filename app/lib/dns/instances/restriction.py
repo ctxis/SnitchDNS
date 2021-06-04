@@ -2,6 +2,10 @@ from app.lib.base.instance.base_instance import BaseInstance
 
 
 class DNSZoneRestriction(BaseInstance):
+    def __init__(self, item):
+        super().__init__(item)
+        self._uses_cache = True
+
     @property
     def zone_id(self):
         return self.item.zone_id

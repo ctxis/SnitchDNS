@@ -6,10 +6,11 @@ from app.lib.dns.records.record_caa import Record_CAA
 
 
 class DatabaseDNSResolver:
-    def __init__(self, app, dns_manager, logging):
+    def __init__(self, app, dns_manager, logging, cache):
         self.__app = app
         self.__dns_manager = dns_manager
         self.__logging = logging
+        self.__cache = cache
 
     def query(self, query, timeout=None):
         data = self.__lookup(query)
@@ -61,6 +62,10 @@ class DatabaseDNSResolver:
         # Create a new logging record.
         log = self.__logging.create(domain=domain, type=type, cls=cls)
 
+        cached_result = self.__cache.get(domain, cls, type, log)
+        if cached_result:
+            return cached_result
+
         # Before we start checking the domain part by part, check it against any regex domains.
         db_zone = self.__dns_manager.find_zone_regex(domain)
         if db_zone:
@@ -96,13 +101,17 @@ class DatabaseDNSResolver:
                     break
 
         log.save()
-        return {
+
+        result = {
             'result': lookup_result if len(lookup_result) > 0 else 'continue',
             'answers': answers,
             'soa_answers': soa_answers,
             'log': log,
             'found': found
         }
+
+        self.__cache.add(domain, cls, type, result)
+        return result
 
     def __get_zone_answers(self, db_zone, query, cls, type, log):
         answers = []

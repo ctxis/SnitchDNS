@@ -5,6 +5,7 @@ import json
 class DNSRecord(BaseInstance):
     def __init__(self, item):
         super().__init__(item)
+        self._uses_cache = True
 
         self.__match_count = 0
         self.__load_properties()

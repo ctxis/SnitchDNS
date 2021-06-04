@@ -1,10 +1,12 @@
 import datetime
 from app import db
+from app.lib.base.settings import SettingsManager
 
 
 class BaseInstance:
     def __init__(self, item):
         self.item = item
+        self._uses_cache = False
 
     def save(self):
         self.item.updated_at = datetime.datetime.now()
@@ -13,6 +15,9 @@ class BaseInstance:
             db.session.add(self.item)
         self.commit()
         db.session.refresh(self.item)
+
+        if self._uses_cache:
+            SettingsManager().save('dns_clear_cache', True)
 
     def delete(self):
         db.session.delete(self.item)

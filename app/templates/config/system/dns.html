@@ -57,6 +57,18 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <div class="col">
+                    <label for="dns_cache_enabled">Enable DNS Caching</label>
+                </div>
+                <div class="col text-right">
+                    <div class="custom-control custom-switch">
+                        <input name="dns_cache_enabled" type="checkbox" class="custom-control-input" id="dns_cache_enabled" value="1" {{ 'checked' if setting_get('dns_cache_enabled', False) == True }}>
+                        <label class="custom-control-label" for="dns_cache_enabled"></label>
+                    </div>
+                </div>
+            </div>
+
             <h4 class="mt-4">DNS Forwarding</h4>
             <div class="form-group row">
                 <div class="col">
