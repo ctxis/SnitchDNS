@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.3
+
+* `[Fix]` Fix issue when auto-creating zone from a log entry.
+
 ## v1.1.2
 
 * `[New]` Implement support DNS Cache.
