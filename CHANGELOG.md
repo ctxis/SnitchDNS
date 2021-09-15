@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.4
+
+* `[Fix]` Fix issue in API when creating and updating records without defining conditional data.
+
 ## v1.1.3
 
 * `[Fix]` Fix issue when auto-creating zone from a log entry.

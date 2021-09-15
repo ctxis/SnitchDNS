@@ -134,8 +134,11 @@ class ApiRecords(ApiBase):
         basic_data, errors = self.__parse_data_properties(data['data'], record_type_properties)
         all_errors += errors
 
-        conditional_data, errors = self.__parse_data_properties(data['conditional_data'], record_type_conditional_properties)
-        all_errors += errors
+        if data['is_conditional']:
+            conditional_data, errors = self.__parse_data_properties(data['conditional_data'], record_type_conditional_properties)
+            all_errors += errors
+        else:
+            conditional_data = {}
 
         if len(errors) > 0:
             return self.send_error_response(
@@ -240,7 +243,7 @@ class ApiRecords(ApiBase):
         else:
             data['data'] = record.data
 
-        if 'conditional_data' in data:
+        if ('conditional_data' in data) and (data['is_conditional'] is True):
             record_type_properties = records.get_record_type_properties(data['type'], clean=True)
             data['conditional_data'], errors = self.__parse_data_properties(data['conditional_data'], record_type_properties)
             if len(errors) > 0:
