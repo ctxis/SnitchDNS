@@ -47,22 +47,36 @@
                         <span class="ml-2">DNS Daemon Running</span>
                     </div>
                     <div class="float-right">
-                        <form method="post" action="{{ url_for('config.system_daemon') }}">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         {% if daemon_running %}
+                        <form method="post" action="{{ url_for('config.system_daemon') }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="action" value="restart">
+                            <a href="#" class="submit-on-click text-decoration-none" title="Restart Daemon">
+                                <span class="text-warning">
+                                    <i class="fas fa-redo fa-fw"></i>
+                                </span>
+                            </a>
+                        </form>
+
+                        <form method="post" action="{{ url_for('config.system_daemon') }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="action" value="stop">
                             <a href="#" class="submit-on-click" title="Stop Daemon">
                                 <span class="text-danger">
                                     <i class="fas fa-stop fa-fw"></i>
                                 </span>
                             </a>
+                        </form>
                         {% else %}
+                        <form method="post" action="{{ url_for('config.system_daemon') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="action" value="start">
                             <a href="#" class="submit-on-click" title="Start Daemon">
                                 <span class="text-success">
                                     <i class="fas fa-play fa-fw"></i>
                                 </span>
                             </a>
+                        </form>
                         {% endif %}
                         </form>
                     </div>

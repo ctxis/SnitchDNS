@@ -40,8 +40,8 @@ class DaemonManager:
             for pid in pids:
                 self.__system.process_kill(pid)
 
-        # Wait a bit.
-        time.sleep(5)
+            # Wait a bit.
+            time.sleep(5)
 
         return not self.is_running()
 

@@ -2,6 +2,7 @@
 
 ## v1.1.5
 
+* `[New]` Added 'restart daemon' button in system settings.
 * `[Update]` Update jQuery to v3.6.0, and jQuery Validate to v1.19.3.
 
 ## v1.1.4

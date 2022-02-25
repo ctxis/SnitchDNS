@@ -45,7 +45,7 @@ def system_daemon():
     if not daemon.is_configured():
         flash('DNS Daemon is not configured', 'error')
         return redirect(url_for('config.system'))
-    elif action not in ['start', 'stop']:
+    elif action not in ['start', 'stop', 'restart']:
         flash('Invalid action', 'error')
         return redirect(url_for('config.system'))
 
@@ -58,6 +58,15 @@ def system_daemon():
         # Only admins can stop the service.
         if daemon.stop():
             flash('DNS Daemon Stopped', 'success')
+        else:
+            flash('Could not stop DNS Daemon', 'error')
+    elif action == 'restart' and current_user.admin:
+        # Only admins can restart the service.
+        if daemon.stop():
+            if daemon.start():
+                flash('DNS Daemon Restarted', 'success')
+            else:
+                flash('Could not start DNS Daemon', 'error')
         else:
             flash('Could not stop DNS Daemon', 'error')
 
