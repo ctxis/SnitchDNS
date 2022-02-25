@@ -26,6 +26,24 @@ class DNSManager:
 
         return True
 
+    def is_valid_forwarder(self, value):
+        item = value.split(':')
+
+        if len(item) == 1:
+            # There's only an IP.
+            return self.is_valid_ip_address(value)
+        elif len(item) == 2:
+            # Both IP:Port
+            if not self.is_valid_ip_address(item[0]):
+                return False
+            try:
+                port = int(item[1])
+                return 0 < port < 65535
+            except ValueError:
+                return False
+
+        return False
+
     def find_zone(self, domain, original_domain, validate_catch_all=True):
         zone = self.zone_manager.find(domain)
         if zone is False:

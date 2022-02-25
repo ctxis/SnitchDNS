@@ -30,7 +30,14 @@ class DNSDaemonCLI:
             return servers
 
         for forwarder in forwarders:
-            servers.append((forwarder, 53))
+            data = forwarder.split(':')
+            if len(data) == 1:
+                ip = forwarder
+                port = 53
+            else:
+                ip = data[0]
+                port = int(data[1])
+            servers.append((ip, port))
 
         return servers
 

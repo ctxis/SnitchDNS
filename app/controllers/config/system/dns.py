@@ -54,7 +54,7 @@ def dns_save():
     for item in forward_dns_address.split(','):
         item = item.strip()
         if len(item) > 0:
-            if dns.is_valid_ip_address(item):
+            if dns.is_valid_forwarder(item):
                 forwarders.append(item)
 
     # DNS CSV Logging Validation
