@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.5
+
+* `[Update]` Update jQuery to v3.6.0, and jQuery Validate to v1.19.3.
+
 ## v1.1.4
 
 * `[Fix]` Fix issue in API when creating and updating records without defining conditional data.
