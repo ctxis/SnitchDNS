@@ -69,6 +69,15 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <div class="col">
+                    <label for="dns_cache_max_items">Max DNS Cached Items</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-right" name="dns_cache_max_items" id="dns_cache_max_items" value="{{ setting_get('dns_cache_max_items', '') }}" placeholder="0">
+                </div>
+            </div>
+
             <h4 class="mt-4">DNS Forwarding</h4>
             <div class="form-group row">
                 <div class="col">

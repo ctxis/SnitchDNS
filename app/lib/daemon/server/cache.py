@@ -2,10 +2,11 @@ import copy
 
 
 class DNSCache:
-    def __init__(self, state, settings):
+    def __init__(self, state, settings, max_items):
         self.__enabled = state
         self.__settings = settings
         self.__cache = {}
+        self.__max_items = max_items
 
     def get(self, domain, cls, type, log):
         if not self.__enabled:
@@ -56,5 +57,8 @@ class DNSCache:
         if self.__settings.get('dns_clear_cache', False, type=bool) is True:
             self.__cache = {}
             self.__settings.save('dns_clear_cache', False)
+
+        if len(self.__cache) >= self.__max_items:
+            self.__cache = {}
 
         return True

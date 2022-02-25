@@ -12,18 +12,19 @@ import logging
 
 
 class SnitchDaemon:
-    def __init__(self, host, port, forwarding_enabled, forwarders, csv_location, cache_enabled):
+    def __init__(self, host, port, forwarding_enabled, forwarders, csv_location, cache_enabled, cache_max_items):
         self.__host = host
         self.__port = port
         self.__forwarding_enabled = forwarding_enabled
         self.__forwarders = forwarders
         self.__csv_location = csv_location
         self.__cache_enabled = cache_enabled
+        self.__cache_max_items = cache_max_items
 
     def start(self):
         app_for_context = create_app()
         dns_logging = DatabaseDNSLogging(app_for_context)
-        dns_cache = DNSCache(self.__cache_enabled, Provider().settings())
+        dns_cache = DNSCache(self.__cache_enabled, Provider().settings(), self.__cache_max_items)
 
         clients = [DatabaseDNSResolver(app_for_context, Provider().dns_manager(), dns_logging, dns_cache)]
         if self.__forwarding_enabled and len(self.__forwarders) > 0:

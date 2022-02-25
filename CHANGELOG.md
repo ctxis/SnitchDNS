@@ -4,6 +4,7 @@
 
 * `[New]` Added 'restart daemon' button in system settings.
 * `[New]` Added functionality to set the forwarding DNS' port as well as the IP.
+* `[New]` Added an option to clear the DNS cache when it hits the max limit set by the admin.
 * `[Update]` Update jQuery to v3.6.0, and jQuery Validate to v1.19.3.
 
 ## v1.1.4

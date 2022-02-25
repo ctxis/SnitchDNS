@@ -29,6 +29,8 @@ def dns_save():
     dns_daemon_bind_port = int(dns_daemon_bind_port) if dns_daemon_bind_port.isdigit() else 0
     dns_daemon_start_everyone = True if int(request.form.get('dns_daemon_start_everyone', 0)) == 1 else False
     dns_cache_enabled = True if int(request.form.get('dns_cache_enabled', 0)) == 1 else False
+    dns_cache_max_items = request.form['dns_cache_max_items'].strip()
+    dns_cache_max_items = int(dns_cache_max_items) if dns_cache_max_items.isdigit() else 0
 
     # DNS Forwarding
     forward_dns_address = request.form['forward_dns_address'].strip()
@@ -48,6 +50,9 @@ def dns_save():
     elif dns_daemon_bind_port < 1024:
         flash('Please enter a port between 1024 and 65535. Port numbers below 1024 require root access.', 'error')
         return redirect(url_for('config.dns'))
+
+    if dns_cache_max_items < 0:
+        dns_cache_max_items = 0
 
     # DNS Forwarding Validation
     forwarders = []
@@ -74,6 +79,7 @@ def dns_save():
     settings.save('dns_daemon_bind_port', dns_daemon_bind_port)
     settings.save('dns_daemon_start_everyone', dns_daemon_start_everyone)
     settings.save('dns_cache_enabled', dns_cache_enabled)
+    settings.save('dns_cache_max_items', dns_cache_max_items)
 
     # Save Forwarding
     settings.save('forward_dns_address', forwarders)

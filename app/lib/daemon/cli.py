@@ -4,7 +4,7 @@ import csv
 
 
 class DNSDaemonCLI:
-    def daemon(self, bind_ip, bind_port, forwarding_enabled, forwarders, csv_location, cache_enabled):
+    def daemon(self, bind_ip, bind_port, forwarding_enabled, forwarders, csv_location, cache_enabled, cache_max_items):
         print("Starting DNS...")
 
         if not self.__prepare_csv_logging(csv_location):
@@ -16,7 +16,8 @@ class DNSDaemonCLI:
             forwarding_enabled,
             self.__get_forwarding_servers(forwarders),
             csv_location,
-            cache_enabled
+            cache_enabled,
+            cache_max_items
         )
 
         daemon.start()
