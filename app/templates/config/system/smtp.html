@@ -59,7 +59,7 @@
                     <label for="smtp_user">SMTP User</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control text-right" name="smtp_user" id="smtp_user" value="{{ setting_get('smtp_user', '') }}" placeholder="" required>
+                    <input type="text" class="form-control text-right" name="smtp_user" id="smtp_user" value="{{ setting_get('smtp_user', '') }}" placeholder="">
                 </div>
             </div>
 
@@ -68,7 +68,7 @@
                     <label for="smtp_pass">SMTP Pass</label>
                 </div>
                 <div class="col">
-                    <input type="password" class="form-control text-right" name="smtp_pass" id="smtp_pass" value="{{ '********' if setting_get('smtp_pass', '')|length > 0 }}" placeholder="" required>
+                    <input type="password" class="form-control text-right" name="smtp_pass" id="smtp_pass" value="{{ '********' if setting_get('smtp_pass', '')|length > 0 }}" placeholder="">
                 </div>
             </div>
 
@@ -77,7 +77,7 @@
                     <label for="smtp_sender">SMTP Sender E-mail</label>
                 </div>
                 <div class="col">
-                    <input type="email" class="form-control text-right" name="smtp_sender" id="smtp_sender" value="{{ setting_get('smtp_sender', '') }}" placeholder="from@example.com" required>
+                    <input type="email" class="form-control text-right" name="smtp_sender" id="smtp_sender" value="{{ setting_get('smtp_sender', '') }}" placeholder="from@example.com">
                 </div>
             </div>
 

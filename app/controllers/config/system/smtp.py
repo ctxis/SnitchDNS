@@ -33,15 +33,6 @@ def smtp_save():
     elif smtp_port <= 0 or smtp_port > 65535:
         flash('Please enter SMTP Port', 'error')
         return redirect(url_for('config.smtp'))
-    elif len(smtp_user) == 0:
-        flash('Please enter SMTP User', 'error')
-        return redirect(url_for('config.smtp'))
-    elif len(smtp_pass) == 0:
-        flash('Please enter SMTP Pass', 'error')
-        return redirect(url_for('config.smtp'))
-    elif smtp_pass == '********' and len(settings.get('smtp_pass', '')) == 0:
-        flash('Please enter SMTP Pass', 'error')
-        return redirect(url_for('config.smtp'))
     elif len(smtp_sender) == 0:
         flash('Please enter SMTP Sender E-mail', 'error')
         return redirect(url_for('config.smtp'))
