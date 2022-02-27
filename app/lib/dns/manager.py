@@ -62,6 +62,9 @@ class DNSManager:
 
         return zone
 
+    def get_zone(self, dns_zone_id):
+        return self.zone_manager.get(dns_zone_id)
+
     def find_zone_regex(self, domain):
         zones = self.zone_manager.load_regex_domains()
         for zone in zones:

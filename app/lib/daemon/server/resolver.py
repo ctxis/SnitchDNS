@@ -125,12 +125,15 @@ class DatabaseDNSResolver:
             # If we still haven't found anything (no matches), determine whether we can forward this record or not.
             lookup_result = 'continue' if db_zone.forwarding else 'stop'
         else:
+            has_cname = False
             for db_record in db_records:
                 # This will hold the last db_record but we don't really care about that.
                 if log:
                     log.dns_record_id = db_record.id
 
-                answer = self.__build_answer(query, db_zone, db_record, is_conditional_response=self.__is_conditional_response(db_record))
+                if has_cname is False and db_record.type == 'CNAME':
+                    has_cname = True
+                answer = self.__build_answer(query, db_zone, db_record, is_conditional_response=self.__is_conditional_response(db_record), has_cname=has_cname)
                 if not answer:
                     # Something went terribly wrong. If it dies, it dies.
                     # This can be caused if the UI allows more record types to be created than the
@@ -173,11 +176,15 @@ class DatabaseDNSResolver:
 
         return records + redir_records
 
-    def __build_answer(self, query, db_zone, db_record, is_conditional_response=False):
+    def __build_answer(self, query, db_zone, db_record, is_conditional_response=False, has_cname=False):
         record = None
         # Calculate the query type (in case it's a request for A but a CNAME is returned).
         query_type = REV_TYPES[db_record.type]
         query_domain = None
+        if has_cname and db_record.type != 'CNAME':
+            query_zone = self.__dns_manager.get_zone(db_record.dns_zone_id)
+            query_domain = None if query_zone is False else query_zone.domain
+
         if query_type == dns.A:
             record = dns.Record_A(
                 address=db_record.property('address', conditional=is_conditional_response),
@@ -198,7 +205,6 @@ class DatabaseDNSResolver:
                 name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
-            query_domain = str(record.name)
         elif query_type == dns.DNAME:
             record = dns.Record_DNAME(
                 name=db_record.property('name', conditional=is_conditional_response),

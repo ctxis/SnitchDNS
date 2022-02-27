@@ -58,7 +58,7 @@ class DNSCache:
             self.__cache = {}
             self.__settings.save('dns_clear_cache', False)
 
-        if len(self.__cache) >= self.__max_items:
+        if (self.__max_items > 0) and (len(self.__cache) >= self.__max_items):
             self.__cache = {}
 
         return True
