@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.6
+
+* `[Fix]` Fix CNAME responses.
+* `[Fix]` Added `markupsafe==2.0.1` in requirements as v2.1.0 has removed `soft_unicode`.
+
 ## v1.1.5
 
 * `[New]` Added 'restart daemon' button in system settings.
