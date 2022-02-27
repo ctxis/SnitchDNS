@@ -177,6 +177,7 @@ class DatabaseDNSResolver:
         record = None
         # Calculate the query type (in case it's a request for A but a CNAME is returned).
         query_type = REV_TYPES[db_record.type]
+        query_domain = None
         if query_type == dns.A:
             record = dns.Record_A(
                 address=db_record.property('address', conditional=is_conditional_response),
@@ -197,6 +198,7 @@ class DatabaseDNSResolver:
                 name=db_record.property('name', conditional=is_conditional_response),
                 ttl=db_record.ttl
             )
+            query_domain = str(record.name)
         elif query_type == dns.DNAME:
             record = dns.Record_DNAME(
                 name=db_record.property('name', conditional=is_conditional_response),
@@ -286,5 +288,6 @@ class DatabaseDNSResolver:
         if not record:
             return None
 
-        answer = dns.RRHeader(name=query.name.name, type=query_type, cls=query.cls, ttl=db_record.ttl, payload=record)
+        query_domain = query.name.name if query_domain is None else query_domain
+        answer = dns.RRHeader(name=query_domain, type=query_type, cls=query.cls, ttl=db_record.ttl, payload=record)
         return answer
