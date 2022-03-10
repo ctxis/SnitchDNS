@@ -159,7 +159,8 @@ class Provider:
         return CronManager(
             self.notifications(),
             self.dns_zones(),
-            self.dns_logs()
+            self.dns_logs(),
+            self.settings()
         )
 
     def notifications(self):

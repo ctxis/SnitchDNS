@@ -122,6 +122,16 @@
                 </div>
             </div>
 
+            <h4 class="mt-4">Database Administration</h4>
+            <div class="form-group row">
+                <div class="col">
+                    <label for="dns_delete_logs_after_days">Delete Logs After X Days <small class="font-italic">(0 to disable)</small></label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-right" name="dns_delete_logs_after_days" id="dns_delete_logs_after_days" value="{{ setting_get('dns_delete_logs_after_days', '0') }}" placeholder="0">
+                </div>
+            </div>
+
             <div class="form-group">
                 <button type="submit" class="btn btn-block btn-primary">save</button>
                 <div class="small text-warning text-center">For any changes to this page to be applied, the DNS Daemon has to be restarted.</div>

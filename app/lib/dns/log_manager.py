@@ -129,3 +129,8 @@ class DNSLogManager(SharedHelper):
     def update_old_logs(self, domain, dns_zone_id, dns_record_id=0):
         DNSQueryLogModel.query.filter(DNSQueryLogModel.domain == domain.lower()).update(dict(dns_zone_id=dns_zone_id, dns_record_id=dns_record_id))
         db.session.commit()
+
+    def delete_logs_from(self, date_from):
+        DNSQueryLogModel.query.filter(DNSQueryLogModel.created_at >= date_from).delete()
+        db.session.commit()
+        return True

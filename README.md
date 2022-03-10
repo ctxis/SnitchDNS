@@ -95,7 +95,7 @@ For more details on scenarios please see the [Use Cases Document](docs/general/u
 
 ## Limitations
 
-* Caching has not been implemented, which means this isn't suitable for environments with hundreds of DNS requests per minute.
+* SnitchDNS currently runs in a single-thread, therefore may not be suitable for environments with hundreds of DNS requests per minute.
 
 ## Contributing
 

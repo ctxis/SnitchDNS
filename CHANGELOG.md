@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.7
+
+* `[New]` Implement option to delete logs after X amount of days.
+
 ## v1.1.6
 
 * `[Fix]` Fix CNAME responses.

@@ -1,12 +1,27 @@
+from datetime import datetime, timedelta
+
+
 class CronManager:
-    def __init__(self, notifications, dns_zones, dns_logs):
+    def __init__(self, notifications, dns_zones, dns_logs, settings):
         self.__notifications = notifications
         self.__dns_zones = dns_zones
         self.__dns_logs = dns_logs
+        self.__settings = settings
 
     def run(self):
         self.send_notifications()
+        self.clean_database()
         return True
+
+    def clean_database(self):
+        cleanup_days = self.__settings.get('dns_delete_logs_after_days', 0, type=int)
+        if cleanup_days <= 0:
+            print("Database cleanup is not enabled")
+            return False
+
+        date_from = datetime.today() - timedelta(days=cleanup_days)
+        print("Deleting old database logs from {0}".format(date_from))
+        return self.__dns_logs.delete_logs_from(date_from.strftime('%Y-%m-%d %H:%M:%S'))
 
     def send_notifications(self):
         # First get the enabled providers.

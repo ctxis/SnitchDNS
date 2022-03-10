@@ -31,6 +31,8 @@ def dns_save():
     dns_cache_enabled = True if int(request.form.get('dns_cache_enabled', 0)) == 1 else False
     dns_cache_max_items = request.form['dns_cache_max_items'].strip()
     dns_cache_max_items = int(dns_cache_max_items) if dns_cache_max_items.isdigit() else 0
+    dns_delete_logs_after_days = request.form['dns_delete_logs_after_days'].strip()
+    dns_delete_logs_after_days = int(dns_delete_logs_after_days) if dns_delete_logs_after_days.isdigit() else 0
 
     # DNS Forwarding
     forward_dns_address = request.form['forward_dns_address'].strip()
@@ -53,6 +55,8 @@ def dns_save():
 
     if dns_cache_max_items < 0:
         dns_cache_max_items = 0
+    if dns_delete_logs_after_days < 0:
+        dns_delete_logs_after_days = 0;
 
     # DNS Forwarding Validation
     forwarders = []
@@ -80,6 +84,7 @@ def dns_save():
     settings.save('dns_daemon_start_everyone', dns_daemon_start_everyone)
     settings.save('dns_cache_enabled', dns_cache_enabled)
     settings.save('dns_cache_max_items', dns_cache_max_items)
+    settings.save('dns_delete_logs_after_days', dns_delete_logs_after_days)
 
     # Save Forwarding
     settings.save('forward_dns_address', forwarders)
