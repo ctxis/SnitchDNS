@@ -217,10 +217,16 @@ def login_2fa_process():
 @bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
+    is_azure = current_user.get_auth_name() == 'azure'
+
     provider = Provider()
     users = provider.users()
 
     users.logout_session(current_user.id)
+
+    if is_azure:
+        azure = Provider().azure()
+        return redirect(azure.get_logout_url(url_for('auth.login', _external=True)))
     return redirect(url_for('auth.login'))
 
 
@@ -316,3 +322,97 @@ def __auth_radius(username, password):
     result = radius.authenticate(username, password)
 
     return result, radius.error_message
+
+
+@bp.route('/azure/go', methods=['GET'])
+def auth_azure_go():
+    if current_user.is_authenticated:
+        flash('You are already logged-in', 'success')
+        return redirect(url_for('home.index'))
+
+    azure = Provider().azure()
+    settings = Provider().settings()
+
+    if int(settings.get('azure_enabled', 0)) != 1:
+        flash('The Azure authentication provider is not enabled', 'error')
+        return redirect(url_for('auth.login'))
+
+    session['azure_flow'] = azure.build_auth_code_flow()
+    return redirect(session['azure_flow']['auth_uri'])
+
+
+@bp.route('/azure', methods=['GET'])
+def auth_azure():
+    if current_user.is_authenticated:
+        flash('You are already logged-in', 'success')
+        return redirect(url_for('home.index'))
+
+    azure = Provider().azure()
+    settings = Provider().settings()
+    users = Provider().users()
+    zones = Provider().dns_zones()
+
+    if int(settings.get('azure_enabled', 0)) != 1:
+        flash('The Azure authentication provider is not enabled', 'error')
+        return redirect(url_for('auth.login'))
+
+    result = azure.process_response(session.get('azure_flow', {}), request.args)
+    if 'error' in result:
+        flash("Error: {0} - {1}".format(result['error'], result['error_description']), 'error')
+        return redirect(url_for('auth.login'))
+
+    # At this point, the 'result' variable has all the user's information.
+    # We need to determine if they exist - if they don't create the user,
+    # and then log them in.
+    access_token = result['access_token']
+    username = result['id_token_claims']['preferred_username']
+
+    graph_user = azure.get_user_info(access_token)
+    if 'userPrincipalName' not in graph_user:
+        flash('The user graph query returned an empty object - are you sure your Azure AD user is valid?', 'error')
+        return redirect(url_for('auth.login'))
+    elif graph_user['userPrincipalName'] != username:
+        flash(
+            'The logged-in user and the graph query confirmation user do not match. Please contact your administrator.',
+            'error')
+        return redirect(url_for('auth.login'))
+
+    fullname = graph_user['displayName']
+    email = graph_user['mail'] if graph_user['mail'] is not None else username
+    expires_at = result['id_token_claims']['exp']
+
+    user = users.find_user(username=username)
+    if not user:
+        # Check to see if the email of the user already exists.
+        user = users.find_user(email=email)
+        if user:
+            flash('This email already exists', 'error')
+            return redirect(url_for('auth.login'))
+
+        user = users.save(0, username.lower(), '', fullname, email.lower(), False, 'azure', True)
+        if not user:
+            flash('Could not create user', 'error')
+            return redirect(url_for('auth.login'))
+
+        # Now create the default zone for that user.
+        if not zones.create_user_base_zone(user):
+            flash('User has been created but there was a problem creating their base domain. Make sure the DNS Base Domain has been set.', 'error')
+            return redirect(url_for('auth.login', next=next))
+
+    if user.get_auth_name() != 'azure':
+        flash('Your user already exists but there is a mismatch of authentication providers. Please contact your administrator', 'error')
+        return redirect(url_for('auth.login'))
+
+    if not user.active:
+        # This check has to be after the password validation.
+        flash('Your account is disabled.', 'error')
+        return redirect(url_for('auth.login', next=next))
+
+    user = users.login_session(user, access_token, expires_at)
+    login_user(user)
+
+    # On every login we get the hashcat version and the git hash version.
+    system = Provider().system()
+    system.run_updates()
+
+    return redirect(url_for('home.index'))

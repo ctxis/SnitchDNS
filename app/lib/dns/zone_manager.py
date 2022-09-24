@@ -212,7 +212,7 @@ class DNSZoneManager(SharedHelper):
         return self.settings.get('dns_base_domain', '')
 
     def get_user_base_domain(self, username):
-        # Keep only letters, digits, underscore.
+        # Keep only letters, digits, underscore. Also if it's an email remove the domain.
         username = self.__clean_username(username)
         return username + '.' + self.base_domain
 
@@ -220,6 +220,9 @@ class DNSZoneManager(SharedHelper):
         return '' if is_admin else self.get_user_base_domain(username)
 
     def __clean_username(self, username):
+        at = username.find('@')
+        if at > -1:
+            username = username[:at]
         return re.sub(r'\W+', '', username)
 
     def has_duplicate(self, dns_zone_id, domain):

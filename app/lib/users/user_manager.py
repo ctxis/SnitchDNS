@@ -63,8 +63,12 @@ class UserManager(SharedHelper):
     def validate_password(self, hash, password):
         return bcrypt.check_password_hash(hash, password)
 
-    def login_session(self, user):
+    def login_session(self, user, access_token=None, access_token_expiration=None):
         user.session_token = ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=64))
+        if access_token is not None:
+            user.access_token = access_token
+        if access_token_expiration is not None:
+            user.access_token_expiration = access_token_expiration
         db.session.commit()
         db.session.refresh(user)
         return user
@@ -73,6 +77,8 @@ class UserManager(SharedHelper):
         user = self.get_user(user_id)
         if user:
             user.session_token = ''
+            user.access_token = ''
+            user.access_token_expiration = 0
             db.session.commit()
             db.session.refresh(user)
         logout_user()
@@ -241,6 +247,14 @@ class UserManager(SharedHelper):
         if len(users) == 0:
             return False
         return users[0]
+
+    def find_user(self, username=None, email=None):
+        if username is None and email is None:
+            return False
+
+        results = self.__get(username=username, email=email)
+        return results[0] if len(results) > 0 else False
+
 
     def is_admin(self, user_id):
         user = self.get_user(user_id)

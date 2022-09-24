@@ -1,5 +1,6 @@
 from app import db, login
 from flask_login import UserMixin
+import datetime
 
 
 class UserModel(db.Model, UserMixin):
@@ -16,6 +17,8 @@ class UserModel(db.Model, UserMixin):
     otp_secret = db.Column(db.String(255), nullable=True, default='')
     otp_last_used = db.Column(db.String(255), nullable=True, default='')
     auth_type_id = db.Column(db.Integer, nullable=True, index=True, default=0)
+    access_token = db.Column(db.String(255), nullable=True, index=True, default='')
+    access_token_expiration = db.Column(db.Integer, nullable=True, index=True, default='')
     created_at = db.Column(db.DateTime, nullable=True)
 
     def get_id(self):
@@ -23,6 +26,12 @@ class UserModel(db.Model, UserMixin):
 
     def has_2fa(self):
         return False if self.otp_secret is None else len(self.otp_secret) > 0
+
+    def get_auth_name(self):
+        auth_type = AuthTypeModel.query.filter(AuthTypeModel.id == self.auth_type_id).first()
+        if auth_type:
+            return auth_type.name.lower()
+        return ''
 
 
 class AuthTypeModel(db.Model):
@@ -37,4 +46,9 @@ class AuthTypeModel(db.Model):
 
 @login.user_loader
 def load_user(session_token):
-    return UserModel.query.filter_by(session_token=session_token).first()
+    user = UserModel.query.filter_by(session_token=session_token).first()
+
+    if user.get_auth_name() == 'azure':
+        if datetime.datetime.utcnow().timestamp() > user.access_token_expiration or len(user.access_token) == 0:
+            return None
+    return user

@@ -12,6 +12,7 @@ from app.lib.base.system import SystemManager
 from app.lib.daemon.manager import DaemonManager
 from app.lib.users.auth.ldap import LDAPManager
 from app.lib.users.auth.radius import RADIUSManager
+from app.lib.users.auth.azure import AzureManager
 from app.lib.api.manager import ApiManager
 from app.lib.base.cron import CronManager
 from app.lib.notifications.manager import NotificationManager
@@ -24,7 +25,7 @@ from app.lib.dns.restriction_manager import RestrictionManager
 from app.lib.dns.import_manager import DNSImportManager
 from app.lib.dns.tag_manager import TagManager
 from app.lib.dns.alias_manager import AliasManager
-from flask import current_app
+from flask import current_app, url_for
 import os
 
 
@@ -151,6 +152,16 @@ class Provider:
         manager.dictionary = os.path.realpath(os.path.join(current_app.root_path, 'lib', 'users', 'auth', 'radius.dict'))
 
         return manager
+
+    def azure(self):
+        settings = self.settings()
+
+        return AzureManager(
+            settings.get('azure_tenant_id', ''),
+            settings.get('azure_client_id', ''),
+            settings.get('azure_client_secret', ''),
+            url_for('auth.auth_azure', _external=True)
+        )
 
     def api(self):
         return ApiManager(self.users())
