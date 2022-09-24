@@ -20,3 +20,4 @@ python-dotenv
 progressbar2
 pyrad
 markupsafe==2.0.1
+msal>=1.18,<2
