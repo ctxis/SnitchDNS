@@ -65,10 +65,8 @@ class UserManager(SharedHelper):
 
     def login_session(self, user, access_token=None, access_token_expiration=None):
         user.session_token = ''.join(random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=64))
-        if access_token is not None:
-            user.access_token = access_token
-        if access_token_expiration is not None:
-            user.access_token_expiration = access_token_expiration
+        user.access_token = '' if access_token is None else access_token
+        user.access_token_expiration = 0 if access_token_expiration is None else access_token_expiration
         db.session.commit()
         db.session.refresh(user)
         return user
@@ -185,6 +183,8 @@ class UserManager(SharedHelper):
 
         if user_id == 0:
             user.created_at = datetime.datetime.now()
+            user.access_token_expiration = 0
+            user.access_token = ''
             db.session.add(user)
 
         db.session.commit()

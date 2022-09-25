@@ -18,7 +18,7 @@ class UserModel(db.Model, UserMixin):
     otp_last_used = db.Column(db.String(255), nullable=True, default='')
     auth_type_id = db.Column(db.Integer, nullable=True, index=True, default=0)
     access_token = db.Column(db.String(255), nullable=True, index=True, default='')
-    access_token_expiration = db.Column(db.Integer, nullable=True, index=True, default='')
+    access_token_expiration = db.Column(db.Integer, nullable=True, index=True, default=0)
     created_at = db.Column(db.DateTime, nullable=True)
 
     def get_id(self):
