@@ -3,7 +3,7 @@ from app.lib.base.provider import Provider
 from app import version as app_version
 from packaging import version
 import app.lib.database.upgrades.migration_v1_1_0 as v1_1_0
-import app.lib.database.upgrades.migration_v1_1_8 as v1_1_8
+import app.lib.database.upgrades.migration_v1_1_9 as v1_1_9
 
 
 class SeedDatabase:
@@ -52,9 +52,9 @@ class SeedDatabase:
             if migration.run():
                 settings.save('db_version', '1.1.0')
 
-        if installed_version < version.parse('1.1.8'):
-            migration = v1_1_8.DBMigration(provider)
+        if installed_version < version.parse('1.1.9'):
+            migration = v1_1_9.DBMigration(provider)
             if migration.run():
-                settings.save('db_version', '1.1.8')
+                settings.save('db_version', '1.1.9')
 
         return True
