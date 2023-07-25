@@ -39,6 +39,7 @@ RUN git clone $REPO /opt/snitchdns
 WORKDIR $INSTALL_PATH
 
 RUN python3 -m venv venv && \
+    pip3 install --upgrade pip setuptools wheel && \
     . venv/bin/activate && \
     pip --no-cache-dir install -r requirements.txt && \
     deactivate
