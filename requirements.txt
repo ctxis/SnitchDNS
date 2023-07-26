@@ -20,3 +20,4 @@ python-dotenv
 progressbar2
 pyrad
 markupsafe==2.0.1
+sqlalchemy==1.4.39
