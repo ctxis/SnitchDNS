@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This repo is unmaintained, visit https://github.com/sadreck/SnitchDNS for the latest version.
+
 # ![](docs/images/icon32.png) SnitchDNS
 
 SnitchDNS is a database driven DNS Server with a Web UI, written in Python and [Twisted](https://github.com/twisted/twisted), that makes DNS administration easier with all configuration changed applied instantly without restarting any system services.
